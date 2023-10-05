@@ -29,6 +29,10 @@ const config: Config = {
       fontFamily: {
         sans: ["inter", "sans-serif"],
       },
+      fontWeight: {
+        bold: "700",
+		    lessbold: "400",
+      },
     },
   },
   plugins: [],
