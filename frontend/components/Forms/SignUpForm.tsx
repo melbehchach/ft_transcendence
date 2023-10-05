@@ -59,8 +59,6 @@ const SignUpForm: React.FC<User> = ({ email, username, avatarLink }) => {
     finishSignup(email, newUsername, passwd, confPasswd, avatar, router);
   }
 
-  const test = "/icons/Edit.svg";
-
   return (
     <>
       <div className="h-screen w-screen bg-login bg-center bg-cover bg-no-repeat flex justify-center items-center font-sans">
