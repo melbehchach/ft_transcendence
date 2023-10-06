@@ -23,6 +23,7 @@ const config: Config = {
       },
       fontSize: {
         title: "2rem",
+        subtitle: "5rem",
         body: "1.125rem",
         small: "0.875rem",
       },
@@ -31,7 +32,6 @@ const config: Config = {
       },
       fontWeight: {
         bold: "700",
-		    lessbold: "400",
       },
     },
   },
