@@ -85,7 +85,6 @@ export default function NavbarItems({ navbarOpen }: any) {
               className="w-full"
               onClick={() => {
                 router.push("/game");
-                router.push("/game");
                 setGameClicked(true);
                 setChatClicked(false);
                 setProfileClicked(false);
