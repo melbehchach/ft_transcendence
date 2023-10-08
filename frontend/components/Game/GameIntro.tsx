@@ -4,7 +4,7 @@ export default function GameIntro() {
 	return (
 		<>
 			<div className="w-screen h-screen flex justify-center bg-background">
-				<div className='flex justify-center items-center gap-10'>
+				<div className='ml-auto mr-7 flex justify-center items-center gap-10'>
 					<div>
 						<div className='flex flex-col'>
 							<h1 className="text-white font-sans text-7xl font-bold">READY TO PONG?</h1>
@@ -12,24 +12,24 @@ export default function GameIntro() {
 						</div>
 						<div className='flex justify-between items-center mt-10'>
 							<div className='flex flex-col gap-4'>
-								<Image
+								<Image className='rounded-lg'
 									src="/img/ChallengeFriends.png"
 									width={200}
 									height={200}
-									alt="pong" />
+									alt="Challenge friends" />
 								<h1 className='w-[18.1875rem] text-white font-sans text-3xl font-bold'>Challenge friends online</h1>
 								<span className='w-[16.125rem] text-textSecondary font-sans text-lg'>challenge your online friends for a 1v1 pong party</span>
-								<button className="w-9/12 p-[0.75rem] rounded-full bg-[#d9923b] text-white font-sans text-sm">Challenge your friends</button>
+								<button className="w-9/12 p-[0.75rem] rounded-full bg-primary text-white font-sans text-sm">Challenge your friends</button>
 							</div>
 							<div className='flex flex-col gap-4'>
-								<Image
+								<Image className='rounded-lg'
 									src="/img/FindRandomOpponent.png"
 									width={200}
 									height={200}
-									alt="pong" />
+									alt="find random opponenet" />
 								<h1 className='w-[18.1875rem] text-white font-sans text-3xl font-bold'>Find random opponents</h1>
 								<span className='w-[16.125rem] text-textSecondary font-sans text-lg'>find random opponents to play against</span>
-								<button className='w-9/12 p-[0.75rem] rounded-full bg-[#d9923b] text-white font-sans text-sm'>Find opponent</button>
+								<button className='w-9/12 p-[0.75rem] rounded-full bg-primary text-white font-sans text-sm'>Find opponent</button>
 							</div>
 						</div>
 					</div>
@@ -38,7 +38,7 @@ export default function GameIntro() {
 							src="/img/GameIntro.png"
 							width={600}
 							height={570}
-							alt="pong" />
+							alt="intro game" />
 					</div>
 				</div>
 			</div>
