@@ -2,27 +2,31 @@
 import React, { Component } from 'react';
 import * as Phaser from 'phaser';
 
-let countdownValue: number = 3; 
 class MainScene extends Phaser.Scene {
-	countdownText: any;
+	countdownText: any | null = null;
+	countdownValue: number = 3;
 	Upkey: any | null = null;
 	Downkey: any | null = null;
 	leftpaddle: any | null = null;
 	rightpaddle: any | null = null;
 	ball: any | null = null;
+	scoreleft: number = 0;
+	scoreright: number = 0;
+
 
 	constructor() {
 		super('PingPong');
 	}
 
 	startCountdown() {
+
 		const countdownEvent = this.time.addEvent({
 			delay: 1000, 
-			repeat: countdownValue - 1,
+			repeat: this.countdownValue - 1,
 			callback: () => {
-				this.countdownText.setText(countdownValue.toString());
-				countdownValue--;
-				if (countdownValue == 0) {
+				this.countdownText.setText(this.countdownValue.toString());
+				this.countdownValue--;
+				if (this.countdownValue == 0) {
 					this.countdownText.setVisible(false);
 					countdownEvent.remove();
 					this.ball.setVelocity(400, 200);
