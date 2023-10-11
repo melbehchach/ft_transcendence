@@ -5,7 +5,7 @@ import ChatIcon from "./icons/ChatIcon";
 import GameIcon from "./icons/GameIcon";
 import LogoutIcon from "./icons/LogoutIcon";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 async function logout(router: AppRouterInstance) {
@@ -20,14 +20,10 @@ async function logout(router: AppRouterInstance) {
 }
 
 export default function NavbarItems({ navbarOpen }: any) {
+  const [ProfileClicked, setProfileClicked] = useState<boolean>(true);
+  const [ChatClicked, setChatClicked] = useState<boolean>(false);
+  const [GameClicked, setGameClicked] = useState<boolean>(false);
   const router = useRouter();
-  const pathname = usePathname();
-  const profile: string = "profile",
-    chat: string = "chat",
-    game: string = "game";
-  const [currentPage, setCurrentPage] = useState<string>(
-    pathname.substring(1) || "profile"
-  );
   return (
     <>
       <div
@@ -40,8 +36,10 @@ export default function NavbarItems({ navbarOpen }: any) {
           <button
             className="w-full"
             onClick={() => {
-              setCurrentPage(profile);
               router.push("/profile");
+              setProfileClicked(true);
+              setChatClicked(false);
+              setGameClicked(false);
             }}
           >
             <Logo />
@@ -52,45 +50,51 @@ export default function NavbarItems({ navbarOpen }: any) {
             <button
               className="w-full"
               onClick={() => {
-                setCurrentPage(profile);
                 router.push("/profile");
+                setProfileClicked(true);
+                setChatClicked(false);
+                setGameClicked(false);
               }}
             >
               <div className="w-full">
                 <NavbarButton
                   label={"Profile"}
-                  icon={<ProfileIcon clicked={currentPage == profile} />}
-                  clicked={currentPage == profile}
+                  icon={<ProfileIcon clicked={ProfileClicked} />}
+                  clicked={ProfileClicked}
                 />
               </div>
             </button>
             <button
               className="w-full"
               onClick={() => {
-                setCurrentPage(chat);
-                router.push("/chat");
+                // router.push("/Chat");
+                setChatClicked(true);
+                setProfileClicked(false);
+                setGameClicked(false);
               }}
             >
               <div className="w-full">
                 <NavbarButton
                   label={"Chat"}
-                  icon={<ChatIcon clicked={currentPage == chat} />}
-                  clicked={currentPage == chat}
+                  icon={<ChatIcon clicked={ChatClicked} />}
+                  clicked={ChatClicked}
                 />
               </div>
             </button>
             <button
               className="w-full"
               onClick={() => {
-                setCurrentPage(game);
-                router.push("/game");
+                // router.push("/Game");
+                setGameClicked(true);
+                setChatClicked(false);
+                setProfileClicked(false);
               }}
             >
               <div className="w-full">
                 <NavbarButton
                   label={"Game"}
-                  icon={<GameIcon clicked={currentPage == game} />}
-                  clicked={currentPage == game}
+                  icon={<GameIcon clicked={GameClicked} />}
+                  clicked={GameClicked}
                 />
               </div>
             </button>
