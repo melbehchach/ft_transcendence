@@ -22,9 +22,12 @@ async function logout(router: AppRouterInstance) {
 export default function NavbarItems({ navbarOpen }: any) {
   const router = useRouter();
   const pathname = usePathname();
-  const profile: string = "profile",
-    chat: string = "chat",
-    game: string = "game";
+  const [profile, chat, game]: [string, string, string] = [
+    "profile",
+    "chat",
+    "game",
+  ];
+
   const [currentPage, setCurrentPage] = useState<string>(
     pathname.substring(1) || "profile"
   );
