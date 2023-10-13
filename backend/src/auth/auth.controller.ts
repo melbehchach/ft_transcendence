@@ -49,7 +49,7 @@ export class AuthController {
       res.redirect('http://localhost:3001/profile');
     } else {
       const userToken = await this.jwtService.signAsync({
-        sub: -42,
+        sub: req.user.id,
         email: req.user.email,
       });
       res.cookie('USER', userToken);
@@ -76,7 +76,7 @@ export class AuthController {
       };
       return { user };
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid Token');
     }
   }
 

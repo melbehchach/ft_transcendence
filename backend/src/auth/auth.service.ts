@@ -25,7 +25,7 @@ export class AuthService {
         data: {
           email: dto.email,
           username: dto.username,
-          hash: hash,
+          password: hash,
           avatarLink: dto.avatar,
           isAuthenticated: false,
         },
@@ -50,7 +50,7 @@ export class AuthService {
     if (!user) throw new ForbiddenException('username or password incorrect');
     if (!user.isAuthenticated)
       throw new ForbiddenException('Unauthenticated User');
-    const pwMatch = await argon.verify(user.hash, dto.password);
+    const pwMatch = await argon.verify(user.password, dto.password);
     if (!pwMatch)
       throw new ForbiddenException('username or password incorrect');
     return this.signToken(user.id, user.username);
@@ -79,7 +79,7 @@ export class AuthService {
       },
       data: {
         username: dto.username,
-        hash: hash,
+        password: hash,
         isAuthenticated: true,
       },
     });
@@ -106,7 +106,7 @@ export class AuthService {
   }
 
   async signToken(
-    userID: number,
+    userID: string,
     username: string,
   ): Promise<{ accessToken: string }> {
     const payload = { sub: userID, username };

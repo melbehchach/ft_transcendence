@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
-// import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from '../guards/auth.jwt.guard';
 import { FTStrategy } from './42.strategy';
@@ -14,8 +13,7 @@ import { MulterModule } from '@nestjs/platform-express';
   imports: [
     JwtModule.register({
       global: true,
-      secret: 'dontTellAnyone',
-      // secret: new ConfigService().get('JWT_SECRET'),
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '30d' },
     }),
     PassportModule.register({ session: false }),
