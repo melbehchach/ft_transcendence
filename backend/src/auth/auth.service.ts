@@ -26,7 +26,7 @@ export class AuthService {
           email: dto.email,
           username: dto.username,
           password: hash,
-          avatarLink: dto.avatar,
+          avatar: dto.avatar,
           isAuthenticated: false,
         },
       });
@@ -53,7 +53,7 @@ export class AuthService {
     const pwMatch = await argon.verify(user.password, dto.password);
     if (!pwMatch)
       throw new ForbiddenException('username or password incorrect');
-    return this.signToken(user.id, user.username);
+    return this.signToken(user.id, user.email);
   }
 
   async finish_signup(dto: signupDTO, UserToken: string) {
@@ -73,7 +73,7 @@ export class AuthService {
     if (dto.password !== dto.passwordConf)
       throw new ForbiddenException("passwords don't match");
     const hash = await argon.hash(dto.password);
-    await this.prisma.user.updateMany({
+    user = await this.prisma.user.update({
       where: {
         email: dto.email,
       },
@@ -83,8 +83,7 @@ export class AuthService {
         isAuthenticated: true,
       },
     });
-    user = await this.findUser(dto.email);
-    return this.signToken(user.id, user.username);
+    return await this.signToken(user.id, user.email);
   }
 
   async saveAvatar(userToken: string, file: Express.Multer.File) {
@@ -97,7 +96,7 @@ export class AuthService {
           email: payload.email,
         },
         data: {
-          avatarLink: file.path,
+          avatar: file.path,
         },
       });
     } catch {
@@ -107,16 +106,16 @@ export class AuthService {
 
   async signToken(
     userID: string,
-    username: string,
+    email: string,
   ): Promise<{ accessToken: string }> {
-    const payload = { sub: userID, username };
+    const payload = { sub: userID, email };
     return {
       accessToken: await this.jwtService.signAsync(payload),
     };
   }
 
   async findUser(email: string) {
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prisma.user.findUnique({
       where: {
         email: email,
       },
