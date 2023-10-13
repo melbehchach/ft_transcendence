@@ -45,18 +45,18 @@ async function finishSignup(
   } else alert("Failed to Finish Signup");
 }
 
-const SignUpForm: React.FC<User> = ({ email, username, avatarLink }) => {
+const SignUpForm: React.FC<User> = ({ email, username, avatar }) => {
   const router: AppRouterInstance = useRouter();
-  const [avatar, setAvatar] = useState<any>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>(avatarLink);
+  const [avatarFile, setAvatar] = useState<any>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>(avatar);
   const [newUsername, setUsername] = useState<string>(username);
   const [passwd, setPasswd] = useState<string>("");
   const [confPasswd, setConfPasswd] = useState<string>("");
 
   function handleSubmit(e: any) {
     e.preventDefault();
-    console.log("data:", email, newUsername, passwd, confPasswd, avatar);
-    finishSignup(email, newUsername, passwd, confPasswd, avatar, router);
+    console.log("data:", email, newUsername, passwd, confPasswd, avatarFile);
+    finishSignup(email, newUsername, passwd, confPasswd, avatarFile, router);
   }
 
   return (
