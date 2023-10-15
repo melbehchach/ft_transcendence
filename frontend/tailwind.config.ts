@@ -23,15 +23,11 @@ const config: Config = {
       },
       fontSize: {
         title: "2rem",
-        subtitle: "5rem",
         body: "1.125rem",
         small: "0.875rem",
       },
       fontFamily: {
         sans: ["inter", "sans-serif"],
-      },
-      fontWeight: {
-        bold: "700",
       },
     },
   },

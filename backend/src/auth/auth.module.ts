@@ -7,9 +7,9 @@ import { FTStrategy } from './42.strategy';
 import { FTAuthGuard } from '../guards/auth.42.guard';
 import { PassportModule } from '@nestjs/passport';
 import { MulterModule } from '@nestjs/platform-express';
-
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
