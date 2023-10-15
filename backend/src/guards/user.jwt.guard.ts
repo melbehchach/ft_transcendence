@@ -4,33 +4,34 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { AuthService } from '../auth/auth.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { validateToken } from 'src/helpers/auth.helpers';
+import { Status } from '@prisma/client';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class UserGuard implements CanActivate {
   constructor(
     private jwt: JwtService,
-    private config: ConfigService,
-    private reflector: Reflector,
-    private authservice: AuthService,
+    private prisma: PrismaService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     try {
       const payload = await validateToken(req.cookies['JWT_TOKEN'], this.jwt);
-      const { username, email, avatar, isAuthenticated } =
-        await this.authservice.findUser(payload.email);
-      req['user'] = {
-        username,
-        email,
-        avatar,
-        isAuthenticated,
-      };
+      const user = await this.prisma.user.findFirst({
+        where: {
+          email: payload.email,
+        },
+        include: {
+          friends: { select: { username: true } },
+          sentRequests: { where: { status: Status.PENDING } },
+          receivedRequests: { where: { status: Status.PENDING } },
+        },
+      });
+      delete user.password;
+      req['user'] = user;
     } catch {
       throw new UnauthorizedException('Invalid Token');
     }
