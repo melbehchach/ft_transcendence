@@ -12,21 +12,20 @@ model User {
   email           String  @unique
   username        String  @unique
   password        String
-  avatarLink      String
+  avatar          String
   isAuthenticated Boolean
+
+  sentRequests     FriendRequest[] @relation("Sender")
+  receivedRequests FriendRequest[] @relation("Receiver")
+  friends          User[]          @relation("Friendship")
+  symmetricFriends User[]          @relation("Friendship")
 
   ChannelsOwner Channel[] @relation("Owner")
   // ChannelsAdmin  Channel[] @relation("Admin")
   // ChannelsMember Channel[] @relation("Member")
-
-  sentRequests     Friendship[] @relation("Sender")
-  receivedRequests Friendship[] @relation("Receiver")
-  friends          User[]       @relation("Friendship")
-  friend           User?        @relation("Friendship", fields: [friendId], references: [id])
-  friendId         String?
 }
 
-model Friendship {
+model FriendRequest {
   id         String @id @default(uuid())
   sender     User   @relation("Sender", fields: [senderId], references: [id])
   senderId   String
@@ -60,4 +59,5 @@ enum Status {
   PENDING
   ACCEPTED
   DECLINED
+  CANCELED
 }
