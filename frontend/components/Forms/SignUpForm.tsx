@@ -39,8 +39,6 @@ async function finishSignup(
     }),
   });
   if (response.ok) {
-    const res = await response.json();
-    console.log("res:", res);
     router.push("/profile");
   } else alert("Failed to Finish Signup");
 }
@@ -55,7 +53,6 @@ const SignUpForm: React.FC<User> = ({ email, username, avatar }) => {
 
   function handleSubmit(e: any) {
     e.preventDefault();
-    console.log("data:", email, newUsername, passwd, confPasswd, avatarFile);
     finishSignup(email, newUsername, passwd, confPasswd, avatarFile, router);
   }
 
