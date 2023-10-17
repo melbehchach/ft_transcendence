@@ -11,7 +11,7 @@ export class FTAuthGuard extends AuthGuard('42') {
       return activate;
     } catch (error) {
       const response = context.switchToHttp().getResponse();
-      response.status(400).redirect('http://localhost:3001/auth/failure');
+      response.status(501).redirect('http://localhost:3001/auth/failure');
     }
   }
 }
