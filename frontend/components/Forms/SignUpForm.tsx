@@ -50,10 +50,71 @@ const SignUpForm: React.FC<User> = ({ email, username, avatar }) => {
   const [newUsername, setUsername] = useState<string>(username);
   const [passwd, setPasswd] = useState<string>("");
   const [confPasswd, setConfPasswd] = useState<string>("");
+  const [passwdCheck, setPasswdCheck] = useState<{
+    isValid: boolean;
+    errorMessage: string;
+  }>({ isValid: false, errorMessage: "" });
 
   function handleSubmit(e: any) {
     e.preventDefault();
+    if (!passwdCheck.isValid) {
+      alert("Please enter a valid password");
+      return;
+    }
     finishSignup(email, newUsername, passwd, confPasswd, avatarFile, router);
+  }
+
+  const checkUpperCaseChar = new RegExp("(?=.*[A-Z])");
+  const checkLowerCaseChar = new RegExp("(?=.*[a-z])");
+  const checkSpecialChar = new RegExp("(?=.*[^A-Za-z0-9])");
+  const checkLength = new RegExp("(?=.{8,})");
+  const checkDigit = new RegExp("(?=.*[0-9])");
+  function validatePassowrd(password: string) {
+    if (checkLength.test(password)) {
+      setPasswdCheck({ isValid: true, errorMessage: "No errros" });
+    } else {
+      setPasswdCheck({
+        isValid: false,
+        errorMessage: "Password must be at least 8 characters long",
+      });
+      return;
+    }
+    if (checkLowerCaseChar.test(password)) {
+      setPasswdCheck({ isValid: true, errorMessage: "No errros" });
+    } else {
+      setPasswdCheck({
+        isValid: false,
+        errorMessage: "At least one lowercase letter needed",
+      });
+      return;
+    }
+    if (checkUpperCaseChar.test(password)) {
+      setPasswdCheck({ isValid: true, errorMessage: "No errros" });
+    } else {
+      setPasswdCheck({
+        isValid: false,
+        errorMessage: "At least one uppercase letter needed",
+      });
+      return;
+    }
+    if (checkDigit.test(password)) {
+      setPasswdCheck({ isValid: true, errorMessage: "No errros" });
+    } else {
+      setPasswdCheck({
+        isValid: false,
+        errorMessage: "At least one digit needed",
+      });
+      return;
+    }
+    if (checkSpecialChar.test(password)) {
+      setPasswdCheck({ isValid: true, errorMessage: "No errros" });
+    } else {
+      setPasswdCheck({
+        isValid: false,
+        errorMessage: "At least one special character needed",
+      });
+      return;
+    }
   }
 
   return (
@@ -126,9 +187,21 @@ const SignUpForm: React.FC<User> = ({ email, username, avatar }) => {
                 type="password"
                 placeholder="Password"
                 onChange={(e) => {
+                  validatePassowrd(e.target.value);
                   setPasswd(e.target.value);
                 }}
               ></input>
+              <span
+                className={
+                  passwd.length > 0
+                    ? passwdCheck.isValid
+                      ? "hidden"
+                      : "block" + " text-xs text-red-500"
+                    : "hidden"
+                }
+              >
+                {passwdCheck.errorMessage}
+              </span>
               <input
                 required
                 className="placeholder:text-text placeholder:text-opacity-20 text-small text-text w-full block border border-accent px-4 py-[1.0625rem] rounded-lg bg-transparent"
@@ -138,6 +211,17 @@ const SignUpForm: React.FC<User> = ({ email, username, avatar }) => {
                   setConfPasswd(e.target.value);
                 }}
               ></input>
+              <span
+                className={
+                  confPasswd.length > 0
+                    ? passwd === confPasswd
+                      ? "hidden"
+                      : "block" + " text-xs text-red-500"
+                    : "hidden"
+                }
+              >
+                {"Passwords don't match"}
+              </span>
               <button
                 className="block bg-primary text-text px-6 py-3 rounded-lg w-full"
                 type="submit"
