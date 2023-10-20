@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import SignUpForm from "../../../components/Forms/SignUpForm";
 import { User } from "../../../types";
+import Failure from "../failure/page";
 
 async function getPreAuthData() {
   const cookie = cookies();
@@ -20,9 +21,12 @@ async function getPreAuthData() {
     if (response.ok) {
       const res = await response.json();
       return res.user;
-    } else console.log("Failed to fetch user data");
+    } else {
+      // console.log("Failed to fetch user data");
+      return null;
+    }
   } catch (e) {
-    console.log(e);
+    return null;
   }
 }
 
@@ -30,7 +34,8 @@ export default async function ApiRedirectPage() {
   const user: User = await getPreAuthData();
   return (
     <>
-      <SignUpForm {...user} />
+      {!user && <Failure />}
+      {user && <SignUpForm {...user} />}
     </>
   );
 }
