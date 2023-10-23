@@ -120,7 +120,7 @@ export class AuthService {
         email: email,
       },
     });
-    delete user.password;
+    user?.password;
     return user;
   }
 }
