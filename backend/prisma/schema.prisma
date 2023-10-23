@@ -26,6 +26,7 @@ model User {
 
   sentMessages     Message[] @relation("Sender")
   receivedMessages Message[] @relation("Receiver")
+  chats            Chat[]
 }
 
 model FriendRequest {
@@ -42,12 +43,18 @@ model Channel {
   name     String
   image    String
   type     ChannelType
-  password String
+  password String?
   owner    User        @relation("Owner", fields: [ownerId], references: [id])
   ownerId  String
   admins   User[]      @relation("Admin")
   Members  User[]      @relation("Member")
   Messages Message[]   @relation("channelMessages")
+}
+
+model Chat {
+  id       String    @id @default(uuid())
+  users    User[]
+  messages Message[]
 }
 
 model Message {
@@ -60,6 +67,8 @@ model Message {
   receiverId String
   Channel    Channel? @relation("channelMessages", fields: [channelId], references: [id])
   channelId  String?
+  Chat       Chat?    @relation(fields: [chatId], references: [id])
+  chatId     String?
 }
 
 model Game {
