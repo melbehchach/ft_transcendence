@@ -8,7 +8,7 @@
   "scripts": {
     "docker:start": "open -ga Docker",
     "prisma:dev": "npx prisma generate && npx prisma migrate dev",
-    "db:up": "docker-compose up database -d",
+    "db:up": "docker-compose up database -d && npm run prisma:dev",
     "db:rm": "docker-compose rm database -sfv",
     "db:restart": "npm run db:rm && npm run db:up",
     "db:logs": "docker logs postgres",
