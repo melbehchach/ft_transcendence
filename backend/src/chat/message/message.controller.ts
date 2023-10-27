@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  InternalServerErrorException,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { MessageService } from './message.service';
 import { messageDto } from 'src/dto/message.dto';
 import { ChatGuard } from 'src/guards/chat.jwt.guard';
@@ -15,7 +22,9 @@ export class MessageController {
 
   @Post('new')
   async newMessage(@Req() req, @Body() body: messageDto) {
-    console.log(body);
+    if (!req.userID) {
+      throw new InternalServerErrorException('BadRequest');
+    }
     return this.messageService.newMessage(body, req.userID);
   }
 }
