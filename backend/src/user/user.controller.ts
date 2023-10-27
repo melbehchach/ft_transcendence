@@ -12,14 +12,31 @@ export class UserController {
   ) {}
   @Get('profile')
   getProfile(@Req() req) {
-    const { username, avatar, sentRequests, receivedRequests, friends } =
-      req.user;
-    return {
+    const {
+      id,
       username,
-      avatar: avatar,
+      avatar,
+      friends,
+      sentRequests,
+      receivedRequests,
+      sentMessages,
+      receivedMessages,
+      ChannelsOwner,
+      ChannelsAdmin,
+      ChannelsMember,
+    } = req.user;
+    return {
+      id,
+      username,
+      avatar,
       friends,
       sentRequests,
       friendRequests: receivedRequests,
+      sentMessages,
+      receivedMessages,
+      ChannelsOwner,
+      ChannelsAdmin,
+      ChannelsMember,
     };
   }
 

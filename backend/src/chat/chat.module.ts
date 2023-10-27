@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ChannelsService } from './channels/channels.service';
 import { ChannelsController } from './channels/channels.controller';
-import { ChannelsModule } from './channels/channels.module';
+import { AuthModule } from 'src/auth/auth.module';
+import { ChannelsGateway } from './channels/channels.gateway';
+import { MessageModule } from './message/message.module';
 
 @Module({
-  imports: [ChannelsModule],
+  imports: [AuthModule, MessageModule],
   controllers: [ChannelsController],
-  providers: [ChannelsService],
+  providers: [ChannelsService, ChannelsGateway],
 })
 export class ChatModule {}
