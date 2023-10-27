@@ -1,0 +1,69 @@
+.
+├── app
+│   ├── (application)
+│   │   ├── chat
+│   │   │   └── page.tsx
+│   │   ├── game
+│   │   │   └── page.tsx
+│   │   ├── layout.tsx
+│   │   └── profile
+│   │       └── page.tsx
+│   ├── auth
+│   │   ├── 42-redirect
+│   │   │   └── page.tsx
+│   │   ├── failure
+│   │   │   └── page.tsx
+│   │   └── login
+│   │       └── page.tsx
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components
+│   ├── Forms
+│   │   ├── SignUpForm.tsx
+│   │   └── SigninForm.tsx
+│   ├── Game
+│   │   ├── GameIntro.tsx
+│   │   ├── PongGame.tsx
+│   │   ├── icons
+│   │   │   └── LeaveIcons.tsx
+│   │   └── leaderBoard.tsx
+│   ├── navbar
+│   │   ├── CloseMenuButton.tsx
+│   │   ├── Logo.tsx
+│   │   ├── MenuButton.tsx
+│   │   ├── Navbar.tsx
+│   │   ├── NavbarButton.tsx
+│   │   ├── NavbarItems.tsx
+│   │   └── icons
+│   │       ├── ChatIcon.tsx
+│   │       ├── CloseIcon.tsx
+│   │       ├── GameIcon.tsx
+│   │       ├── LogoutIcon.tsx
+│   │       ├── MenuIcon.tsx
+│   │       └── ProfileIcon.tsx
+│   └── uploadImage
+│       └── UploadImage.tsx
+├── next-env.d.ts
+├── next.config.js
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── project_tree.txt
+├── public
+│   ├── assets
+│   │   ├── ball.png
+│   │   ├── centerline.png
+│   │   ├── leftpaddle.png
+│   │   └── rightpaddle.png
+│   └── img
+│       ├── ChallengeFriends.png
+│       ├── FindRandomOpponent.png
+│       ├── GameIntro.png
+│       └── LoginBackground.png
+├── tailwind.config.ts
+├── tree.txt
+├── tsconfig.json
+└── types.ts
+
+19 directories, 47 files
