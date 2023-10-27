@@ -3,11 +3,12 @@ import { Socket } from 'socket.io';
 
 @Injectable()
 export class PlayerService {
-  private connectedPlayers: { [playerId: string]: Socket } = {};
+  connectedPlayers: { [playerId: string]: any } = {};
 
   handleConnections(socket: Socket): void {
     const playerId = socket.id;
-    this.connectedPlayers[playerId] = socket;
+    this.connectedPlayers[playerId] = {};
+    console.log('Socket Id: ', playerId);
   }
 
   handleDisconnects(socket: Socket): void {

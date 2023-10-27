@@ -16,7 +16,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private readonly playerService: PlayerService) {}
   handleConnection(client: any): void {
     this.playerService.handleConnections(client);
-    console.log('New connection', client.id);
+  }
+  sendToClients(message: string) {
+    this.server.emit('message', message);
   }
   handleDisconnect(client: any): void {
     this.playerService.handleDisconnects(client);
