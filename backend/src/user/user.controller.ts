@@ -20,7 +20,7 @@ export class UserController {
   ) {}
   @Get('profile')
   getProfile(@Req() req) {
-    if (!req.user) throw new InternalServerErrorException('Bad BadRequest');
+    if (!req.user) throw new InternalServerErrorException('BadRequest');
     const {
       id,
       username,
@@ -54,7 +54,7 @@ export class UserController {
     if (req.body.senderId && req.body.receiverId) {
       return this.userService.sendFriendRequest(req.body, req.user.id);
     }
-    throw new InternalServerErrorException('Bad BadRequest');
+    throw new InternalServerErrorException('BadRequest');
   }
 
   @Patch('unfriendUser')
@@ -62,7 +62,7 @@ export class UserController {
     if (req.user && req.body.friendId) {
       return this.userService.unfriendUser(req.body.friendId, req.user.id);
     }
-    throw new InternalServerErrorException('Bad BadRequest');
+    throw new InternalServerErrorException('BadRequest');
   }
 
   @Patch('cancelRequest')
@@ -77,7 +77,7 @@ export class UserController {
         ? this.userService.cancelFriendRequest(friendRequest, req.user.id)
         : { msg: 'Internal Server Error: requestNotFound' };
     }
-    throw new InternalServerErrorException('Bad BadRequest');
+    throw new InternalServerErrorException('BadRequest');
   }
 
   @Patch('acceptRequest')
@@ -92,7 +92,7 @@ export class UserController {
         ? this.userService.acceptFriendRequest(friendRequest, req.user.id)
         : { msg: 'Internal Server Error: requestNotFound' };
     }
-    throw new InternalServerErrorException('Bad BadRequest');
+    throw new InternalServerErrorException('BadRequest');
   }
 
   @Patch('declineRequest')
@@ -107,6 +107,6 @@ export class UserController {
         ? this.userService.declineFriendRequest(friendRequest, req.user.id)
         : { msg: 'Internal Server Error: requestNotFound' };
     }
-    throw new InternalServerErrorException('Bad BadRequest');
+    throw new InternalServerErrorException('BadRequest');
   }
 }

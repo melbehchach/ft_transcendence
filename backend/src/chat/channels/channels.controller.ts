@@ -22,7 +22,7 @@ export class ChannelsController {
   @Get('all')
   async getUserChannels(@Req() req) {
     if (!req.userID) {
-      throw new InternalServerErrorException('Bad BadRequest');
+      throw new InternalServerErrorException('BadRequest');
     }
     const channels = await this.channelsService.getUserChannels(req.userID);
     return channels;
@@ -31,7 +31,7 @@ export class ChannelsController {
   @Get(':id')
   async getChannelById(@Req() req, @Param('id') channelId: string) {
     if (!req.userID) {
-      throw new InternalServerErrorException('Bad BadRequest');
+      throw new InternalServerErrorException('BadRequest');
     }
     const channel = await this.channelsService.getChannelById(
       channelId,
@@ -43,7 +43,7 @@ export class ChannelsController {
   @Post('new')
   async createChannel(@Req() req, @Body() data: newChannelDto) {
     if (!req.userID) {
-      throw new InternalServerErrorException('Bad BadRequest');
+      throw new InternalServerErrorException('BadRequest');
     }
     return this.channelsService.createChannel(data, req.userID);
   }
@@ -55,7 +55,7 @@ export class ChannelsController {
     @Req() req,
   ) {
     if (!req.userID) {
-      throw new InternalServerErrorException('Bad BadRequest');
+      throw new InternalServerErrorException('BadRequest');
     }
     return this.channelsService.updateChannel(req.userID, channelId, data);
   }
@@ -63,7 +63,7 @@ export class ChannelsController {
   @Delete(':id')
   async deleteChannel(@Param('id') channelId: string, @Req() req) {
     if (!req.userID) {
-      throw new InternalServerErrorException('Bad BadRequest');
+      throw new InternalServerErrorException('BadRequest');
     }
     const result = this.channelsService.deleteChannel(channelId, req.userID);
     return result;
