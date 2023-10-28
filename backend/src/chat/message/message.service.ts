@@ -5,13 +5,25 @@ import {
 } from '@nestjs/common';
 import { messageDto } from 'src/dto/message.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ChannelsGateway } from '../channels/channels.gateway';
 
 @Injectable()
 export class MessageService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly gateway: ChannelsGateway,
+  ) {}
 
   async newMessage(data: messageDto, userId: string) {
-    if (userId === data.receiverId) throw new BadRequestException();
+    if (userId === data.receiverId) {
+      throw new BadRequestException();
+    }
+    const receiver = await this.prisma.user.findUnique({
+      where: { id: data.receiverId },
+    });
+    if (receiver) {
+      throw new BadRequestException('Record Does Not Exist');
+    }
     try {
       const message = await this.prisma.message.create({
         data: {
