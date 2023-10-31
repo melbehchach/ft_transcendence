@@ -1,36 +1,34 @@
 'use client';
 import React, { Component } from 'react';
 import * as Phaser from 'phaser';
-import { exit } from 'process';
+import io from 'socket.io-client';
 
 class MainScene extends Phaser.Scene {
 	countdownText: any | null = null;
 	countdownValue: number = 3;
-	W_key: any | null = null;
-	S_key: any | null = null;
 	Upkey: any | null = null;
 	Downkey: any | null = null;
-	leftpaddle: any | null = null;
-	rightpaddle: any | null = null;
+	leftPaddle: any | null = null;
+	rightPaddle: any | null = null;
 	ball: any | null = null;
+	socket: any | null = null;
 
 	constructor() {
-		super('PingPong');
+		super({ key: 'PingPong' });
 	}
 
 	startCountdown() {
 		const countdownEvent = this.time.addEvent({
-			delay: 1000, 
+			delay: 1000,
 			repeat: this.countdownValue - 1,
 			callback: () => {
 				this.countdownText.setText(this.countdownValue.toString());
 				this.countdownValue--;
-				if (this.countdownValue == 0) {
+				if (this.countdownValue === 0) {
 					this.countdownText.setVisible(false);
 					countdownEvent.remove();
 					this.ball.setVelocity(400, 200);
 					this.ball.setBounce(1, 1);
-
 				}
 			},
 		});
@@ -38,9 +36,9 @@ class MainScene extends Phaser.Scene {
 
 	preload() {
 		this.load.image('ball', 'assets/ball.png');
-		this.load.image('leftpaddle', 'assets/leftpaddle.png');
 		this.load.image('rightpaddle', 'assets/rightpaddle.png');
-		this.load.image('centerline', 'assets/centerline.png')
+		this.load.image('leftpaddle', 'assets/leftpaddle.png');
+		this.load.image('centerline', 'assets/centerline.png');
 	}
 
 	increaseBallSpeed() {
@@ -49,82 +47,78 @@ class MainScene extends Phaser.Scene {
 	}
 
 	create() {
-		let centerline = this.physics.add.sprite(500, 275, 'centerline');
-		this.countdownText = this.add.text(440, 150, '', { fontFamily: 'Roboto', fontSize: '256px', color: '#D9923B' });
+		this.ball = this.physics.add.sprite(500, 275, 'ball');
+		this.ball.setCollideWorldBounds(true);
+		let centerline = this.add.image(500, 275, 'centerline');
+		this.countdownText = this.add.text(440, 150, '', {
+			fontFamily: 'Roboto',
+			fontSize: '256px',
+			color: '#D9923B',
+		});
 		this.startCountdown();
-		if (this.input && this.input.keyboard){
-			this.W_key = this.input.keyboard.addKey('W');
-			this.S_key = this.input.keyboard.addKey('S');
+
+		if (this.input && this.input.keyboard) {
 			this.Upkey = this.input.keyboard.addKey('Up');
 			this.Downkey = this.input.keyboard.addKey('Down');
 		}
-		this.ball = this.physics.add.sprite(500, 275, 'ball');
-		this.increaseBallSpeed();
-		this.leftpaddle = this.physics.add.sprite(20, 275, 'leftpaddle');
-		this.leftpaddle.scaleY = 0.5;
-		this.leftpaddle.body.setImmovable(true);
-		this.rightpaddle = this.physics.add.sprite(980, 275, 'rightpaddle');
-		this.rightpaddle.scaleY = 0.5;
-		this.rightpaddle.body.setImmovable(true);
-		this.ball.setCollideWorldBounds(true);
-		this.physics.add.collider(this.ball, this.leftpaddle);
-		this.physics.add.collider(this.ball, this.rightpaddle);
 
-		this.leftpaddle.setCollideWorldBounds(true);
-		this.rightpaddle.setCollideWorldBounds(true);
-
-		this.leftpaddle = this.leftpaddle;
-		this.rightpaddle = this.rightpaddle;
+		this.socket = io('http://localhost:3000');
+		this.socket.emit('JoinGame', { id: this.socket.id });
+		this.socket.on('playerConnected', (data: any) => {
+			if (data.id === this.socket.id) {
+				console.log('You are player 1', data.id);
+				this.leftPaddle = this.physics.add.sprite(950, 275, 'leftpaddle');
+				this.leftPaddle.setImmovable(true);
+				this.leftPaddle.setCollideWorldBounds(true);
+				this.physics.add.collider(this.ball, this.leftPaddle);
+			} else {
+				console.log('You are player 2', data.id);
+				this.rightPaddle = this.physics.add.sprite(50, 275, 'rightpaddle');
+				this.rightPaddle.setImmovable(true);
+				this.rightPaddle.setCollideWorldBounds(true);
+				this.physics.add.collider(this.ball, this.rightPaddle);
+			}
+		});
+		this.socket.on('joinedGame', (data : any) => {
+			const roomName = data.roomName;
+			console.log(`Joined room: ${roomName}`);
+		});
 	}
 
-	moveLeftPeddle(paddle: any, speed: number) {
-		if (this.Upkey.isDown) {
-			paddle.setVelocityY(-speed);
-		} else if (this.Downkey.isDown) {
-			paddle.setVelocityY(speed);
-		} else {
-			paddle.setVelocityY(0);
+	movePaddle(paddle: any, speed: number) {
+		if (paddle) {
+			if (this.Upkey.isDown) {
+				paddle = -speed;
+			} else if (this.Downkey.isDown) {
+				paddle = speed;
+			}
 		}
 	}
 
-	moveRightPeddle(paddle: any, speed: number) {
-		if (this.W_key.isDown) {
-			paddle.setVelocityY(-speed);
-		} else if (this.S_key.isDown) {
-			paddle.setVelocityY(speed);
-		} else {
-			paddle.setVelocityY(0);
-		}
-	}
 
-	CheckScoring(){
+	checkScoring() {
 		if (this.ball.x < 30) {
 			this.resetBallPosition();
-		}
-		else if (this.ball.x > 970) {
-		 	this.resetBallPosition();
+		} else if (this.ball.x > 970) {
+			this.resetBallPosition();
 		}
 	}
 
 	resetBallPosition() {
-		this.ball.x = 500;
-		this.ball.y = 275;
+		this.ball.setPosition(500, 275);
 		const velocityScale = 400;
-		const randomVelocityX = Math.random() < 0.5 ? -1 : 1; 
-		const randomVelocityY = Math.random() < 0.5 ? -1 : 1; 
+		const randomVelocityX = Math.random() < 0.5 ? -1 : 1;
+		const randomVelocityY = Math.random() < 0.5 ? -1 : 1;
 		this.ball.setVelocity(randomVelocityX * velocityScale, randomVelocityY * velocityScale);
 		this.ball.setBounce(1, 1);
 		this.increaseBallSpeed();
 	}
 
-
 	update() {
-		this.moveLeftPeddle(this.leftpaddle, 400);
-		this.moveLeftPeddle(this.rightpaddle, 400);
-		// this.moveRightPeddle(this.rightpaddle, 400);
-		this.CheckScoring();
+		this.movePaddle(this.leftPaddle, 400);
+		this.movePaddle(this.rightPaddle, 400);
+		this.checkScoring();
 	}
-	
 }
 
 class PongGame extends Component {
@@ -132,14 +126,13 @@ class PongGame extends Component {
 
 	componentDidMount() {
 		// Create a Phaser game instance and add the MainScene to it
-		const config = {
+		const config: Phaser.Types.Core.GameConfig = {
 			type: Phaser.CANVAS,
 			parent: 'game-container',
 			width: 1000,
 			height: 550,
 			backgroundColor: '#000000',
-			scene: [MainScene], // Use MainScene as the scene
-
+			scene: [MainScene],
 			physics: {
 				default: 'arcade',
 				arcade: {
@@ -149,7 +142,7 @@ class PongGame extends Component {
 			audio: {
 				noAudio: true,
 				disableWebAudio: true,
-			}
+			},
 		};
 
 		this.game = new Phaser.Game(config);
