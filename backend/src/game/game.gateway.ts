@@ -5,23 +5,34 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { PlayerService } from './Player.service';
-import { Server } from 'socket.io';
+import { GameService } from './game.service';
+import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
   cors: '*',
 })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
-  server: Server;
-  constructor(private readonly playerService: PlayerService) {}
-  handleConnection(client: any): void {
-    client.on('JoinGame', () => {
-      this.playerService.handleConnections(client);
-      console.log('Player joined the game1', client.id);
-    });
+  io: Server;
+
+  constructor(
+    private readonly playerService: PlayerService,
+    private readonly gameService: GameService,
+  ) {}
+
+  handleConnection(client: Socket): void {
+    this.playerService.handleConnections(client);
+    this.handleJoinGame(client);
+    console.log('Player joined the game: ', client.id);
   }
 
-  handleDisconnect(client: any): void {
+  handleJoinGame(client: Socket): void {
+    this.playerService.handleJoinsGame(client);
+    const roomName = this.gameService.createRoom();
+    console.log('Room name: ', roomName);
+  }
+
+  handleDisconnect(client: Socket): void {
     this.playerService.handleDisconnects(client);
   }
 }

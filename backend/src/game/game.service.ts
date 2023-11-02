@@ -1,30 +1,35 @@
 import { Injectable } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class GameService {
-  private roomGame: Map<string, any> = new Map<string, any>();
+  private roomGame: Map<string, string[]> = new Map();
 
-  createRoomGame(roomName: string): void {
+  createRoom(): string {
+    const roomName = uuidv4();
     this.roomGame.set(roomName, []);
+    return roomName;
   }
 
   addPlayerToRoom(roomName: string, playerId: string): void {
-    if (this.roomGame.has(roomName)) {
-      this.roomGame.get(roomName).push(playerId);
+    if (!this.roomGame.has(roomName)) {
+      this.createRoom();
     }
+    const players = this.roomGame.get(roomName);
+    if (players.length === 2) {
+      throw new Error('Room is already full');
+    }
+    players.push(playerId);
   }
 
-  removePlayerFromGameRoom(roomName: string, playerId: string) {
-    if (this.roomGame.has(roomName)) {
-      const players = this.roomGame.get(roomName);
-      const index = players.indexOf(playerId);
-      if (index !== -1) {
-        players.splice(index, 1);
-      }
-    }
+  removePlayerFromRoom(roomName: string, playerId: string): void {
+    this.roomGame.set(
+      roomName,
+      this.roomGame.get(roomName).filter((id) => id !== playerId),
+    );
   }
 
-  getPlayersInGameRoom(roomName: string) {
+  getPlayersInRoom(roomName: string): string[] {
     return this.roomGame.get(roomName) || [];
   }
 }

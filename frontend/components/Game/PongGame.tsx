@@ -8,10 +8,12 @@ class MainScene extends Phaser.Scene {
 	countdownValue: number = 3;
 	Upkey: any | null = null;
 	Downkey: any | null = null;
-	leftPaddle: any | null = null;
-	rightPaddle: any | null = null;
+	Paddle: any = [];
 	ball: any | null = null;
 	socket: any | null = null;
+	gameWidth: number = 1000;
+	gameHeight: number = 550;
+	playerId: string = '';
 
 	constructor() {
 		super({ key: 'PingPong' });
@@ -36,8 +38,7 @@ class MainScene extends Phaser.Scene {
 
 	preload() {
 		this.load.image('ball', 'assets/ball.png');
-		this.load.image('rightpaddle', 'assets/rightpaddle.png');
-		this.load.image('leftpaddle', 'assets/leftpaddle.png');
+		this.load.image('paddle', 'assets/rightpaddle.png');
 		this.load.image('centerline', 'assets/centerline.png');
 	}
 
@@ -50,12 +51,6 @@ class MainScene extends Phaser.Scene {
 		this.ball = this.physics.add.sprite(500, 275, 'ball');
 		this.ball.setCollideWorldBounds(true);
 		let centerline = this.add.image(500, 275, 'centerline');
-		this.countdownText = this.add.text(440, 150, '', {
-			fontFamily: 'Roboto',
-			fontSize: '256px',
-			color: '#D9923B',
-		});
-		this.startCountdown();
 
 		if (this.input && this.input.keyboard) {
 			this.Upkey = this.input.keyboard.addKey('Up');
@@ -63,34 +58,35 @@ class MainScene extends Phaser.Scene {
 		}
 
 		this.socket = io('http://localhost:3000');
-		this.socket.emit('JoinGame', { id: this.socket.id });
-		this.socket.on('playerConnected', (data: any) => {
+		const roomName = 'Pong';
+		this.socket.on('Connection', (data: any) => {
 			if (data.id === this.socket.id) {
+				this.playerId = data.id;
 				console.log('You are player 1', data.id);
-				this.leftPaddle = this.physics.add.sprite(950, 275, 'leftpaddle');
-				this.leftPaddle.setImmovable(true);
-				this.leftPaddle.setCollideWorldBounds(true);
-				this.physics.add.collider(this.ball, this.leftPaddle);
-			} else {
-				console.log('You are player 2', data.id);
-				this.rightPaddle = this.physics.add.sprite(50, 275, 'rightpaddle');
-				this.rightPaddle.setImmovable(true);
-				this.rightPaddle.setCollideWorldBounds(true);
-				this.physics.add.collider(this.ball, this.rightPaddle);
+				this.Paddle[data.id] = this.physics.add.sprite(this.gameWidth - 50, this.gameHeight / 2, 'paddle');
+				this.Paddle[data.id].setImmovable(true);
+				this.Paddle[data.id].setCollideWorldBounds(true);
+				this.physics.add.collider(this.ball, this.Paddle[data.id]);
 			}
 		});
-		this.socket.on('joinedGame', (data : any) => {
-			const roomName = data.roomName;
-			console.log(`Joined room: ${roomName}`);
+		this.socket.on('joinedGame', (data: any) => {
+			if (roomName === data.roomName) {
+				this.countdownText = this.add.text(440, 150, '', {
+					fontFamily: 'Roboto',
+					fontSize: '256px',
+					color: '#D9923B',
+				});
+				this.startCountdown();
+			}
 		});
 	}
 
 	movePaddle(paddle: any, speed: number) {
 		if (paddle) {
 			if (this.Upkey.isDown) {
-				paddle = -speed;
+				paddle.y -= speed;
 			} else if (this.Downkey.isDown) {
-				paddle = speed;
+				paddle.y += speed;
 			}
 		}
 	}
@@ -115,15 +111,14 @@ class MainScene extends Phaser.Scene {
 	}
 
 	update() {
-		this.movePaddle(this.leftPaddle, 400);
-		this.movePaddle(this.rightPaddle, 400);
+		this.movePaddle(this.Paddle[this.playerId], 400);
+		this.movePaddle(this.Paddle[this.playerId], 400);
 		this.checkScoring();
 	}
 }
 
 class PongGame extends Component {
 	private game?: Phaser.Game;
-
 	componentDidMount() {
 		// Create a Phaser game instance and add the MainScene to it
 		const config: Phaser.Types.Core.GameConfig = {

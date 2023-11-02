@@ -15,12 +15,25 @@ export class PlayerService {
         x: PedalX,
         y: PedalY,
       };
-      socket.emit('playerConnected', { id: socket.id, x: PedalX, y: PedalY });
-      socket.join('game');
-      this.GameRoom.addPlayerToRoom('game', socket.id);
-      socket.emit('joinedGame', { roomName: 'game' });
+      socket.emit('Connection', {
+        id: socket.id,
+        x: PedalX,
+        y: PedalY,
+      });
     } catch (error) {
       console.error('Error handling connection:', error);
+    }
+  }
+
+  handleJoinsGame(socket: Socket): void {
+    try {
+      const roomName = this.GameRoom.createRoom();
+      this.GameRoom.addPlayerToRoom(roomName, socket.id);
+      if (this.GameRoom.getPlayersInRoom(roomName).length === 2) {
+        socket.join(roomName);
+      }
+    } catch (error) {
+      console.error('Error joining the room game:', error);
     }
   }
 
