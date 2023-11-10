@@ -41,7 +41,7 @@ export class AuthService {
     }
   }
 
-  async signin(dto: signinDTO): Promise<{ accessToken: string }> {
+  async signin(dto: signinDTO): Promise<{ id: string; accessToken: string }> {
     const user = await await this.prisma.user.findFirst({
       where: {
         username: dto.username,
@@ -56,7 +56,10 @@ export class AuthService {
     return this.signToken(user.id, user.email);
   }
 
-  async finish_signup(dto: signupDTO, UserToken: string) {
+  async finish_signup(
+    dto: signupDTO,
+    UserToken: string,
+  ): Promise<{ id: string; accessToken: string }> {
     if (!UserToken) throw new UnauthorizedException('Invalid Request');
     try {
       await this.jwtService.verifyAsync(UserToken, {
@@ -107,9 +110,10 @@ export class AuthService {
   async signToken(
     userID: string,
     email: string,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ id: string; accessToken: string }> {
     const payload = { sub: userID, email };
     return {
+      id: userID,
       accessToken: await this.jwtService.signAsync(payload),
     };
   }
