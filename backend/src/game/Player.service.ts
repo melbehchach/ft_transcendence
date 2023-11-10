@@ -89,6 +89,7 @@ export class PlayerService {
 				if (this.ConnectedPlayers && this.ConnectedPlayers.connectedPlayers[0]) {
 					socket.join(this.ConnectedPlayers.connectedPlayers[0].Room);
 					socket.emit('playerReady', this.playersObjects);
+					// console.log('this.ConnectedPlayers: ', this.playersObjects);
 					// this.ConnectedPlayers.removeFirst();
 				}
 				// this.playerObject1 = null;
