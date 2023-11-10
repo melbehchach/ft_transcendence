@@ -11,7 +11,7 @@ export class GameService {
     return roomName;
   }
 
-  addPlayerToRoom(roomName: string, playerId: string): void {
+  addPlayerToRoom(roomName: string, playerId: string): string[] {
     if (!this.roomGame.has(roomName)) {
       this.createRoom();
     }
@@ -20,6 +20,7 @@ export class GameService {
       throw new Error('Room is already full');
     }
     players.push(playerId);
+    return players;
   }
 
   removePlayerFromRoom(roomName: string, playerId: string): void {
@@ -31,5 +32,13 @@ export class GameService {
 
   getPlayersInRoom(roomName: string): string[] {
     return this.roomGame.get(roomName) || [];
+  }
+
+  checkIfRoomIsFull(roomName: string): boolean {
+    return this.roomGame.get(roomName).length === 2;
+  }
+
+  checkIfRoomExists(roomName: string): boolean {
+    return this.roomGame.has(roomName);
   }
 }

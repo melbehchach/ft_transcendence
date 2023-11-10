@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Post, Req } from '@nestjs/common';
 
 @Controller('game')
 export class GameController {
@@ -11,7 +11,7 @@ export class GameController {
   }
 
   @Get('challenge-random')
-  async challengeRandom() {
+  async challengeRandom(@Req() req) {
     // i guess it will hold the logic for challenging random
   }
 }
