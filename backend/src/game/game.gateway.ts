@@ -32,10 +32,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.playerService.handleConnections(client);
   }
 
-  @SubscribeMessage('movePaddle')
-  handleMovepad(client: Socket, payload: any): void {
-    this.playerService.movePaddle(client, payload);
-  }
+// @SubscribeMessage('playerMoveUp')
+// movePaddleUp(client: Socket, payload : any): void {
+//   // this.playerService.movePaddleUp(payload, client, this.io);
+// }
+
 
   // async afterInit(client: Socket) {
   //   this.logger.log(`SERVER STARTED`);

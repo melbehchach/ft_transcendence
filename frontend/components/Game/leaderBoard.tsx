@@ -1,11 +1,11 @@
 import GameIntro from './GameIntro';
-import PongGame from './PongGame';
+import PingPong from './PingPong';
 
 export default function LeaderBoard() {
 	return (
 		<>
 			{/* <GameIntro /> */}
-			<PongGame />
+			<PingPong />
 		</>
 	);
 }
