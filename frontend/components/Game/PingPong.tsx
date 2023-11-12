@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from "react";
-import io, { Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 import cookie from 'js-cookie';
 
 const canvasWidth = 1080;
@@ -96,14 +96,33 @@ const resetBallPosition = () => {
 	ball.velocityX = -ball.velocityX;
 };
 
+function useSocket(url: string) {
+	const [socket, setSocket] = useState();
+  
+	useEffect(() => {
+	  const socketIo: any = io(url, {
+		auth: {
+		  token: cookie.get('USER_ID'),
+	  }});
+	  setSocket(socketIo)
+  
+	  function cleanup() {
+		socketIo.disconnect()
+	  }
+	  return cleanup
+
+	}, [])
+  
+	return socket
+}
+
 /// START GAME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 export default function PingPong() {
 	let canvasRef = useRef<HTMLCanvasElement>(null);
-	const [socket, setSocket] = useState<Socket>();
+
 	useEffect(() => {
 		canvas = canvasRef.current;
 		let context = canvas?.getContext('2d');
-	
 		function update() {
 			ball.x += ball.velocityX;
 			ball.y += ball.velocityY;
@@ -144,81 +163,47 @@ export default function PingPong() {
 		}, 1000 / framePerSecond);
 
 	}, []);
-	useEffect(() => {
-		const socketCli = io('localhost:3000', {
-			auth: {
-				token: cookie.get('USER_ID'),
-			},
-	   });
-		setSocket(socketCli);
-		let playerId = cookie.get('USER_ID');
-		console.log('phhh', playerId);
-		socket?.on('playerReady', (data: any) => {
-			if (data.playerId1 === playerId) {
-				Player1.y = data.player1Pos;
-				Player2.y = data.player2Pos;
+
+	let socketCli: any = useSocket('localhost:3000');
+
+	const playerId = cookie.get('USER_ID');
+	socketCli?.on('playerReady', (data: any) => {
+		if (data.playerId1 === playerId){
+			Player1.y = data.player1Pos;
+			Player2.y = data.player2Pos;
+		}else {
+			Player1.y = data.player2Pos;
+			Player2.y = data.player1Pos;
+		}
+		Player1.id = data.playerId1
+		Player2.id = data.playerId2
+	});
+
+	canvas?.addEventListener('keydown', (e:any) => {
+		if (playerId === Player1.id) {
+			if (e.key === 'ArrowUp' && Player1.y > 0) {
+				socketCli?.emit('playerMoveUp', {id1: Player1.id});
 			}
-			else if (data.playerId2 === playerId){
-				Player1.y = data.player2Pos;
-				Player2.y = data.player1Pos;
+		} else if (playerId === Player2.id) {
+			if (e.key === 'ArrowUp' && Player2.y > 0) {
+				socketCli?.emit('playerMoveUp', {id2: Player2.id});
 			}
-			Player1.id = data.playerId1
-			Player2.id = data.playerId2
-			Player1.score = data.player1Score;
-			Player2.score = data.player2Score;
-			ball.x = data.ballX;
-			ball.y = data.ballY;
-			console.log(ball.x, ball.y);
-		});
-		return () => {
-			socket?.disconnect();
-		};
-	}, []);
+		}
+	});
 
-	// useEffect(() => {
-	// 	let playerId = cookie.get('USER_ID');
-	// 	socketCli.on('playerReady', (data: any) => {
-	// 		console.log("event playerReady");
-	// 		if (data.playerId1 === playerId) {
-	// 			Player1.y = data.player1Pos;
-	// 			Player2.y = data.player2Pos;
-	// 		}
-	// 		else if (data.playerId2 === playerId){
-	// 			Player1.y = data.player2Pos;
-	// 			Player2.y = data.player1Pos;
-	// 		}
-	// 		Player1.id = data.playerId1
-	// 		Player2.id = data.playerId2
-	// 		Player1.score = data.player1Score;
-	// 		Player2.score = data.player2Score;
-	// 		ball.x = data.ballX;
-	// 		ball.y = data.ballY;
-	// 		console.log(ball.x, ball.y);
-	// 	});
-	// 	socketCli.on('Up', (data: any) => {
-	// 		console.log(data)
-	// 		if (data.playerId === Player1.id) {
-	// 			Player1.y += data.player1Pos;
-	// 			// Player2.y = data.playerPos2;
-	// 		}
-	// 		else if (data.playerId === Player2.id) {
-	// 			Player1.y = data.player2Pos;
-	// 		}
-	// 	});
-	// }, []);
+	canvas?.addEventListener('keydown', (e:any) => {
+		socketCli?.on('Up', (data: any) => {
+			if (data.id1 === playerId) {
+				if (Player1.y > 0 && e.key === 'ArrowUp')
+					Player1.y = data.pos1;
+			} else if (data.id2 === playerId) {
+				if (Player1.y > 0 && e.key === 'ArrowUp')
+					Player2.y = data.pos2;
+			}
+		})
+	});
 
 
-	// useEffect(() => {
-	// 	canvas.addEventListener('keydown', (e:any) => {
-	// 		if (e.key === 'ArrowUp' && Player1.y > 0) {
-	// 			socketCli.emit('playerMoveUp', { playerPos: Player1.y, playerId1: Player1.id, playerId2: Player2.id, playerPos2: Player2.y });
-	// 		}
-	// 		else if (e.key === 'ArrowDown' && Player1.y < canvasHeight - Player1.height) {
-	// 			socketCli.emit('playerMoveDown', { playerPos: Player1.y, playerId1: Player1.id, playerId2: Player2.id, playerPos2: Player2.y });
-	// 		}
-	// 	});
-	// 	}, []);
-		
 	return (
 		<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
 			<canvas tabIndex={0} ref={canvasRef} width={1080} height={720} />

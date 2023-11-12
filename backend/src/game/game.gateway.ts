@@ -6,7 +6,7 @@ import {
   SubscribeMessage,
   ConnectedSocket,
 } from '@nestjs/websockets';
-import { PlayerService } from './Player.service';
+import { PlayerService } from './player.service';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 // import { JwtService } from '@nestjs/jwt';
@@ -32,10 +32,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.playerService.handleConnections(client);
   }
 
-// @SubscribeMessage('playerMoveUp')
-// movePaddleUp(client: Socket, payload : any): void {
-//   // this.playerService.movePaddleUp(payload, client, this.io);
-// }
+@SubscribeMessage('playerMoveUp')
+movePaddleUp(client: Socket, payload : any): void {
+  this.playerService.movePaddleUp(client, payload);
+}
 
 
   // async afterInit(client: Socket) {
