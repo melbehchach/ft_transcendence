@@ -9,6 +9,7 @@ import {
 import { PlayerService } from './player.service';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
+import { subscribe } from 'diagnostics_channel';
 // import { JwtService } from '@nestjs/jwt';
 // import { AuthService } from 'src/auth/auth.service';
 // import { validateToken } from 'src/helpers/auth.helpers';
@@ -17,8 +18,7 @@ import { Logger } from '@nestjs/common';
   cors: '*',
 })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer()
-  io: Server;
+  @WebSocketServer() server: Server;
 
   constructor(
     private readonly playerService: PlayerService,
@@ -33,8 +33,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
 @SubscribeMessage('playerMoveUp')
-movePaddleUp(client: Socket, payload : any): void {
-  this.playerService.movePaddleUp(client, payload);
+movePaddle(socket : Socket, payload : any): void {
+  this.playerService.movePaddle(socket, payload, this.server);
+}
+
+@SubscribeMessage('BallMove')
+moveBall(socket : Socket, payload : any): void {
+  this.playerService.moveBall(socket, payload, this.server);
 }
 
 

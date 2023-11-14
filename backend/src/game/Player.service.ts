@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { GameService } from './game.service';
-import { Socket } from 'socket.io';
-import { on } from 'events';
+import { Server, Socket } from 'socket.io';
+import e from 'express';
+
 
 class playerQueue {
 	connectedPlayers: any[];
@@ -63,7 +64,7 @@ export class PlayerService {
 					player1Id: socket.handshake.auth.token,
 					username1: '',
 					socket1Id: socket.id,
-					PosPlayer1: 100,
+					PosPlayer1: 500,
 					score1Player: 0,
 					isInGame: false,
 				};
@@ -114,21 +115,31 @@ export class PlayerService {
 		}
 	}
 
-	movePaddleUp(socket: Socket, payload: any): void {
+	movePaddle(socket : Socket, payload: any, io : Server): void {
 		try{
-			if (this.playersObjects.playerId1 === payload.id1) {
-				this.playersObjects.player1Pos += 10;
-				socket.to(this.playersObjects.Room).emit('Up', this.playersObjects.player1Pos);
+			if (payload.key === 'ArrowUp') {
+				this.playersObjects.player1Pos -= 50;
+				io.to(this.ConnectedPlayers.connectedPlayers[0].Room).emit('Up', {key: 'ArrowUp', player1Pos: this.playersObjects.player1Pos, id : payload.id})
 			}
-			else if (this.playersObjects.playerId2 === payload.id2) {
-				this.playersObjects.player2Pos += 10;
-				socket.to(this.playersObjects.Room).emit('Up', this.playersObjects.player2Pos);
+			else if (payload.key === 'ArrowDown') {
+				this.playersObjects.player1Pos += 50;
+				io.to(this.ConnectedPlayers.connectedPlayers[0].Room).emit('Up', {key: 'ArrowDown', player1Pos: this.playersObjects.player1Pos, id : payload.id})
 			}
 		}
 		catch (error){
 			console.error('Error handling paddle mouvement:', error);
 		}
+	}
 
+	moveBall(socket : Socket, payload: any, io : Server): void {
+		try{
+			this.playersObjects.ballX = payload.ballX;
+			this.playersObjects.ballY = payload.ballY;
+			io.to(this.ConnectedPlayers.connectedPlayers[0].Room).emit('BallMove', {ballX: this.playersObjects.ballX, ballY: this.playersObjects.ballY})
+		}
+		catch (error){
+			console.error('Error handling ball mouvement:', error);
+		}
 	}
 
 	handleDisconnections(socket: Socket): void {
