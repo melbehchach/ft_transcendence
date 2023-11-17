@@ -25,6 +25,7 @@ const config: Config = {
         title: "2rem",
         body: "1.125rem",
         small: "0.875rem",
+        countdown: "15rem",
       },
       fontFamily: {
         sans: ["inter", "sans-serif"],

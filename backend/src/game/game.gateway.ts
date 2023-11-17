@@ -29,19 +29,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private token: string;
 
   handleConnection(client: Socket): void {
-    this.playerService.handleConnections(client);
+    this.playerService.handleJoinsGame(client);
   }
 
 @SubscribeMessage('playerMoveUp')
 movePaddle(socket : Socket, payload : any): void {
   this.playerService.movePaddle(socket, payload, this.server);
 }
-
-@SubscribeMessage('BallMove')
-moveBall(socket : Socket, payload : any): void {
-  this.playerService.moveBall(socket, payload, this.server);
-}
-
 
   // async afterInit(client: Socket) {
   //   this.logger.log(`SERVER STARTED`);
