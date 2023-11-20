@@ -1,14 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
+import { Interval } from '@nestjs/schedule';
 
 @Injectable()
 export class GameService {
+
   private roomGame: Map<string, string[]> = new Map();
 
   createRoom(): string {
     const roomName = uuidv4();
     this.roomGame.set(roomName, []);
     return roomName;
+  }
+
+  getRoomName(): string {
+    return Array.from(this.roomGame.keys())[0];
   }
 
   addPlayerToRoom(roomName: string, playerId: string): string[] {

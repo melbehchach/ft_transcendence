@@ -1,10 +1,9 @@
 'use client'
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, use } from "react";
 import { Socket, io } from "socket.io-client";
 import cookie from 'js-cookie';
 import Countdown from './countdown';
-import { Player, Ball, Net } from '../../types';
-
+import { Player, Net } from '../../types';
 
 const canvasWidth = 1080;
 const canvasHeight = 720;
@@ -37,10 +36,10 @@ const drawNet = (context: any, canvas: any, x: number, y: number, width: number,
 	}
 }
 
-const resetBallPosition = () => {
-	ball.x = canvasWidth / 2;
-	ball.y = canvasHeight / 2;
-	ball.velocityX = -ball.velocityX;
+let ball  = {
+    x: canvasWidth / 2,
+    y: canvasHeight / 2,
+    color: 'white',
 }
 
 let Player1: Player = {
@@ -63,16 +62,6 @@ let Player2: Player = {
 	score: 0,
 }
 
-let ball: Ball = {
-	x: canvasWidth / 2,
-	y: canvasHeight / 2,
-	radius: 10,
-	velocityX: 5,
-	velocityY: 5,
-	speed: 7,
-	color: 'white'
-}
-
 let net: Net = {
 	x: canvasWidth / 2 - 2 / 2,
 	y: 0,
@@ -80,7 +69,6 @@ let net: Net = {
 	height: 10,
 	color: 'white'
 }
-
 
 export default function PingPong() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -94,147 +82,93 @@ export default function PingPong() {
 			}
 		});
 		setSocket(socketIo);
-		
+		// if (socketIo)
+		// 	socketIo?.emit('ballData', { x: ball.x, y: ball.y })
 		function cleanup() {
 			socketIo.disconnect();
 		}
 		return cleanup;
 	}, []);
 	
-	const update = useCallback(() => {
-		if (!ballMoving) return;
-		ball.x += ball.velocityX;
-		ball.y += ball.velocityY;
-		if (ball.y + ball.radius > canvasHeight || ball.y - ball.radius < 0) {
-			ball.velocityY = -ball.velocityY;
+	useEffect(() => {
+		if (!socket)  return;
+		function cleanup() {
+			socket?.disconnect();
 		}
-		const detectedCollision = (player: Player | null) => {
-			if (!player) {
-				return false;
-			}
-			const playerTop = player.y;
-			const playerBottom = player.y + player.height;
-			const playerLeft = player.x;
-			const playerRight = player.x + player.width;
-			
-			const ballTop = ball.y - ball.radius;
-			const ballBottom = ball.y + ball.radius;
-			const ballLeft = ball.x - ball.radius;
-			const ballRight = ball.x + ball.radius;
-			
-			return playerLeft < ballRight && playerTop < ballBottom && playerRight > ballLeft && playerBottom > ballTop;
-		};
-		
-		let detectedPlayer = (ball.x + ball.radius < canvasWidth / 2) ? Player1 : Player2;
-		if (detectedCollision(detectedPlayer)) {
-			let collidePoint = ball.y - (detectedPlayer.y + detectedPlayer.height / 2);
-			collidePoint = collidePoint / (detectedPlayer.height / 2);
-			let angleRad = collidePoint * Math.PI / 4;
-			let direction = (ball.x + ball.radius < canvasWidth / 2) ? 1 : -1;
-			ball.velocityX = direction * ball.speed * Math.cos(angleRad);
-			ball.velocityY = ball.speed * Math.sin(angleRad);
-			ball.speed += 0.9;
-		}
-		if (ball.x - ball.radius < 0) {
-			Player2.score++;
-			resetBallPosition();
-		}
-		if (ball.x + ball.radius > canvasWidth) {
-			Player1.score++;
-			resetBallPosition();
-		}
-	}, [Player1, Player2, ball, net, ballMoving]);
-	
+		return cleanup;
+	}, [socket]);
 	
 	const render = useCallback(() => {
 		const canvas = canvasRef.current;
 		let context = canvas?.getContext('2d');
 		drawTable(context, canvas, canvasHeight, canvasWidth, 'black');
-		drawBall(context, ball.x, ball.y, ball.color);
+		drawBall(context, ball.x, ball.y, 'white');
 		drawRect(context, Player1.x, Player1.y, Player1.width, Player1.height, Player1.color);
 		drawRect(context, Player2.x, Player2.y, Player2.width, Player2.height, Player2.color);
 		drawNet(context, canvas, net.x, net.y, net.width, net.height, net.color);
-	}, [Player1, Player2, ball, net]);
+	}, [Player1, Player2, net, ball]);
 	
 	const onCountdownEnd = useCallback(() => {
 		setBall(true);
 	}, []);
-	
+
 	useEffect(() => {
 		if (socket) {
 			const gameLoop = () => {
-				update();
 				render();
 				requestAnimationFrame(gameLoop);
 			}
 			gameLoop();
 		}
-		
 		return () => {
 			window?.removeEventListener('keydown', keyPress);
 		};
-	}, [socket, update, render, ballMoving]);
+	}, [socket, render, ballMoving]);
 	
 	const keyPress = (event: any) => {
 		const playerId = cookie.get('USER_ID');
-		if (event.key === 'ArrowUp' && Player1.y > 0) {
-			socket?.emit('playerMoveUp', { key: event.key, id: playerId });
+		if (event.key === 'ArrowUp' && Player1.y > 0 && Player2.y > 0) {
+			socket?.emit('playerMove', { key: event.key, id: playerId });
 		}
-		else if (event.key === 'ArrowDown' && Player1.y < canvasHeight - Player1.height ) {
-			socket?.emit('playerMoveUp', { key: event.key, id: playerId });
-		}
-		else if (event.key === ' ') {
-			socket?.emit('playerMoveUp', { key: event.key, x: ball.x, y: ball.y, velocityX: ball.velocityX, velocityY: ball.velocityY });
+		else if (event.key === 'ArrowDown' && Player1.y < canvasHeight - Player1.height && Player2.y < canvasHeight - Player2.height) {
+			socket?.emit('playerMove', { key: event.key, id: playerId });
 		}
 	}
 	
 	useEffect(() => {
 		if (socket) {
 			window?.addEventListener('keydown', keyPress);
-			socket?.on('playerReady', (data: any) => {
-				if (data.playerId1 === cookie.get('USER_ID')) {
-					Player1.y = data.player1Pos;
-					Player2.y = data.player2Pos;
-					Player1.id = data.playerId1;
-					Player2.id = data.playerId2;
-				} else {
-					Player1.y = data.player2Pos;
-					Player2.y = data.player1Pos;
-					Player1.id = data.playerId2;
-					Player2.id = data.playerId1;
+			socket?.on('players', (data: any) => {
+				if (data.id1 === cookie.get('USER_ID')) {
+					Player1.y = data.y1;
+					Player2.y = data.y2;
+					Player1.id = data.id;
+					Player2.id = data.id2;
+				}else{
+					Player1.y = data.y2;
+					Player2.y = data.y1;
+					Player1.id = data.id2;
+					Player2.id = data.id;
 				}
 			});
-			socket?.on('balldata', (data: any) => {
-				ball.x = data.x;
-				ball.y = data.y;
-			});
-			socket?.on('Up', (data: any) => {
+			socket?.on('UpdatePlayerMove', (data: any) => {
 				if (data.id === Player1.id) {
-					Player1.y = data.player1Pos;
-					ball.x = data.ballX;
-					ball.y = data.ballY;
-					ball.velocityX = data.ballVelocityX;
-					ball.velocityY = data.ballVelocityY;
-					ball.speed = data.ballSpeed;
-					console.log(data);
-
+					Player1.y = data.y;
 				} else {
-					Player2.y = data.player1Pos;
-					ball.x = data.ballX;
-					ball.y = data.ballY;
-					ball.velocityX = data.ballVelocityX;
-					ball.velocityY = data.ballVelocityY;
-					ball.speed = data.ballSpeed;
+					Player2.y = data.y;
 				}
+			});
+			socket?.on('ball', (data: any) => {
+				ball.x = data.x
+				ball.y = data.y
 			});
 		}
-	}, [socket, Player1, Player2, ballMoving]);
+	}, [socket, Player1, Player2, ball, ballMoving]);
 
 	return (
 		<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
 			{ballMoving ? null : <Countdown onCountdownEnd={onCountdownEnd} />}
-			<canvas tabIndex={0} ref={canvasRef} width={1080} height={720} />
+			<canvas className="w-full" ref={canvasRef} width={1080} height={720} />
 		</div>
 	)
 }
-
