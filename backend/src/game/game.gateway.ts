@@ -26,120 +26,136 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		speed: 7,
 	}
 
-	private player1: any = {
+	private Player1: any = {
 		id: '',
 		x: 10,
-		y: this.canvasHeight / 2 - 100 / 2,
+		y: 500,
 		width: 20,
 		height: 150,
-	};
+		color: 'white',
+		score: 0,
+		velY: 5,
+	}
 
-	private player2: any = {
+	private Player2: any = {
 		id: '',
 		x: this.canvasWidth - 30,
-		y: this.canvasHeight / 2 - 100 / 2,
+		y: 110,
 		width: 20,
 		height: 150,
-	};
+		color: 'white',
+		velY: 5,
+		score: 0,
+	}
 
 	@WebSocketServer() server: Server;
 	constructor(
 		private readonly GameRoom: GameService,
 	) {
 		this.startInterval();
-	 }
+	}
 
 	handleConnection(client: Socket, ...args: any[]) {
 		if (this.connectedPlayers.length < 2) {
-		  const playerId = client.handshake.auth.token;
-		  if (!this.connectedPlayers.some(player => player.id === playerId)) {
-			const player = {
-			  id: playerId,
-			  username: '',
-			  socket_id: client,
-			  y: 500,
-			  score: 0,
-			  isInGame: false,
-			};
-			this.connectedPlayers.push(player);
-			if (this.connectedPlayers.length === 2) {
-			   this.room = this.GameRoom.createRoom();
-			  let playersObjects = {
-				id1: this.connectedPlayers[0].id,
-				id2: this.connectedPlayers[1].id,
-				y1: this.connectedPlayers[0].y,
-				y2: this.connectedPlayers[1].y,
-				score1: this.connectedPlayers[0].score,
-				score2: this.connectedPlayers[1].score,
-				Socket1: this.connectedPlayers[0].socket_id,
-				Socket2: this.connectedPlayers[1].socket_id,
-				Room: this.room,
-				gameStatus: false,
-			  };
-			  this.connectedPlayers[0].socket_id.join(this.room);
-			  this.connectedPlayers[1].socket_id.join(this.room);
-			  this.server.emit('players', {id: playersObjects.id1, id2: playersObjects.id2,
-				y1: playersObjects.y1, y2: playersObjects.y2,
-			});
+			const playerId = client.handshake.auth.token;
+			if (!this.connectedPlayers.some(player => player.id === playerId)) {
+				const player = {
+					id: playerId,
+					username: '',
+					socket_id: client,
+					y: 500,
+					score: 0,
+					isInGame: false,
+				};
+				this.connectedPlayers.push(player);
+				if (this.connectedPlayers.length === 2) {
+					this.room = this.GameRoom.createRoom();
+					let playersData = {
+						id1: this.connectedPlayers[0].id,
+						id2: this.connectedPlayers[1].id,
+						y1: this.connectedPlayers[0].y,
+						y2: this.connectedPlayers[1].y,
+						score1: this.connectedPlayers[0].score,
+						score2: this.connectedPlayers[1].score,
+						Socket1: this.connectedPlayers[0].socket_id,
+						Socket2: this.connectedPlayers[1].socket_id,
+						Room: this.room,
+						gameStatus: false,
+					};
+					this.connectedPlayers[0].socket_id.join(this.room);
+					this.connectedPlayers[1].socket_id.join(this.room);
+					this.server.emit('players', {
+						id: playersData.id1, id2: playersData.id2,
+						y1: playersData.y1, y2: playersData.y2,
+					});
+					this.Player1.id = playersData.id1;
+					this.Player2.id = playersData.id2;
+					this.Player1.y = playersData.y1;
+					this.Player2.y = playersData.y2;
+				}
+			} else {
+				console.log(`Player with ID ${playerId} is already in the room.`);
 			}
-		  } else {
-			console.log(`Player with ID ${playerId} is already in the room.`);
-		  }
 		} else {
-		  console.log("Room is full. Cannot accept more players.");
+			console.log("Room is full. Cannot accept more players.");
 		}
 	}
 
 	@SubscribeMessage('playerMove')
 	movePaddle(socket: Socket, payload: any): void {
-		if (payload.key === 'ArrowUp'){
-			this.connectedPlayers[0].y -= 90;
-			this.server.to(this.room).emit('UpdatePlayerMove',
-				{ y: this.connectedPlayers[0].y, id: payload.id })
-		}else if (payload.key === 'ArrowDown'){
-			this.connectedPlayers[0].y += 90;
-			this.server.to(this.room).emit('UpdatePlayerMove',
-				{ y: this.connectedPlayers[0].y, id: payload.id })
+		function lerp(start: number, end:number, t:number) {
+			return start * (1 - t) + end * t;
 		}
+		const targetY = payload.key === 'ArrowUp' ? this.connectedPlayers[0].y - 90 : this.connectedPlayers[0].y + 90;
+		this.connectedPlayers[0].y = lerp(this.connectedPlayers[0].y, targetY, 0.9);
+		// this.Player1.y = lerp(this.Player1.y, targetY, 0.9);
+	
+		// Update Player2's y position as well
+		// const targetY2 = payload.key === 'ArrowUp' ? this.connectedPlayers[1].y - 90 : this.connectedPlayers[1].y + 90;
+		// this.connectedPlayers[1].y = lerp(this.connectedPlayers[1].y, targetY2, 0.9);
+		// this.Player2.y = lerp(this.Player2.y, targetY2, 0.9);
+	
+		this.server.to(this.room).emit('UpdatePlayerMove', { y: this.connectedPlayers[0].y, y1:this.connectedPlayers[1].y, id: payload.id });
 	}
+
 
 	moveBall(): void {
 		this.ball.x += this.ball.velocityX;
 		this.ball.y += this.ball.velocityY;
 		if (this.ball.y + this.ball.radius > this.canvasHeight || this.ball.y - this.ball.radius < 0)
-		  this.ball.velocityY = -this.ball.velocityY;
-		const detectedCollision = (player: any, ball: any) => {
-		  if (!player) return false;
-		  const playerTop = this.connectedPlayers[0].y;
-		  const playerBottom = player.y + player.height;
-		  const playerLeft = player.x;
-		  const playerRight = player.x + player.width;
-  
-		  const ballTop = ball.y - ball.radius;
-		  const ballBottom = ball.y + ball.radius;
-		  const ballLeft = ball.x - ball.radius;
-		  const ballRight = ball.x + ball.radius;
-  
-		  return playerLeft < ballRight && playerTop < ballBottom && playerRight > ballLeft && playerBottom > ballTop;
-		};
-
+			this.ball.velocityY = -this.ball.velocityY;
 		const resetBall = () => {
 			this.ball.x = this.canvasWidth / 2;
 			this.ball.y = this.canvasHeight / 2;
 			this.ball.speed = 7;
-			this.ball.velocityX = -this.ball.velocityX;
+			this.ball.velocityY = -this.ball.velocityY * 1.0;
+			this.ball.velocityX = -this.ball.velocityX * 1.0;
 		};
-
-		const detectedPlayer = (this.ball.x + this.ball.radius < this.canvasWidth / 2) ?  this.player1 : this.player2;
-		
-		if (detectedCollision(detectedPlayer, this.ball)) {
-		  let collidePoint = this.ball.y - (detectedPlayer.y + detectedPlayer.height / 2);
-		  collidePoint = collidePoint / (detectedPlayer.height / 2);
-		  let angleRad = collidePoint * Math.PI / 4;
-		  let direction = (this.ball.x + this.ball.radius < this.canvasWidth / 2) ? 1 : -1;
-		  this.ball.velocityX = this.ball.speed * Math.cos(angleRad) * direction;
-		  this.ball.velocityY = this.ball.speed * Math.sin(angleRad);
-		  this.ball.speed += 0.9;
+		const player1 = this.Player1;
+		const player2 = this.Player2;
+		const ball = this.ball;
+		const detectCollision = (player: any) => {
+			player.top = player.y;
+			player.right = player.x + player.width;
+			player.bottom = player.y + player.height;
+			player.left = player.x;
+			return ball.top < player.bottom && ball.bottom > player.top && ball.left < player.right && ball.right > player.left;
+		};
+		if (detectCollision(player1)) {
+			console.log('collision  1');
+			this.ball.velocityX = -this.ball.velocityX;
+			const collidePoint = (this.ball.y - (player1.y + player1.height / 2));
+			this.ball.speed += 0.2;
+			let direction = (collidePoint < 0) ? -1 : 1;
+			this.ball.velocityY = direction * this.ball.speed * Math.cos(collidePoint * 0.35);
+		}
+		if (detectCollision(player2)) {
+			console.log('collision  2');
+			this.ball.velocityX = -this.ball.velocityX;
+			const collidePoint = (this.ball.y - (player2.y + player2.height / 2));
+			this.ball.speed += 0.2;
+			let direction = (collidePoint < 0) ? -1 : 1;
+			this.ball.velocityY = direction * this.ball.speed * Math.cos(collidePoint * 0.35);
 		}
 		if (this.ball.x - this.ball.radius < 0)
 			resetBall();
@@ -157,10 +173,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	handleDisconnect(socket: Socket): void {
 		try {
 			this.connectedPlayers.forEach((player: any, index: number) => {
-				if (player.socket_id === socket) {
+				if (player.socket_id === socket)
 					this.connectedPlayers.splice(index, 1);
-				}
-				// console.log('Player disconnected:', player.id);
 			});
 		} catch (error) {
 			console.error('Error handling disconnection:', error);
