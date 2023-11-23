@@ -5,7 +5,7 @@ export interface User {
 }
 
 export interface Player {
-	id: string;
+	// id: string;
 	x: number;
 	y: number;
 	width: number;
