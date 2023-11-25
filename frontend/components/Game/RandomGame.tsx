@@ -51,9 +51,8 @@ export default function RandomMatch() {
     const [socket, setSocket] = useState<Socket>();
     const [playerY, setPlayerY] = useState( canvasHeight / 2 - 50 );
     const [openentY, setOpenentY] = useState(  canvasHeight / 2 - 50 );
-
-	const Player = { x: 10, y: canvasHeight / 2 - 75, width: 20, height: 150, color: 'white', score: 0 };
-	const Opponent= { x: canvasWidth - 30, y: canvasHeight / 2 - 75, width: 20, height: 150, color: 'white', score: 0 };
+	const Player = { x: 10, y: canvasHeight / 2 - 50, width: 20, height: 150, color: 'white', score: 0 };
+	const Opponent= { x: canvasWidth - 30, y: canvasHeight / 2 - 50, width: 20, height: 150, color: 'white', score: 0 };
 	const [countdown, setCountdown] = useState(false);
     const [ballY, setBallY] = useState(canvasHeight / 2);
     const [ballX, setBallX] = useState(canvasWidth  / 2);
