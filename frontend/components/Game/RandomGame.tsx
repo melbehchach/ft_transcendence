@@ -49,8 +49,10 @@ let net: Net = {
 export default function RandomMatch() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [socket, setSocket] = useState<Socket>();
-    const [playerY, setPlayerY] = useState( canvasHeight / 2 - 50 );
-    const [openentY, setOpenentY] = useState(  canvasHeight / 2 - 50 );
+    // const [playerY, setPlayerY] = useState( canvasHeight / 2 - 50 );
+    // const [openentY, setOpenentY] = useState(  canvasHeight / 2 - 50 );
+    const [playerY, setPlayerY] = useState( 0 );
+    const [openentY, setOpenentY] = useState(  0 );
 	const Player = { x: 10, y: canvasHeight / 2 - 50, width: 20, height: 150, color: 'white', score: 0 };
 	const Opponent= { x: canvasWidth - 30, y: canvasHeight / 2 - 50, width: 20, height: 150, color: 'white', score: 0 };
 	const [ballMoving, setBall] = useState(false);
@@ -116,14 +118,17 @@ export default function RandomMatch() {
     useEffect(() => {
         if (socket) {
             socket.on('RandomMatch', (data: any) => {
+                console.log(data);
+                console.log(data.player === cookie.get('USER_ID'))
+                console.log(data.player == cookie.get('USER_ID'))
                 if (data.player === cookie.get('USER_ID')) {
                     setPlayerY( data.playerY );
                     setOpenentY(data.opponentY );
                     room = data.room;
                 }
                 else {
-                    setPlayerY(data.opponentY );
-                    setOpenentY(data.playerY );
+                    setPlayerY( data.opponentY );
+                    setOpenentY( data.playerY );
                     room = data.room;
                 }
             });
