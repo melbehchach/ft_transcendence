@@ -51,9 +51,10 @@ export default function RandomMatch() {
     const [socket, setSocket] = useState<Socket>();
     const [playerY, setPlayerY] = useState( canvasHeight / 2 - 50 );
     const [openentY, setOpenentY] = useState(  canvasHeight / 2 - 50 );
-	const Player = { x: 10, y: canvasHeight / 2 - 50, width: 20, height: 150, color: 'white', score: 0 };
-	const Opponent= { x: canvasWidth - 30, y: canvasHeight / 2 - 50, width: 20, height: 150, color: 'white', score: 0 };
-	const [ballMoving, setBall] = useState(false);
+
+	const Player = { x: 10, y: canvasHeight / 2 - 75, width: 20, height: 150, color: 'white', score: 0 };
+	const Opponent= { x: canvasWidth - 30, y: canvasHeight / 2 - 75, width: 20, height: 150, color: 'white', score: 0 };
+	const [countdown, setCountdown] = useState(false);
     const [ballY, setBallY] = useState(canvasHeight / 2);
     const [ballX, setBallX] = useState(canvasWidth  / 2);
     let room = '';
@@ -63,14 +64,14 @@ export default function RandomMatch() {
 		const context = canvas?.getContext('2d');
 		drawTable(context, canvas, canvasHeight, canvasWidth, 'black');
 		drawBall(context, ballX, ballY, 'white');
-		drawRect(context, Player.x, playerY, Player.width, Player.height, Player.color);
-		drawRect(context, Opponent.x, openentY, Opponent.width, Opponent.height, Opponent.color);
+		drawRect(context, Player.x, playerY, Player.width, Player.height, Player.color); // player
+		drawRect(context, Opponent.x, openentY, Opponent.width, Opponent.height, Opponent.color); // opponent
 		drawNet(context, canvas, net.x, net.y, net.width, net.height, net.color);
 	};
-	
-	const onCountdownEnd = () => {
-		setBall(true);
-	};
+
+	const onCountdownEnd = useCallback(() => {
+		setCountdown(true);
+	}, []);
 
 	useEffect(() => {
         const gameLoop = () => {
@@ -79,7 +80,7 @@ export default function RandomMatch() {
             render();
         }
         gameLoop();
-	}, [playerY, openentY, ballMoving]);
+	}, [countdown, playerY, openentY, ballX, ballY]); // add ball here
 	
 
     const keyPress = (e: any) => {
@@ -116,18 +117,21 @@ export default function RandomMatch() {
     useEffect(() => {
         if (socket) {
             socket.on('RandomMatch', (data: any) => {
+				console.log(data.player === cookie.get('USER_ID'));
                 if (data.player === cookie.get('USER_ID')) {
-                    setPlayerY( data.playerY );
-                    setOpenentY(data.opponentY );
+                    setPlayerY( data.playerY);
+                    setOpenentY(data.opponentY);
+
                     room = data.room;
                 }
                 else {
-                    setPlayerY(data.opponentY );
-                    setOpenentY(data.playerY );
+					setPlayerY( data.opponentY);
+                    setOpenentY(data.playerY);
                     room = data.room;
                 }
             });
             socket.on('PlayerMoved', (data: any) => {
+				
                 if (data.player === cookie.get('USER_ID')) {
                     setPlayerY(data.y);
                 }
@@ -136,19 +140,27 @@ export default function RandomMatch() {
                 }
             });
             socket.on('BallMoved', (data: any) => {
-                setBallX(data.x);
-                setBallY(data.y);
+				if (data.player === cookie.get('USER_ID')) {
+					setBallX(data.x);
+				} else {
+					setBallX(canvasWidth - data.x);
+				}
+				setBallY(data.y);
+				
             });
         }
-    }, [socket, playerY, openentY, ballMoving, ballX, ballY]);
+    }, [socket]);
 
     return (
 		<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-			{ballMoving ? null : <Countdown onCountdownEnd={onCountdownEnd} />}
-			<canvas className="w-full" ref={canvasRef} width={1080} height={720} />
+			{countdown ? false : <Countdown onCountdownEnd={onCountdownEnd} />}
+			<canvas className="w-full h-full" ref={canvasRef} width={1080} height={720} />
 		</div>
 	)
 }
 
 
-// 545 365
+// collision detection 2 => 70
+
+
+ 

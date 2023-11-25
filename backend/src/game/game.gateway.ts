@@ -22,9 +22,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		x: this.canvasWidth / 2,
 		y: this.canvasHeight / 2,
 		radius: 10,
-		velocityX: 5,
-		velocityY: 5,
-		speed: 7,
+		velocityX: 2,
+		velocityY: 2,
+		speed: 0.3,
 	}
 	gameQueue: any[] = [];
 	mapPlayers: Map<string, any> = new Map();
@@ -34,14 +34,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
 		private readonly GameRoom: GameService,
 		private readonly prisma: PrismaService,
-	) {
-		this.startInterval();
-	}
+	) { }
 
 	handleConnection(client: Socket, ...args: any[]) {
 		const playeId: string = client.handshake.auth.token;
 		if (playeId) {
 			this.mapSocketToPlayer.set(playeId, client);
+			this.startInterval(client);
 		}
 		// console.log('Player connected: ', client.id);
 	}
@@ -54,7 +53,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				id: playeId,
 				socket: this.mapSocketToPlayer.get(playeId),
 				x: 10,
-				y: this.canvasHeight / 2 - 50,
+				y: this.canvasHeight / 2 - 75,
 				score: 0,
 				width: 20,
 				height: 150,
@@ -67,7 +66,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				const opponent = this.gameQueue.shift(); // player 2
 				opponent.x = this.canvasWidth - 30;
 				this.roomName = this.GameRoom.createRoom();
-				const match = await this.prisma.game.create({
+				await this.prisma.game.create({
 					data: {
 						id: this.roomName,
 						Player: {
@@ -98,7 +97,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	}
 
 	@SubscribeMessage('move')
-	movePaddle(socket: Socket, payload: any): void {
+	movePaddle(client: Socket, payload: any): void {
+		// console.log('move', payload);
 		if (this.mapPlayers.has(payload.player)) {
 			const player = this.mapPlayers.get(payload.player);
 			if (payload.direction === 'up') {
@@ -117,25 +117,30 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 	}
 
-	moveBall(): void {
-		if (this.mapPlayers.size < 2) return;
-		const player = _.take(Array.from(this.mapPlayers.values()), 1)[0];
-		const opponent = _.takeRight(Array.from(this.mapPlayers.values()), 1)[0];
-		// let ball = {
-		// 	x: this.canvasWidth / 2,
-		// 	y: this.canvasHeight / 2,
-		// 	radius: 10,
-		// 	velocityX: 5,
-		// 	velocityY: 5,
-		// 	speed: 7,
-		// }
-		// console.log(ball.x, ball.y);
+	private handleCollision(playerdetected: any) {
+		let collidePoint = (this.ball.y - (playerdetected.y + playerdetected.height / 2));
+		collidePoint = collidePoint / (playerdetected.height / 2);
+		let angleRad = (Math.PI / 4) * collidePoint;
+		let direction = (this.ball.x < this.canvasWidth / 2) ? 1 : -1; // Change direction based on ball's position
+		this.ball.velocityX = direction * this.ball.speed * Math.cos(angleRad);
+		this.ball.velocityY = this.ball.speed * Math.sin(angleRad);
+		// this.ball.speed += 0.2;
+	}
+
+	moveBall(socket: Socket): void {
+		let playerId = socket.handshake.auth.token;
+		const [firstKey, secondKey] = this.mapPlayers.keys();
+		let player1, player2;
+		if (firstKey === playerId) {
+			player1 = this.mapPlayers.get(firstKey);
+			player2 = this.mapPlayers.get(secondKey);
+		} else if (secondKey === playerId) {
+			player1 = this.mapPlayers.get(firstKey);
+			player2 = this.mapPlayers.get(secondKey);
+		}
+
 		this.ball.x += this.ball.velocityX;
 		this.ball.y += this.ball.velocityY;
-		if (this.ball.y + this.ball.radius > this.canvasHeight || this.ball.y - this.ball.radius < 0)
-		this.ball.velocityY = -this.ball.velocityY;
-		let playerdetected = (this.ball.x < this.canvasWidth / 2) ? player : opponent;
-
 		const collision = (ball: any, player: any) => {
 			player.top = player.y;
 			player.right = player.x + player.width;
@@ -147,28 +152,44 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			ball.left = ball.x - ball.radius;
 			return ball.left < player.right && ball.top < player.bottom && ball.right > player.left && ball.bottom > player.top;
 		}
-		if (collision(this.ball, playerdetected)) {
-			let collidePoint = (this.ball.y - (playerdetected.y + playerdetected.height / 2));
-			collidePoint = collidePoint / (playerdetected.height / 2);
-			let angleRad = (Math.PI / 4) * collidePoint;
-			let direction = (this.ball.x + this.ball.radius < this.canvasWidth / 2) ? 1 : -1;
-			this.ball.velocityX = direction * this.ball.speed * Math.cos(angleRad);
-			this.ball.velocityY = this.ball.speed * Math.sin(angleRad);
-			this.ball.speed += 0.1;
+		// console.log('collision 1 ==> ', player1.id);
+		// console.log('collision 2 ==> ', player2.id);
+		if (collision(this.ball, player1)) {
+			// console.log('collision 1 ==> ', player1.id);
+			// console.log('collision 2 ==> ', player2.id);
+			this.handleCollision(player1);
 		}
-		if (this.ball.x + this.ball.radius > this.canvasWidth) {
+		if (collision(this.ball, player2)) {
+			// console.log('collision 2 ', player2.id);
+			this.handleCollision(player2);
+		}
+		if (this.ball.y + this.ball.radius > this.canvasHeight || this.ball.y - this.ball.radius < 0)
+			this.ball.velocityY = -this.ball.velocityY;
+		if (this.ball.x - this.ball.radius < 0) {
+			player2.score++;
+			this.ball.x = this.canvasWidth / 2;
+			this.ball.y = this.canvasHeight / 2;
+			this.ball.speed = 0.3;
 			this.ball.velocityX = -this.ball.velocityX;
+			this.server.to(this.roomName).emit('Score', { player: player2.id, score: player2.score });
 		}
-		else if (this.ball.x - this.ball.radius < 0) {
+		else if (this.ball.x + this.ball.radius > this.canvasWidth) {
+			player1.score++;
+			this.ball.x = this.canvasWidth / 2;
+			this.ball.y = this.canvasHeight / 2;
+			this.ball.speed = 0.3;
 			this.ball.velocityX = -this.ball.velocityX;
+			this.server.to(this.roomName).emit('Score', { player: player1.id, score: player1.score });
 		}
-		this.server.to(this.roomName).emit('BallMoved', { x: this.ball.x, y: this.ball.y });
+		// console.log('ball", ', this.roomName);
+		this.server.to(this.roomName).emit('BallMoved', { x: this.ball.x, y: this.ball.y, player: player1.id, opponent: player2.id });
 	}
 
-	startInterval() {
+	startInterval(socket: Socket) {
 		setInterval(() => {
-			this.moveBall();
-		}, 30);
+			if (this.mapPlayers.size < 2) return;
+			this.moveBall(socket);
+		}, 1000 / 60);
 	}
 
 	handleDisconnect(socket: Socket): void {
