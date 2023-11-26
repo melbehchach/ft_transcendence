@@ -56,6 +56,7 @@ export default function RandomMatch() {
 	const [countdown, setCountdown] = useState(false);
     const [ballY, setBallY] = useState(canvasHeight / 2);
     const [ballX, setBallX] = useState(canvasWidth  / 2);
+    
     let room = '';
 
     const render = () =>  {
@@ -116,11 +117,10 @@ export default function RandomMatch() {
     useEffect(() => {
         if (socket) {
             socket.on('RandomMatch', (data: any) => {
-				console.log(data.player === cookie.get('USER_ID'));
+    
                 if (data.player === cookie.get('USER_ID')) {
                     setPlayerY( data.playerY);
                     setOpenentY(data.opponentY);
-
                     room = data.room;
                 }
                 else {
@@ -130,15 +130,17 @@ export default function RandomMatch() {
                 }
             });
             socket.on('PlayerMoved', (data: any) => {
-				
+
                 if (data.player === cookie.get('USER_ID')) {
                     setPlayerY(data.y);
                 }
                 else {
+                    console.log('no');
                     setOpenentY(data.y);
                 }
             });
             socket.on('BallMoved', (data: any) => {
+                
 				if (data.player === cookie.get('USER_ID')) {
 					setBallX(data.x);
 				} else {
@@ -147,6 +149,9 @@ export default function RandomMatch() {
 				setBallY(data.y);
 				
             });
+            // socket.on('keepGameStateUpdating', (data: any) => {
+            //     console.log(data);
+            // });
         }
     }, [socket]);
 
@@ -157,9 +162,5 @@ export default function RandomMatch() {
 		</div>
 	)
 }
-
-
-// collision detection 2 => 70
-
 
  
