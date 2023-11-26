@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { Interval } from '@nestjs/schedule';
 
 @Injectable()
 export class GameService {
@@ -18,9 +17,6 @@ export class GameService {
   }
 
   addPlayerToRoom(roomName: string, playerId: string): string[] {
-    if (!this.roomGame.has(roomName)) {
-      this.createRoom();
-    }
     const players = this.roomGame.get(roomName);
     if (players.length === 2) {
       throw new Error('Room is already full');
@@ -36,8 +32,9 @@ export class GameService {
     );
   }
 
-  getPlayersInRoom(roomName: string): string[] {
-    return this.roomGame.get(roomName) || [];
+  getPlayersInRoom(roomName: string){
+    if (!roomName)
+      return this.roomGame.get(roomName);
   }
 
   checkIfRoomIsFull(roomName: string): boolean {

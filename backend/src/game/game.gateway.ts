@@ -9,7 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { GameService } from './game.service';
 import { Server, Socket } from 'socket.io';
 import { GameType } from '@prisma/client';
-import * as _ from "lodash";
+import { v4 as uuidv4 } from 'uuid';
 
 @WebSocketGateway({
 	cors: '*',
@@ -18,21 +18,13 @@ import * as _ from "lodash";
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	canvasWidth = 1080;
 	canvasHeight = 720;
-	ball = {
-		x: this.canvasWidth / 2,
-		y: this.canvasHeight / 2,
-		radius: 10,
-		velocityX: 2,
-		velocityY: 2,
-		speed: 0.3,
-	}
-	gameQueue: any[] = [];
-	mapPlayers: Map<string, any> = new Map();
-	mapSocketToPlayer: Map<string, Socket> = new Map();
-	roomName: string;
+	gameQueue: any[] = []; // queue of players waiting for a game
+	mapPlayers: Map<string, any> = new Map(); // map of players in a game
+	mapSocketToPlayer: Map<string, Socket> = new Map(); // map of connected players with their socket
+	MapRoomToPlayers: Map<string, any> = new Map(); // map of players in a game with their room
+	private MapGames = new Map<string, any>(); // map of games
 	@WebSocketServer() server: Server;
 	constructor(
-		private readonly GameRoom: GameService,
 		private readonly prisma: PrismaService,
 	) { }
 
@@ -64,11 +56,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			if (this.gameQueue.length >= 2) {
 				const player = this.gameQueue.shift(); // player 1
 				const opponent = this.gameQueue.shift(); // player 2
+				const room = uuidv4();
 				opponent.x = this.canvasWidth - 30;
-				this.roomName = this.GameRoom.createRoom();
 				await this.prisma.game.create({
 					data: {
-						id: this.roomName,
+						id: room,
 						Player: {
 							connect: { id: player.id },
 						},
@@ -80,14 +72,35 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 						type: GameType.RandomMatch,
 					},
 				});
-				player.socket.join(this.roomName);
-				opponent.socket.join(this.roomName);
+				player.socket.join(room);
+				opponent.socket.join(room);
 				this.mapPlayers.set(player.id, player);
 				this.mapPlayers.set(opponent.id, opponent);
-				this.server.to(this.roomName).emit('RandomMatch', {
-					player: player.id, opponent: opponent.id,
-					playerY: player.y, opponentY: opponent.y,
-					room: this.roomName, playerScore: player.score, opponentScore: opponent.score,
+				this.MapRoomToPlayers.set(room, [player, opponent]);
+				const gameState = {
+					roomName: room,
+					player1_id: player.id,
+					player2_id: opponent.id,
+					player1_score: player.score,
+					player2_score: opponent.score,
+					player1_y: player.y,
+					player2_y: opponent.y,
+					ball: {
+						x: this.canvasWidth / 2,
+						y: this.canvasHeight / 2,
+						radius: 10,
+						velocityX: 2,
+						velocityY: 2,
+						speed: 0.3,
+					},
+				};
+				this.MapGames.set(room, gameState);
+				const gameRoom = this.MapGames.get(room);
+				console.log('gameRoom', gameRoom);
+				this.server.to(gameRoom.roomName).emit('RandomMatch', {
+					player: gameRoom.player1_id, opponent: gameRoom.player2_id,
+					playerY: gameRoom.player1_y, opponentY: gameRoom.player2_y,
+					room: gameRoom.roomName, playerScore: gameRoom.player1_score, opponentScore: gameRoom.player2_score,
 				});
 			}
 		}
@@ -96,108 +109,133 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 	}
 
+
+
 	@SubscribeMessage('move')
 	movePaddle(client: Socket, payload: any): void {
-		// console.log('move', payload);
 		if (this.mapPlayers.has(payload.player)) {
 			const player = this.mapPlayers.get(payload.player);
-			if (payload.direction === 'up') {
+			if (payload.direction === 'up')
 				player.y -= 50;
-			}
-			else if (payload.direction === 'down') {
+			else if (payload.direction === 'down')
 				player.y += 50;
-			}
-			if (player.y < 0) {
+			if (player.y < 0)
 				player.y = 0;
-			}
-			else if (player.y > this.canvasHeight - player.height) {
+			else if (player.y > this.canvasHeight - player.height)
 				player.y = this.canvasHeight - player.height;
+			let room: string = '';
+			for (const [key, value] of this.MapRoomToPlayers.entries()) {
+				if (value.some(player => player.id === payload.player)) {
+					room = key;
+					break;
+				}
 			}
-			this.server.to(payload.room).emit('PlayerMoved', { player: player.id, y: player.y });
+			const gameRoom = this.MapGames.get(room);
+			gameRoom.player1_id = player.id;
+			gameRoom.player1_y = player.y;
+			this.MapGames.set(room, gameRoom);
+			this.server.to(room).emit('PlayerMoved', { player: gameRoom.player1_id, y: gameRoom.player1_y });
 		}
 	}
 
-	private handleCollision(playerdetected: any) {
-		let collidePoint = (this.ball.y - (playerdetected.y + playerdetected.height / 2));
+	private handleCollision(playerdetected: any, ball: any) {
+
+		let collidePoint = (ball.y - (playerdetected.y + playerdetected.height / 2));
 		collidePoint = collidePoint / (playerdetected.height / 2);
 		let angleRad = (Math.PI / 4) * collidePoint;
-		let direction = (this.ball.x < this.canvasWidth / 2) ? 1 : -1; // Change direction based on ball's position
-		this.ball.velocityX = direction * this.ball.speed * Math.cos(angleRad);
-		this.ball.velocityY = this.ball.speed * Math.sin(angleRad);
-		// this.ball.speed += 0.2;
+		let direction = (ball.x < this.canvasWidth / 2) ? 1 : -1; // Change direction based on ball's position
+		ball.velocityX = direction * ball.speed * Math.cos(angleRad);
+		ball.velocityY = ball.speed * Math.sin(angleRad);
+		ball.speed += 0.2;
 	}
 
-	moveBall(socket: Socket): void {
-		let playerId = socket.handshake.auth.token;
-		const [firstKey, secondKey] = this.mapPlayers.keys();
-		let player1, player2;
-		if (firstKey === playerId) {
-			player1 = this.mapPlayers.get(firstKey);
-			player2 = this.mapPlayers.get(secondKey);
-		} else if (secondKey === playerId) {
-			player1 = this.mapPlayers.get(firstKey);
-			player2 = this.mapPlayers.get(secondKey);
-		}
-
-		this.ball.x += this.ball.velocityX;
-		this.ball.y += this.ball.velocityY;
-		const collision = (ball: any, player: any) => {
+	private collision = (ball: any, player: any) => {
+		if (ball && player) {
 			player.top = player.y;
 			player.right = player.x + player.width;
 			player.bottom = player.y + player.height;
 			player.left = player.x;
+
 			ball.top = ball.y - ball.radius;
 			ball.right = ball.x + ball.radius;
 			ball.bottom = ball.y + ball.radius;
 			ball.left = ball.x - ball.radius;
 			return ball.left < player.right && ball.top < player.bottom && ball.right > player.left && ball.bottom > player.top;
 		}
-		// console.log('collision 1 ==> ', player1.id);
-		// console.log('collision 2 ==> ', player2.id);
-		if (collision(this.ball, player1)) {
-			// console.log('collision 1 ==> ', player1.id);
-			// console.log('collision 2 ==> ', player2.id);
-			this.handleCollision(player1);
+		return false;
+	};
+
+	moveBall(socket: Socket): void {
+		let player1, player2, roomName;
+		if (!this.MapRoomToPlayers.has(roomName)) return;
+		player1 = this.MapRoomToPlayers.get(roomName)[0];
+		if (this.MapRoomToPlayers.get(roomName)[1].id !== player1.id) {
+			player2 = this.MapRoomToPlayers.get(roomName)[1];
 		}
-		if (collision(this.ball, player2)) {
-			// console.log('collision 2 ', player2.id);
-			this.handleCollision(player2);
+		for (const [key, value] of this.MapRoomToPlayers.entries()) {
+			if (value.some(player => player.id === player1.id)) {
+				roomName = key;
+				break;
+			}
 		}
-		if (this.ball.y + this.ball.radius > this.canvasHeight || this.ball.y - this.ball.radius < 0)
-			this.ball.velocityY = -this.ball.velocityY;
-		if (this.ball.x - this.ball.radius < 0) {
-			player2.score++;
-			this.ball.x = this.canvasWidth / 2;
-			this.ball.y = this.canvasHeight / 2;
-			this.ball.speed = 0.3;
-			this.ball.velocityX = -this.ball.velocityX;
-			this.server.to(this.roomName).emit('Score', { player: player2.id, score: player2.score });
+		const gameRoom = this.MapGames.get(roomName);
+		gameRoom.ball.x += gameRoom.ball.velocityX;
+		gameRoom.ball.y += gameRoom.ball.velocityY;
+
+		if (this.collision(gameRoom.ball, player1)) {
+			// console.log('collision', gameRoom.ball.x, gameRoom.ball.y, player1.id);
+			this.handleCollision(player1, gameRoom.ball);
 		}
-		else if (this.ball.x + this.ball.radius > this.canvasWidth) {
-			player1.score++;
-			this.ball.x = this.canvasWidth / 2;
-			this.ball.y = this.canvasHeight / 2;
-			this.ball.speed = 0.3;
-			this.ball.velocityX = -this.ball.velocityX;
-			this.server.to(this.roomName).emit('Score', { player: player1.id, score: player1.score });
+		if (this.collision(gameRoom.ball, player2)) {
+			// console.log('collision', gameRoom.ball.x, gameRoom.ball.y, player2.id);
+			this.handleCollision(player2, gameRoom.ball);
 		}
-		// console.log('ball", ', this.roomName);
-		this.server.to(this.roomName).emit('BallMoved', { x: this.ball.x, y: this.ball.y, player: player1.id, opponent: player2.id });
+
+		if (gameRoom.ball.y + gameRoom.ball.radius > this.canvasHeight || gameRoom.ball.y - gameRoom.ball.radius < 0)
+			gameRoom.ball.velocityY = -gameRoom.ball.velocityY;
+		if (gameRoom.ball.x - gameRoom.ball.radius < 0) {
+			// player2.score++;
+			gameRoom.ball.x = this.canvasWidth / 2;
+			gameRoom.ball.y = this.canvasHeight / 2;
+			gameRoom.ball.speed = 0.3;
+			gameRoom.ball.velocityX = -gameRoom.ball.velocityX;
+			// this.server.to(roomName).emit('Score', { player: player2.id, score: player2.score });
+		}
+		else if (gameRoom.ball.x + gameRoom.ball.radius > this.canvasWidth) {
+			// player1.score++;
+			gameRoom.ball.x = this.canvasWidth / 2;
+			gameRoom.ball.y = this.canvasHeight / 2;
+			gameRoom.ball.speed = 0.3;
+			gameRoom.ball.velocityX = -gameRoom.ball.velocityX;
+			// this.server.to(roomName).emit('Score', { player: player1.id, score: player1.score });
+		}
+		this.server.to(roomName).emit('BallMoved', { x: gameRoom.ball.x, y: gameRoom.ball.y, player: gameRoom.player1_id, opponent: gameRoom.player2_id });
 	}
 
 	startInterval(socket: Socket) {
 		setInterval(() => {
-			if (this.mapPlayers.size < 2) return;
 			this.moveBall(socket);
 		}, 1000 / 60);
 	}
 
 	handleDisconnect(socket: Socket): void {
-		const playeId: string = socket.handshake.auth.token;
-		if (playeId) {
-			this.mapSocketToPlayer.delete(playeId);
-			this.gameQueue = this.gameQueue.filter(player => player.id !== playeId);
+		const playerId: string = socket.handshake.auth.token;
+		if (playerId) {
+			this.mapSocketToPlayer.delete(playerId);
+			this.gameQueue = this.gameQueue.filter(player => player.id !== playerId);
+			this.mapPlayers.delete(playerId);
 
+			let roomName;
+			for (const [room, players] of this.MapRoomToPlayers.entries()) {
+				if (players.some((p: any) => p.id === playerId)) {
+					roomName = room;
+					break;
+				}
+			}
+			if (roomName) {
+				this.MapRoomToPlayers.delete(roomName);
+				this.MapGames.delete(roomName);
+			}
 			// console.log('Player disconnected: ', socket.id);
 		}
 	}
