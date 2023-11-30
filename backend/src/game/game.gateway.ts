@@ -22,6 +22,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   mapSocketToPlayer: Map<string, Socket> = new Map(); // map of connected players with their socket
   MapRoomToPlayers: Map<string, any> = new Map(); // map of players in a game with their room
   private MapGames = new Map<string, any>(); // map of games
+  private playerInterval: Map<string, any> = new Map(); // map of player interval
   @WebSocketServer() server: Server;
   constructor(private readonly prisma: PrismaService) {}
 
@@ -45,6 +46,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         y: this.canvasHeight / 2 - 75,
         score: 0,
         width: 20,
+        velocityY: 0,
         height: 150,
       };
       if (!this.gameQueue.some((player) => player.id === ObjectPlayer.id)) {
@@ -71,6 +73,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
         player.socket.join(room);
         opponent.socket.join(room);
+        this.server.to(room).emit('gameStart', {});
+        console.log('game started');
         this.mapPlayers.set(player.id, player);
         this.mapPlayers.set(opponent.id, opponent);
         this.MapRoomToPlayers.set(room, [player, opponent]);
@@ -78,8 +82,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           roomName: room,
           player1Obj: player,
           player2Obj: opponent,
-          // player1_score: player.score,
-          // player2_score: opponent.score,
           ball: {
             x: this.canvasWidth / 2,
             y: this.canvasHeight / 2,
@@ -101,11 +103,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           opponentScore: gameRoom.player2Obj.score,
         });
       }
+      
     } catch (error) {
       console.log(error);
     }
   }
-
+  
   @SubscribeMessage('move')
   movePaddle(client: Socket, payload: any): void {
     const gameRoom = this.MapGames.get(payload.room);
@@ -145,7 +148,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     let direction = ball.x < this.canvasWidth / 2 ? 1 : -1; // Change direction based on ball's position
     ball.velocityX = direction * ball.speed * Math.cos(angleRad);
     ball.velocityY = ball.speed * Math.sin(angleRad);
-    // ball.speed += 0.2;
+    ball.speed += 0.1;
   }
 
   private collision = (ball: any, player: any) => {
@@ -186,29 +189,23 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         room.ball.y - room.ball.radius < 0
       )
         room.ball.velocityY = -room.ball.velocityY;
-      if (room.ball.x - room.ball.radius < 0) {
+      if (room.ball.x - room.ball.radius < 0) { // opponent scored
         room.player2Obj.score++;
         room.ball.x = this.canvasWidth / 2;
         room.ball.y = this.canvasHeight / 2;
         room.ball.velocityX = -room.ball.velocityX;
-        this.server
-          .to(room.roomName)
-          .emit('Score', {
-            player: room.player2Obj.id,
-            score: room.player2Obj.score++,
-          });
-      } else if (room.ball.x + room.ball.radius > this.canvasWidth) {
-        room.player2Obj.score++;
+      } else if (room.ball.x + room.ball.radius > this.canvasWidth) { // player scored
+        room.player1Obj.score++;
         room.ball.x = this.canvasWidth / 2;
         room.ball.y = this.canvasHeight / 2;
         room.ball.velocityX = -room.ball.velocityX;
-        this.server
-          .to(room.roomName)
-          .emit('Score', {
-            player: room.player1Obj.id,
-            score: room.player1Obj.score++,
-          });
       }
+      this.server.to(room.roomName).emit('updateScore', {
+        player: room.player1Obj.id,
+        playerScore: room.player1Obj.score,
+        opponentScore: room.player2Obj.score,
+        room: room.roomName,
+      });
       this.server.to(room.roomName).emit('BallMoved', {
         x: room.ball.x,
         y: room.ball.y,
@@ -218,10 +215,37 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
+  private GameOver = (room: string) => {
+    const gameRoom = this.MapGames.get(room);
+    if (gameRoom.player1Obj.score === 5 || gameRoom.player2Obj.score === 5) {
+      this.server.to(room).emit('GameOver', {
+        player: gameRoom.player1Obj.id,
+        playerScore: gameRoom.player1Obj.score,
+        opponentScore: gameRoom.player2Obj.score,
+        room: gameRoom.roomName,
+      });
+      this.MapGames.delete(room);
+      this.MapRoomToPlayers.delete(room);
+    }
+  };
+
   startInterval(socket: Socket) {
-    setInterval(() => {
+    const playerId: string = socket.handshake.auth.token;
+    if (this.playerInterval.has(playerId)) {
+      clearInterval(this.playerInterval.get(playerId));
+    }
+    const intervalId = setInterval(() => {
       this.moveBall(socket);
+      this.MapRoomToPlayers.forEach((players, room) => {
+        this.GameOver(room);
+      });
     }, 1000 / 60);
+    this.playerInterval.set(playerId, intervalId);
+  }
+
+  @SubscribeMessage('playerScore')
+  updatePlayerScore(socket: Socket, payload: any): void {
+    console.log(payload);
   }
 
   handleDisconnect(socket: Socket): void {
@@ -232,6 +256,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         (player) => player.id !== playerId,
       );
       this.mapPlayers.delete(playerId);
+      if (this.playerInterval.has(playerId)){
+        clearInterval(this.playerInterval.get(playerId));
+        this.playerInterval.delete(playerId);
+      }
 
       let roomName;
       for (const [room, players] of this.MapRoomToPlayers.entries()) {
