@@ -1,9 +1,8 @@
 "use client";
-import { useEffect, useRef, useState, useCallback, use } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Socket, io } from "socket.io-client";
 import cookie from "js-cookie";
 import Countdown from "./countdown";
-import PopupRandom from "./Popuprandom";
 import { Player, Net } from "../../types";
 
 const canvasWidth = 1080;
@@ -68,7 +67,7 @@ let net: Net = {
   color: "white",
 };
 
-export default function RandomMatch({ setOpponentScore, setPlayerScore }: any) {
+export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoading }: any) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
@@ -89,7 +88,6 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore }: any) {
     color: "white",
   };
   const [countdown, setCountdown] = useState(true);
-  const [loading, setLoading] = useState(true);
   const [ballY, setBallY] = useState(canvasHeight / 2);
   const [ballX, setBallX] = useState(canvasWidth / 2);
 
@@ -218,7 +216,6 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore }: any) {
         }
       });
       socket.on("gameStart", () => {
-        console.log("game start");
         setLoading(false);
       });
     }
@@ -228,8 +225,7 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore }: any) {
 
   return (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-      {loading ? <PopupRandom/> : false}
-      {countdown && loading ? <Countdown onCountdownEnd={onCountdownEnd} /> : false}
+      {countdown ? <Countdown onCountdownEnd={onCountdownEnd} /> : false}
       <canvas
         className="w-full h-full"
         ref={canvasRef}

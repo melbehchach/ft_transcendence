@@ -1,5 +1,4 @@
 'use client';
-import { Avatar } from 'flowbite-react';
 import { useRouter } from 'next/navigation';
 
 interface ScoreBoardProps {
@@ -13,7 +12,7 @@ export default function ScoreBoard({playerScore, opponentScore}: ScoreBoardProps
     <>
       <div className="flex justify-between items-center m-5 p-5">
         <div className="flex items-center justify-center gap-1">
-        <Avatar alt='player1' img="" rounded/>
+        {/* <avatar alt='player1' img="" rounded/> */}
           <span className="mx-2 text-text text-center text-5xl font-bold">{playerScore}</span>
         </div>
         <button className="inline-flex items-center h-12 bg-primary rounded-3xl p-4 px-14 gap-3">
@@ -55,7 +54,7 @@ export default function ScoreBoard({playerScore, opponentScore}: ScoreBoardProps
         </button>
         <div className="flex items-center justify-center gap-1">
           <span className="mx-2 text-text text-center text-5xl font-bold">{opponentScore}</span>
-          <Avatar alt='player2' img="" rounded />
+          {/* <Avatar alt='player2' img="" rounded /> */}
         </div>
       </div>
     </>
