@@ -74,7 +74,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         player.socket.join(room);
         opponent.socket.join(room);
         this.server.to(room).emit('gameStart', {});
-        console.log('game started');
         this.mapPlayers.set(player.id, player);
         this.mapPlayers.set(opponent.id, opponent);
         this.MapRoomToPlayers.set(room, [player, opponent]);
@@ -103,12 +102,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           opponentScore: gameRoom.player2Obj.score,
         });
       }
-      
     } catch (error) {
       console.log(error);
     }
   }
-  
+
   @SubscribeMessage('move')
   movePaddle(client: Socket, payload: any): void {
     const gameRoom = this.MapGames.get(payload.room);
@@ -189,12 +187,14 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         room.ball.y - room.ball.radius < 0
       )
         room.ball.velocityY = -room.ball.velocityY;
-      if (room.ball.x - room.ball.radius < 0) { // opponent scored
+      if (room.ball.x - room.ball.radius < 0) {
+        // opponent scored
         room.player2Obj.score++;
         room.ball.x = this.canvasWidth / 2;
         room.ball.y = this.canvasHeight / 2;
         room.ball.velocityX = -room.ball.velocityX;
-      } else if (room.ball.x + room.ball.radius > this.canvasWidth) { // player scored
+      } else if (room.ball.x + room.ball.radius > this.canvasWidth) {
+        // player scored
         room.player1Obj.score++;
         room.ball.x = this.canvasWidth / 2;
         room.ball.y = this.canvasHeight / 2;
@@ -243,11 +243,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.playerInterval.set(playerId, intervalId);
   }
 
-  @SubscribeMessage('playerScore')
-  updatePlayerScore(socket: Socket, payload: any): void {
-    console.log(payload);
-  }
-
   handleDisconnect(socket: Socket): void {
     const playerId: string = socket.handshake.auth.token;
     if (playerId) {
@@ -256,7 +251,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         (player) => player.id !== playerId,
       );
       this.mapPlayers.delete(playerId);
-      if (this.playerInterval.has(playerId)){
+      if (this.playerInterval.has(playerId)) {
         clearInterval(this.playerInterval.get(playerId));
         this.playerInterval.delete(playerId);
       }
@@ -269,10 +264,24 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
       if (roomName) {
-        this.MapRoomToPlayers.delete(roomName);
-        this.MapGames.delete(roomName);
+        const gameRoom = this.MapGames.get(roomName);
+        if (gameRoom) {
+          if (gameRoom.player1Obj.id === playerId) {
+            gameRoom.player2Obj.score = 5;
+            this.server.to(gameRoom.player2Obj.socket.id).emit('UnexpectedWinner', {
+              winner: gameRoom.player2Obj.id,
+            });
+          } else if (gameRoom.player2Obj.id === playerId) {
+            gameRoom.player1Obj.score = 5;
+            this.server.to(gameRoom.player1Obj.socket.id).emit('UnexpectedWinner', {
+              winner: gameRoom.player1Obj.id,
+            });
+          }
+          this.MapRoomToPlayers.delete(roomName);
+          this.MapGames.delete(roomName);
+        }
+        // console.log('Player disconnected: ', socket.id);
       }
-      // console.log('Player disconnected: ', socket.id);
     }
   }
 }

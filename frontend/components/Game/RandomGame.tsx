@@ -72,15 +72,15 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
-  const Player = {
+  const Player : Player = {
     x: 10,
     y: canvasHeight / 2 - 50,
     width: 20,
     height: 150,
     color: "white",
-    score: 0,
+    // score: 0,
   };
-  const Opponent = {
+  const Opponent : Player = {
     x: canvasWidth - 30,
     y: canvasHeight / 2 - 50,
     width: 20,
@@ -217,6 +217,12 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
       });
       socket.on("gameStart", () => {
         setLoading(false);
+      });
+      socket.on("UnexpectedWinner", (data: any) => {
+        if (data.winner === cookie.get("USER_ID")) {
+          console.log("You win");
+          // push the player to deashboard game to start a new game
+        } 
       });
     }
   }, [socket]);

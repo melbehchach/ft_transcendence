@@ -11,7 +11,7 @@ export interface Player {
 	width: number;
 	height: number;
 	color: string;
-	score: number;
+	// score: number;
 }
 
 export interface Ball {
