@@ -50,7 +50,7 @@ export default function ScoreBoard({playerScore, opponentScore}: ScoreBoardProps
               />
             </svg>
           </i>
-          <span onClick={() => router.push('/')} className="text-text">Leave game</span>
+          <span onClick={() => router.push('/game')} className="text-text">Leave game</span>
         </button>
         <div className="flex items-center justify-center gap-1">
           <span className="mx-2 text-text text-center text-5xl font-bold">{opponentScore}</span>

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Socket, io } from "socket.io-client";
 import cookie from "js-cookie";
@@ -163,7 +163,7 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
   useEffect(() => {
     if (!socket) return;
     window?.addEventListener("keydown", keyPress);
-    socket.emit("RandomMatch", { player: cookie.get("USER_ID"), room: room });
+    socket.emit("InviteFriend", { player: cookie.get("USER_ID"), room: room });
     return () => {
       socket?.disconnect();
     };
@@ -171,7 +171,7 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
 
   useEffect(() => {
     if (socket) {
-      socket.on("RandomMatch", (data: any) => {
+      socket.on("InviteFriend", (data: any) => {
         if (data.player === cookie.get("USER_ID")) {
           setPlayerY(data.playerY);
           setOpenentY(data.opponentY);

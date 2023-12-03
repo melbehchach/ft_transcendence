@@ -34,7 +34,9 @@ export default function GameIntro() {
                 <span className="w-[16.125rem] text-textSecondary font-sans text-lg">
                   challenge your online friends for a 1v1 pong party
                 </span>
-                <button className="w-9/12 p-[0.75rem] rounded-full bg-primary text-white font-sans text-sm">
+                <button 
+                   onClick={() => random.push("/game/friend")}
+                  className="w-9/12 p-[0.75rem] rounded-full bg-primary text-white font-sans text-sm">
                   Challenge your friends
                 </button>
               </div>

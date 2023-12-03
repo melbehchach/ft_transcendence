@@ -35,6 +35,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // console.log('Player connected: ', client.id);
   }
 
+
+  @SubscribeMessage('InviteFriend')
+  async createFriendMatch(socket: Socket, payload: any): Promise<void> {
+    
+  }
+
   @SubscribeMessage('RandomMatch')
   async createRandomMatch(socket: Socket, ...args: any[]): Promise<void> {
     try {
@@ -57,20 +63,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const opponent = this.gameQueue.shift(); // player 2
         const room = uuidv4();
         opponent.x = this.canvasWidth - 30;
-        await this.prisma.game.create({
-          data: {
-            id: room,
-            Player: {
-              connect: { id: player.id },
-            },
-            Opponent: {
-              connect: { id: opponent.id },
-            },
-            playerScore: player.score,
-            opponentScore: opponent.score,
-            type: GameType.RandomMatch,
-          },
-        });
         player.socket.join(room);
         opponent.socket.join(room);
         this.server.to(room).emit('gameStart', {});
@@ -91,6 +83,24 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           },
         };
         this.MapGames.set(room, gameState);
+        try {
+          await this.prisma.game.create({
+            data: {
+              id: room,
+              Player: {
+                connect: { id: player.id },
+              },
+              Opponent: {
+                connect: { id: opponent.id },
+              },
+              playerScore: gameState.player1Obj.score,
+              opponentScore: gameState.player2Obj.score,
+              type: GameType.RandomMatch,
+            },
+          });
+        } catch (error) {
+          console.log(error);
+        }
         const gameRoom = this.MapGames.get(room);
         this.server.to(gameRoom.roomName).emit('RandomMatch', {
           player: gameRoom.player1Obj.id,
@@ -167,6 +177,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
   };
 
+  private resetBall = (room: string) => {
+    const gameRoom = this.MapGames.get(room);
+    if (gameRoom) {
+      gameRoom.ball.x = this.canvasWidth / 2;
+      gameRoom.ball.y = this.canvasHeight / 2;
+      gameRoom.ball.velocityX = -gameRoom.ball.velocityX;
+    }
+  };
+
   moveBall(socket: Socket): void {
     this.MapGames.forEach((room, currentGameRoom) => {
       const constSpeed = 2;
@@ -188,17 +207,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       )
         room.ball.velocityY = -room.ball.velocityY;
       if (room.ball.x - room.ball.radius < 0) {
-        // opponent scored
         room.player2Obj.score++;
-        room.ball.x = this.canvasWidth / 2;
-        room.ball.y = this.canvasHeight / 2;
-        room.ball.velocityX = -room.ball.velocityX;
+        this.resetBall(currentGameRoom);
       } else if (room.ball.x + room.ball.radius > this.canvasWidth) {
-        // player scored
         room.player1Obj.score++;
-        room.ball.x = this.canvasWidth / 2;
-        room.ball.y = this.canvasHeight / 2;
-        room.ball.velocityX = -room.ball.velocityX;
+        this.resetBall(currentGameRoom);
       }
       this.server.to(room.roomName).emit('updateScore', {
         player: room.player1Obj.id,
@@ -215,15 +228,25 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  private GameOver = (room: string) => {
+ private GameOver = async (room: string) => {
     const gameRoom = this.MapGames.get(room);
     if (gameRoom.player1Obj.score === 5 || gameRoom.player2Obj.score === 5) {
+      await this.prisma.game.updateMany({
+        where: {
+          id: room,
+        },
+        data: {
+          playerScore: gameRoom.player1Obj.score,
+          opponentScore: gameRoom.player2Obj.score,
+        },
+      });
       this.server.to(room).emit('GameOver', {
         player: gameRoom.player1Obj.id,
         playerScore: gameRoom.player1Obj.score,
         opponentScore: gameRoom.player2Obj.score,
         room: gameRoom.roomName,
       });
+      this.resetBall(room);
       this.MapGames.delete(room);
       this.MapRoomToPlayers.delete(room);
     }
@@ -243,7 +266,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.playerInterval.set(playerId, intervalId);
   }
 
-  handleDisconnect(socket: Socket): void {
+  async handleDisconnect(socket: Socket): Promise<void> {
     const playerId: string = socket.handshake.auth.token;
     if (playerId) {
       this.mapSocketToPlayer.delete(playerId);
@@ -268,14 +291,31 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         if (gameRoom) {
           if (gameRoom.player1Obj.id === playerId) {
             gameRoom.player2Obj.score = 5;
-            this.server.to(gameRoom.player2Obj.socket.id).emit('UnexpectedWinner', {
-              winner: gameRoom.player2Obj.id,
-            });
+            await this.prisma.game.updateMany({
+                where: {
+                    id: roomName,
+                },
+                data: {
+                    playerScore: gameRoom.player1Obj.score,
+                    opponentScore: gameRoom.player2Obj.score,
+                },
+            })
+            this.resetBall(roomName);
+            this.server
+              .to(gameRoom.player2Obj.socket.id)
+              .emit('UnexpectedWinner', {
+                winner: gameRoom.player2Obj.id,
+                score: gameRoom.player2Obj.score,
+              });
           } else if (gameRoom.player2Obj.id === playerId) {
             gameRoom.player1Obj.score = 5;
-            this.server.to(gameRoom.player1Obj.socket.id).emit('UnexpectedWinner', {
-              winner: gameRoom.player1Obj.id,
-            });
+            this.resetBall(roomName);
+            this.server
+              .to(gameRoom.player1Obj.socket.id)
+              .emit('UnexpectedWinner', {
+                winner: gameRoom.player1Obj.id,
+                score: gameRoom.player1Obj.score,
+              });
           }
           this.MapRoomToPlayers.delete(roomName);
           this.MapGames.delete(roomName);
