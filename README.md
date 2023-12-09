@@ -35,7 +35,7 @@ npm install -f
 3. Start the frontend:
 
 ```bash
-npm run dev -- -p 3001
+npm run dev
 ```
 
 4. In a new terminal, navigate to the backend directory and install the dependencies:
