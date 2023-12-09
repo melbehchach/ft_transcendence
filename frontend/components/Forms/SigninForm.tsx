@@ -81,11 +81,11 @@ export default function SigninForm() {
               <span className="text-text text-opacity-20">OR</span>
               <div className="border-t w-full  border-text border-opacity-20"></div>
             </div>
-            <Link href="http://localhost:3000/auth/42">
+            <a href="http://localhost:3000/auth/42">
               <button className="block bg-accent text-text px-6 py-3 rounded-lg w-full">
                 Continue With Intra
               </button>
-            </Link>
+            </a>
           </div>
         </div>
       </div>

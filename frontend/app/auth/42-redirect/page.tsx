@@ -6,7 +6,7 @@ import Failure from "../failure/page";
 async function getPreAuthData() {
   const cookie = cookies();
   try {
-    const response = await fetch("http://localhost:3000/auth/preAuthData", {
+    const response = await fetch("http://backend:3000/auth/preAuthData", {
       credentials: "include",
       method: "GET",
       headers: {

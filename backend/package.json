@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "docker:start": "open -ga Docker",
-    "prisma:dev": "npx prisma generate && npx prisma migrate dev",
+    "prisma:dev": "npx prisma generate && npx prisma migrate dev --name init",
     "db:clear": "npx prisma migrate reset",
     "db:up": "docker-compose up database -d && npm run prisma:dev",
     "db:rm": "docker-compose rm database -sfv",
@@ -16,7 +16,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start:dev": "npm run prisma:dev && nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
