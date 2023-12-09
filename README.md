@@ -1,28 +1,51 @@
+# PONG CLUB
+
 ## Running Locally
 
 To run the frontend and backend locally, follow these steps:
 
-1. Navigate to the frontend directory and install the dependencies:
+0. first you need to .env file with the following variables:
+
+```bash
+42_UID
+42_SECRET
+42_CALLBACK_URI
+
+POSTGRES_DB
+POSTGRES_USER
+POSTGRES_PASSWORD
+DATABASE_URL
+
+JWT_SECRET
+```
+
+1. Run the database:
+
+```bash
+docker-compose up database
+```
+
+2. In a new terminal, vavigate to the frontend directory and install the dependencies:
 
 ```bash
 cd frontend
 npm install -f
 ```
 
-2. Start the frontend:
+3. Start the frontend:
 
 ```bash
 npm run dev -- -p 3001
 ```
 
-3. In a new terminal window, navigate to the backend directory and install the dependencies:
+4. In a new terminal, navigate to the backend directory and install the dependencies:
 
 ```bash
 cd backend
 npm install -f
 ```
 
-4. Start the backend:
+5. Start the backend:
 
 ```bash
 npm run start:dev
