@@ -7,17 +7,23 @@ import {
   Param,
   Patch,
   Post,
+  // Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
-import { newChannelDto, updateChannelDto } from 'src/dto/channels.dto';
+import { editTypeDto, makeAdminDto, newChannelDto } from 'src/dto/channels.dto';
+// import { updateChannelDto } from 'src/dto/channels.dto';
 import { ChatGuard } from 'src/guards/chat.jwt.guard';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @UseGuards(ChatGuard)
 @Controller('channels')
 export class ChannelsController {
-  constructor(private readonly channelsService: ChannelsService) {}
+  constructor(
+    private readonly channelsService: ChannelsService,
+    private prisma: PrismaService,
+  ) {}
 
   @Get('all')
   async getUserChannels(@Req() req) {
@@ -30,7 +36,7 @@ export class ChannelsController {
 
   @Get(':id')
   async getChannelById(@Req() req, @Param('id') channelId: string) {
-    if (!req.userID) {
+    if (!channelId || !req.userID) {
       throw new InternalServerErrorException('BadRequest');
     }
     const channel = await this.channelsService.getChannelById(
@@ -48,24 +54,90 @@ export class ChannelsController {
     return this.channelsService.createChannel(data, req.userID);
   }
 
-  @Patch(':id')
-  async updateChannel(
+  // @Put(':id')
+  // async updateChannel(
+  //   @Param('id') channelId: string,
+  //   @Body() data: updateChannelDto,
+  //   @Req() req,
+  // ) {
+  //   if (!req.userID) {
+  //     throw new InternalServerErrorException('BadRequest');
+  //   }
+  //   return this.channelsService.updateChannel(req.userID, channelId, data);
+  // }
+
+  @Patch(':id/editName')
+  async editChannelName(@Param('id') channelId: string, @Req() req) {
+    if (!channelId || !req.userID) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    return this.channelsService.editChannelName(
+      req.userID,
+      channelId,
+      req.body,
+    );
+  }
+
+  @Patch(':id/editAvatar')
+  async editChannelAvatar(@Param('id') channelId: string, @Req() req) {
+    if (!channelId || !req.userID) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    return this.channelsService.editChannelAvatar(
+      req.userID,
+      channelId,
+      req.body,
+    );
+  }
+
+  @Patch(':id/editType')
+  async editChannelType(
     @Param('id') channelId: string,
-    @Body() data: updateChannelDto,
     @Req() req,
+    @Body() body: editTypeDto,
+  ) {
+    if (!channelId || !req.userID) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    return this.channelsService.editChannelType(req.userID, channelId, body);
+  }
+
+  @Patch(':id/editMembers')
+  async editChannelMembers(@Param('id') channelId: string, @Req() req) {
+    if (!channelId || !req.userID) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    return this.channelsService.editChannelMembers(
+      req.userID,
+      channelId,
+      req.body,
+    );
+  }
+
+  @Patch(':id/makeAdmin')
+  async makeAdmin(
+    @Param('id') channelId: string,
+    @Req() req,
+    @Body() body: makeAdminDto,
   ) {
     if (!req.userID) {
       throw new InternalServerErrorException('BadRequest');
     }
-    return this.channelsService.updateChannel(req.userID, channelId, data);
+    return this.channelsService.makeAdmin(req.userID, channelId, body);
   }
 
   @Delete(':id')
   async deleteChannel(@Param('id') channelId: string, @Req() req) {
-    if (!req.userID) {
+    if (!channelId || !req.userID) {
       throw new InternalServerErrorException('BadRequest');
     }
     const result = this.channelsService.deleteChannel(channelId, req.userID);
     return result;
+  }
+
+  // only for debugging
+  @Delete('delete/all')
+  async clearChannels() {
+    return await this.prisma.channel.deleteMany();
   }
 }

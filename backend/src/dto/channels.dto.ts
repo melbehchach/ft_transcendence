@@ -1,5 +1,5 @@
-import { ChannelType, User } from '@prisma/client';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { ChannelType } from '@prisma/client';
+import { IsBoolean, IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class newChannelDto {
   @IsString()
@@ -16,7 +16,7 @@ export class newChannelDto {
   @IsString()
   password: string;
 
-  Members: User[];
+  Members: string[]; // Array of ids
 }
 
 export class updateChannelDto {
@@ -31,5 +31,24 @@ export class updateChannelDto {
   @IsString()
   password: string;
 
-  Members: User[]; //all or just the changes
+  Members: string[]; // Array of ids
+}
+
+export class makeAdminDto {
+  @IsString()
+  @IsNotEmpty()
+  id: string;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  makeAdmin: boolean;
+}
+
+export class editTypeDto {
+  @IsNotEmpty()
+  @IsEnum(ChannelType)
+  type: ChannelType;
+
+  @IsString()
+  password: string;
 }
