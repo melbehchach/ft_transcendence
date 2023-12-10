@@ -68,7 +68,7 @@ export class AuthService {
     } catch {
       throw new UnauthorizedException();
     }
-    let user = await this.findUser(dto.email);
+    const user = await this.findUser(dto.email);
     if (!user)
       throw new ForbiddenException('you need to signup with intra first');
     if (user.isAuthenticated)
@@ -76,7 +76,7 @@ export class AuthService {
     if (dto.password !== dto.passwordConf)
       throw new ForbiddenException("passwords don't match");
     const hash = await argon.hash(dto.password);
-    user = await this.prisma.user.update({
+    await this.prisma.user.update({
       where: {
         email: dto.email,
       },
@@ -123,7 +123,14 @@ export class AuthService {
       where: {
         email: email,
       },
+      include: {
+        ChannelsOwner: true,
+        ChannelsAdmin: true,
+        ChannelsMember: true,
+        chats: true,
+      },
     });
+    delete user?.password;
     return user;
   }
 }

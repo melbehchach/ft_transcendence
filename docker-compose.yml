@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  database:
+    image: postgres:latest
+    container_name: postgres
+    ports:
+      - 5434:5432
+    env_file: 
+      - backend/.env
+    networks:
+      - ping-pong
+    restart: on-failure
+
+  frontend:
+    build: ./frontend
+    image: frontend
+    container_name: frontend
+    volumes:
+      - ./frontend:/app
+    ports:
+      - 3001:3001
+    networks:
+      - ping-pong
+    depends_on:
+      - backend
+    restart: on-failure
+
+  backend:
+    build: ./backend
+    image: backend
+    container_name: backend
+    volumes:
+      - ./backend:/app
+    ports:
+      - 3000:3000
+    networks:
+      - ping-pong
+    depends_on: 
+      - database
+    restart: on-failure
+
+networks:
+  ping-pong:
+    driver: bridge
+    name: ping-pong
