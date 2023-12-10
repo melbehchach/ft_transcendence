@@ -20,7 +20,9 @@ export class UserController {
   ) {}
   @Get('profile')
   getProfile(@Req() req) {
-    if (!req.user) throw new InternalServerErrorException('BadRequest');
+    if (!req.user) {
+      throw new InternalServerErrorException('BadRequest');
+    }
     const {
       id,
       username,
@@ -51,7 +53,7 @@ export class UserController {
 
   @Post('sendRequest')
   async sendRequest(@Req() req) {
-    if (req.body.senderId && req.body.receiverId) {
+    if (req.user && req.body.receiverId) {
       return this.userService.sendFriendRequest(req.body, req.user.id);
     }
     throw new InternalServerErrorException('BadRequest');

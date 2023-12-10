@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Status } from '@prisma/client';
 
@@ -7,112 +7,121 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async sendFriendRequest(body, userId) {
-    const receiver = await this.prisma.user.findUnique({
-      where: { id: body.receiverId },
-      select: {
-        friends: { where: { id: body.senderId } },
-      },
-    });
-    const sender = await this.prisma.user.findUnique({
-      where: { id: body.senderId },
-    });
-    if (
-      !sender ||
-      !receiver ||
-      body.senderId !== userId ||
-      body.senderId === body.receiverId ||
-      receiver.friends.length !== 0
-    )
-      return { msg: 'Internal Server Error: cannotSendRequest' };
-    const request =
-      (await this.prisma.friendRequest.findFirst({
-        where: {
-          senderId: body.senderId,
-          receiverId: body.receiverId,
+    try {
+      const receiver = await this.prisma.user.findUnique({
+        where: { id: body.receiverId },
+        select: {
+          friends: { where: { id: userId } },
+        },
+      });
+      if (
+        !receiver ||
+        userId === body.receiverId ||
+        receiver.friends.length !== 0
+      ) {
+        throw new Error('Internal Server Error: cannotSendRequest');
+      }
+      const request =
+        (await this.prisma.friendRequest.findFirst({
+          where: {
+            senderId: userId,
+            receiverId: body.receiverId,
+            status: Status.PENDING,
+          },
+        })) ||
+        (await this.prisma.friendRequest.findFirst({
+          where: {
+            senderId: body.receiverId,
+            receiverId: userId,
+            status: Status.PENDING,
+          },
+        }));
+      if (request) {
+        throw new Error('Internal Server Error: Request Already Exists');
+      }
+      const newRequest = await this.prisma.friendRequest.create({
+        data: {
+          sender: {
+            connect: {
+              id: userId,
+            },
+          },
+          receiver: {
+            connect: {
+              id: body.receiverId,
+            },
+          },
           status: Status.PENDING,
         },
-      })) ||
-      (await this.prisma.friendRequest.findFirst({
-        where: {
-          senderId: body.receiverId,
-          receiverId: body.sender,
-          status: Status.PENDING,
-        },
-      }));
-    if (request) {
-      return { msg: 'Internal Server Error: cannotSendRequest' };
+      });
+      if (!newRequest) {
+        throw new Error('Failed to create record');
+      }
+      return { msg: 'Success' };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
     }
-    const newRequest = await this.prisma.friendRequest.create({
-      data: {
-        sender: {
-          connect: {
-            id: body.senderId,
-          },
-        },
-        receiver: {
-          connect: {
-            id: body.receiverId,
-          },
-        },
-        status: Status.PENDING,
-      },
-    });
-    return {
-      msg: newRequest ? 'Success' : 'Internal Server Error',
-    };
   }
 
   async cancelFriendRequest(friendRequest, userId) {
-    if (
-      friendRequest.senderId !== userId ||
-      friendRequest.status !== Status.PENDING
-    )
-      return {
-        msg: 'Internal Server Error: CannotCancelRequest',
-      };
-    const request = await this.prisma.friendRequest.update({
-      where: {
-        id: friendRequest.id,
-      },
-      data: {
-        status: Status.CANCELED,
-      },
-    });
-    return {
-      msg: request ? 'Success' : 'Internal Server Error: requestNotFound',
-    };
+    try {
+      if (
+        friendRequest.senderId !== userId ||
+        friendRequest.status !== Status.PENDING
+      ) {
+        throw new Error('Internal Server Error: CannotCancelRequest');
+      }
+      const request = await this.prisma.friendRequest.update({
+        where: {
+          id: friendRequest.id,
+        },
+        data: {
+          status: Status.CANCELED,
+        },
+      });
+      if (!request) {
+        throw new Error('Internal Server Error: requestNotFound');
+      }
+      return { msg: 'Success' };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   async declineFriendRequest(friendRequest, userId) {
-    if (
-      friendRequest.receiverId !== userId ||
-      friendRequest.status !== Status.PENDING
-    )
-      return {
-        msg: 'Internal Server Error: CannotDeclineRequest',
-      };
-    const request = await this.prisma.friendRequest.update({
-      where: {
-        id: friendRequest.id,
-      },
-      data: {
-        status: Status.DECLINED,
-      },
-    });
-    return {
-      msg: request ? 'Success' : 'Internal Server Error: requestNotFound',
-    };
+    try {
+      if (
+        friendRequest.receiverId !== userId ||
+        friendRequest.status !== Status.PENDING
+      )
+        return {
+          msg: 'Internal Server Error: CannotDeclineRequest',
+        };
+      const request = await this.prisma.friendRequest.update({
+        where: {
+          id: friendRequest.id,
+        },
+        data: {
+          status: Status.DECLINED,
+        },
+      });
+      if (!request) {
+        throw new Error('Internal Server Error: requestNotFound');
+      }
+      return { msg: 'Success' };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   async acceptFriendRequest(friendRequest, userId) {
-    if (
-      friendRequest.receiverId !== userId ||
-      friendRequest.status !== Status.PENDING
-    )
-      return {
-        msg: 'Internal Server Error: CannotAcceptRequest',
-      };
     try {
+      if (
+        friendRequest.receiverId !== userId ||
+        friendRequest.status !== Status.PENDING
+      ) {
+        throw new Error('Internal Server Error: CannotAcceptRequest');
+      }
       const addSender = this.prisma.user.update({
         where: {
           id: friendRequest.senderId,
@@ -130,39 +139,38 @@ export class UserService {
         },
       });
       await this.prisma.$transaction([addSender, addReceiver]);
-    } catch (e) {
-      console.log(e);
-      return {
-        msg: 'Internal Server Error: databseUpdateFailed',
-      };
+      const request = await this.prisma.friendRequest.update({
+        where: {
+          id: friendRequest.id,
+        },
+        data: {
+          status: Status.ACCEPTED,
+        },
+      });
+      if (!request) {
+        throw new Error('Internal Server Error: requestNotFound');
+      }
+      return { msg: 'Success' };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
     }
-    const request = await this.prisma.friendRequest.update({
-      where: {
-        id: friendRequest.id,
-      },
-      data: {
-        status: Status.ACCEPTED,
-      },
-    });
-    return {
-      msg: request ? 'Success' : 'Internal Server Error: requestNotFound',
-    };
   }
 
   async unfriendUser(friendId, userId) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        friends: {
-          where: {
-            id: friendId,
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          friends: {
+            where: {
+              id: friendId,
+            },
           },
         },
-      },
-    });
-    if (!user.friends.length)
-      return { msg: 'Internal Server Error: CannotUnfriendUser' };
-    try {
+      });
+      if (!user.friends.length) {
+        throw new Error('Internal Server Error: CannotUnfriendUser');
+      }
       const removeUserA = this.prisma.user.update({
         where: { id: userId },
         data: {
@@ -190,9 +198,11 @@ export class UserService {
         },
       });
       await this.prisma.$transaction([removeUserA, removeUserB]);
+      return { msg: 'Success' };
     } catch {
-      return { msg: 'Internal Server Error: CannotUnfriendUser' };
+      throw new InternalServerErrorException(
+        'Internal Server Error: CannotUnfriendUser',
+      );
     }
-    return { msg: 'Success' };
   }
 }
