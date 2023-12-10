@@ -6,18 +6,21 @@ import Failure from "../failure/page";
 async function getPreAuthData() {
   const cookie = cookies();
   try {
-    const response = await fetch("http://backend:3000/auth/preAuthData", {
-      credentials: "include",
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Cookie: cookies()
-          .getAll()
-          .map(({ name, value }) => `${name}=${value}`)
-          .join("; "),
-      },
-    });
+    const response = await fetch(
+      `http://${process.env.backend_host}:3000/auth/preAuthData`,
+      {
+        credentials: "include",
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Cookie: cookies()
+            .getAll()
+            .map(({ name, value }) => `${name}=${value}`)
+            .join("; "),
+        },
+      }
+    );
     if (response.ok) {
       const res = await response.json();
       return res.user;
