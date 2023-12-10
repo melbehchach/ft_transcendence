@@ -7,7 +7,6 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { ChannelsService } from './channels.service';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import { validateToken } from 'src/helpers/auth.helpers';
@@ -19,7 +18,6 @@ export class ChannelsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   constructor(
-    private readonly channelsService: ChannelsService,
     private readonly jwtService: JwtService,
     private readonly authService: AuthService,
   ) {}
