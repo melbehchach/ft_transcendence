@@ -22,11 +22,8 @@ model User {
   friends          User[]          @relation("Friendship")
   symmetricFriends User[]          @relation("Friendship")
 
-  ChannelsOwner    Channel[]       @relation("Owner")
-  Playerat         Game[] 		@relation("player")
-  Opponentat       Game[] 		@relation("opponent")
-  // ChannelsAdmin  Channel[] @relation("Admin")
-  // ChannelsMember Channel[] @relation("Member")
+  Playerat   Game[] @relation("player")
+  Opponentat Game[] @relation("opponent")
 
   ChannelsOwner  Channel[] @relation("Owner")
   ChannelsAdmin  Channel[] @relation("Admin")
@@ -80,16 +77,16 @@ model Message {
 }
 
 model Game {
-  id        String     @id @default(uuid())
-  createdAt DateTime   @default(now())
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
 
-  Player   User @relation("player", fields: [playerId], references: [id])
-  Opponent User @relation("opponent",fields: [opponentId], references: [id])
-  playerId  String
-  opponentId String
-  type      GameType
-  playerScore Int @default(0)
-  opponentScore Int @default(0)
+  Player        User     @relation("player", fields: [playerId], references: [id])
+  Opponent      User     @relation("opponent", fields: [opponentId], references: [id])
+  playerId      String
+  opponentId    String
+  type          GameType
+  playerScore   Int      @default(0)
+  opponentScore Int      @default(0)
 }
 
 enum Status {
@@ -111,4 +108,3 @@ enum ChannelType {
   PROTECTED
   PRIVATE
 }
-

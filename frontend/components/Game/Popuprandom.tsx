@@ -1,5 +1,5 @@
 "use client";
-import PongAnimation from "/Users/yamzil/Desktop/ft_transcendence/frontend/public/img/PongAnimation.json";
+import PongAnimation from "../../public/img/PongAnimation.json";
 import { useRouter } from "next/navigation";
 import Lottie from "lottie-react";
 
@@ -35,7 +35,10 @@ const PopupRandom = ({ loading }: any) => {
             </p>
             <div className="w-full flex justify-center items-center">
               <div className="w-11/12">
-                <Lottie className="mb-5 rounded-lg" animationData={PongAnimation} />
+                <Lottie
+                  className="mb-5 rounded-lg"
+                  animationData={PongAnimation}
+                />
               </div>
             </div>
             <button
