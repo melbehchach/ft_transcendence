@@ -1,4 +1,12 @@
-import { Controller, Get, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  InternalServerErrorException,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserGuard } from 'src/guards/user.jwt.guard';
@@ -12,23 +20,43 @@ export class UserController {
   ) {}
   @Get('profile')
   getProfile(@Req() req) {
-    const { username, avatar, sentRequests, receivedRequests, friends } =
-      req.user;
-    return {
+    if (!req.user) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    const {
+      id,
       username,
-      avatar: avatar,
+      avatar,
+      friends,
+      sentRequests,
+      receivedRequests,
+      sentMessages,
+      receivedMessages,
+      ChannelsOwner,
+      ChannelsAdmin,
+      ChannelsMember,
+    } = req.user;
+    return {
+      id,
+      username,
+      avatar,
       friends,
       sentRequests,
       friendRequests: receivedRequests,
+      sentMessages,
+      receivedMessages,
+      ChannelsOwner,
+      ChannelsAdmin,
+      ChannelsMember,
     };
   }
 
   @Post('sendRequest')
   async sendRequest(@Req() req) {
-    if (req.body.senderId && req.body.receiverId) {
+    if (req.user && req.body.receiverId) {
       return this.userService.sendFriendRequest(req.body, req.user.id);
     }
-    return { msg: 'Internal Server Error: BadRequest' };
+    throw new InternalServerErrorException('BadRequest');
   }
 
   @Patch('unfriendUser')
@@ -36,7 +64,7 @@ export class UserController {
     if (req.user && req.body.friendId) {
       return this.userService.unfriendUser(req.body.friendId, req.user.id);
     }
-    return { msg: 'Internal Server Error: BadRequest' };
+    throw new InternalServerErrorException('BadRequest');
   }
 
   @Patch('cancelRequest')
@@ -51,7 +79,7 @@ export class UserController {
         ? this.userService.cancelFriendRequest(friendRequest, req.user.id)
         : { msg: 'Internal Server Error: requestNotFound' };
     }
-    return { msg: 'Internal Server Error: BadRequest' };
+    throw new InternalServerErrorException('BadRequest');
   }
 
   @Patch('acceptRequest')
@@ -66,7 +94,7 @@ export class UserController {
         ? this.userService.acceptFriendRequest(friendRequest, req.user.id)
         : { msg: 'Internal Server Error: requestNotFound' };
     }
-    return { msg: 'Internal Server Error: BadRequest' };
+    throw new InternalServerErrorException('BadRequest');
   }
 
   @Patch('declineRequest')
@@ -81,6 +109,6 @@ export class UserController {
         ? this.userService.declineFriendRequest(friendRequest, req.user.id)
         : { msg: 'Internal Server Error: requestNotFound' };
     }
-    return { msg: 'Internal Server Error: BadRequest' };
+    throw new InternalServerErrorException('BadRequest');
   }
 }

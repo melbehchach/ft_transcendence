@@ -8,6 +8,7 @@ import { GameService } from './game/game.service';
 import { GameController } from './game/game.controller';
 import { GameModule } from './game/game.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     UserModule,
     GameModule,
     NotificationsModule,
+    ChatModule,
   ],
   providers: [GameService],
   controllers: [GameController],

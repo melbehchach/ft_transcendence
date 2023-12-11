@@ -9,7 +9,7 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, new ExpressAdapter());
   app.enableCors({
-    origin: 'http://localhost:3001',
+    origin: ['http://frontend:3001', 'http://localhost:3001'],
     credentials: true,
     methods: [RequestMethod.ALL.toString()],
   });
