@@ -21,11 +21,20 @@ model User {
   receivedRequests FriendRequest[] @relation("Receiver")
   friends          User[]          @relation("Friendship")
   symmetricFriends User[]          @relation("Friendship")
+
   ChannelsOwner    Channel[]       @relation("Owner")
   Playerat         Game[] 		@relation("player")
   Opponentat       Game[] 		@relation("opponent")
   // ChannelsAdmin  Channel[] @relation("Admin")
   // ChannelsMember Channel[] @relation("Member")
+
+  ChannelsOwner  Channel[] @relation("Owner")
+  ChannelsAdmin  Channel[] @relation("Admin")
+  ChannelsMember Channel[] @relation("Member")
+
+  sentMessages     Message[] @relation("Sender")
+  receivedMessages Message[] @relation("Receiver")
+  chats            Chat[]
 }
 
 model FriendRequest {
@@ -38,19 +47,36 @@ model FriendRequest {
 }
 
 model Channel {
-  id      String @id @default(uuid())
-  name    String
-  image   String
-  owner   User   @relation("Owner", fields: [ownerId], references: [id])
-  ownerId String @unique
-  // admins  User[] @relation("Admin")
-  // Members User[] @relation("Member")
+  id       String      @id @default(uuid())
+  name     String
+  image    String
+  type     ChannelType
+  password String?
+  owner    User        @relation("Owner", fields: [ownerId], references: [id])
+  ownerId  String
+  admins   User[]      @relation("Admin")
+  Members  User[]      @relation("Member")
+  Messages Message[]   @relation("channelMessages")
+}
+
+model Chat {
+  id       String    @id @default(uuid())
+  users    User[]
+  messages Message[]
 }
 
 model Message {
-  id       String   @id @default(uuid())
-  sentTime DateTime @default(now())
-  body     String
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  body       String
+  sender     User     @relation("Sender", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User?    @relation("Receiver", fields: [receiverId], references: [id])
+  receiverId String
+  Channel    Channel? @relation("channelMessages", fields: [channelId], references: [id])
+  channelId  String?
+  Chat       Chat?    @relation(fields: [chatId], references: [id])
+  chatId     String?
 }
 
 model Game {
@@ -79,3 +105,10 @@ enum GameType {
 }
 
 // 4f -> 9d -> 70 -> 8d
+
+enum ChannelType {
+  PUBLIC
+  PROTECTED
+  PRIVATE
+}
+

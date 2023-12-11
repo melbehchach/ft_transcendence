@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { GameService } from './game/game.service';
 import { GameController } from './game/game.controller';
 import { GameModule } from './game/game.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { GameModule } from './game/game.module';
     PassportModule,
     UserModule,
     GameModule,
+    ChatModule,
   ],
   providers: [GameService],
   controllers: [GameController],
