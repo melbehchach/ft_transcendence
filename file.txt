@@ -1,0 +1,210 @@
+.
+├── README.md
+├── backend
+│   ├── dist
+│   │   ├── app.module.d.ts
+│   │   ├── app.module.js
+│   │   ├── app.module.js.map
+│   │   ├── auth
+│   │   │   ├── 42.strategy.d.ts
+│   │   │   ├── 42.strategy.js
+│   │   │   ├── 42.strategy.js.map
+│   │   │   ├── auth.controller.d.ts
+│   │   │   ├── auth.controller.js
+│   │   │   ├── auth.controller.js.map
+│   │   │   ├── auth.module.d.ts
+│   │   │   ├── auth.module.js
+│   │   │   ├── auth.module.js.map
+│   │   │   ├── auth.service.d.ts
+│   │   │   ├── auth.service.js
+│   │   │   └── auth.service.js.map
+│   │   ├── dto
+│   │   │   ├── auth.dto.d.ts
+│   │   │   ├── auth.dto.js
+│   │   │   ├── auth.dto.js.map
+│   │   │   ├── game.dto.d.ts
+│   │   │   ├── game.dto.js
+│   │   │   ├── game.dto.js.map
+│   │   │   ├── index.d.ts
+│   │   │   ├── index.js
+│   │   │   └── index.js.map
+│   │   ├── game
+│   │   │   ├── Player.service.d.ts
+│   │   │   ├── Player.service.js
+│   │   │   ├── Player.service.js.map
+│   │   │   ├── game.controller.d.ts
+│   │   │   ├── game.controller.js
+│   │   │   ├── game.controller.js.map
+│   │   │   ├── game.gateway.d.ts
+│   │   │   ├── game.gateway.js
+│   │   │   ├── game.gateway.js.map
+│   │   │   ├── game.module.d.ts
+│   │   │   ├── game.module.js
+│   │   │   ├── game.module.js.map
+│   │   │   ├── game.service.d.ts
+│   │   │   ├── game.service.js
+│   │   │   └── game.service.js.map
+│   │   ├── guards
+│   │   │   ├── auth.42.guard.d.ts
+│   │   │   ├── auth.42.guard.js
+│   │   │   ├── auth.42.guard.js.map
+│   │   │   ├── auth.jwt.guard.d.ts
+│   │   │   ├── auth.jwt.guard.js
+│   │   │   ├── auth.jwt.guard.js.map
+│   │   │   ├── user.jwt.guard.d.ts
+│   │   │   ├── user.jwt.guard.js
+│   │   │   └── user.jwt.guard.js.map
+│   │   ├── helpers
+│   │   │   ├── auth.helpers.d.ts
+│   │   │   ├── auth.helpers.js
+│   │   │   └── auth.helpers.js.map
+│   │   ├── main.d.ts
+│   │   ├── main.js
+│   │   ├── main.js.map
+│   │   ├── notifications
+│   │   │   ├── notifications.gateway.d.ts
+│   │   │   ├── notifications.gateway.js
+│   │   │   ├── notifications.gateway.js.map
+│   │   │   ├── notifications.module.d.ts
+│   │   │   ├── notifications.module.js
+│   │   │   └── notifications.module.js.map
+│   │   ├── prisma
+│   │   │   ├── prisma.module.d.ts
+│   │   │   ├── prisma.module.js
+│   │   │   ├── prisma.module.js.map
+│   │   │   ├── prisma.service.d.ts
+│   │   │   ├── prisma.service.js
+│   │   │   └── prisma.service.js.map
+│   │   ├── tsconfig.build.tsbuildinfo
+│   │   └── user
+│   │       ├── user.controller.d.ts
+│   │       ├── user.controller.js
+│   │       ├── user.controller.js.map
+│   │       ├── user.module.d.ts
+│   │       ├── user.module.js
+│   │       ├── user.module.js.map
+│   │       ├── user.service.d.ts
+│   │       ├── user.service.js
+│   │       └── user.service.js.map
+│   ├── docker-compose.yml
+│   ├── nest-cli.json
+│   ├── node_modules
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── prisma
+│   │   ├── migrations
+│   │   └── schema.prisma
+│   ├── src
+│   │   ├── app.module.ts
+│   │   ├── auth
+│   │   │   ├── 42.strategy.ts
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.module.ts
+│   │   │   └── auth.service.ts
+│   │   ├── dto
+│   │   │   ├── auth.dto.ts
+│   │   │   ├── game.dto.ts
+│   │   │   └── index.ts
+│   │   ├── game
+│   │   │   ├── game.controller.ts
+│   │   │   ├── game.gateway.ts
+│   │   │   ├── game.module.ts
+│   │   │   └── game.service.ts
+│   │   ├── guards
+│   │   │   ├── auth.42.guard.ts
+│   │   │   ├── auth.jwt.guard.ts
+│   │   │   └── user.jwt.guard.ts
+│   │   ├── helpers
+│   │   │   └── auth.helpers.ts
+│   │   ├── main.ts
+│   │   ├── notifications
+│   │   │   ├── notifications.gateway.ts
+│   │   │   └── notifications.module.ts
+│   │   ├── prisma
+│   │   │   ├── prisma.module.ts
+│   │   │   └── prisma.service.ts
+│   │   └── user
+│   │       ├── user.controller.ts
+│   │       ├── user.module.ts
+│   │       └── user.service.ts
+│   ├── test
+│   │   ├── app.e2e-spec.ts
+│   │   └── jest-e2e.json
+│   ├── tsconfig.build.json
+│   ├── tsconfig.json
+│   └── uploads
+├── frontend
+│   ├── app
+│   │   ├── (application)
+│   │   │   ├── chat
+│   │   │   │   └── page.tsx
+│   │   │   ├── game
+│   │   │   │   ├── friend
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── page.tsx
+│   │   │   │   └── random
+│   │   │   │       └── page.tsx
+│   │   │   ├── layout.tsx
+│   │   │   └── profile
+│   │   │       └── page.tsx
+│   │   ├── auth
+│   │   │   ├── 42-redirect
+│   │   │   │   └── page.tsx
+│   │   │   ├── failure
+│   │   │   │   └── page.tsx
+│   │   │   └── login
+│   │   │       └── page.tsx
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components
+│   │   ├── Forms
+│   │   │   ├── SignUpForm.tsx
+│   │   │   └── SigninForm.tsx
+│   │   ├── Game
+│   │   │   ├── GameIntro.tsx
+│   │   │   ├── InviteFriends.tsx
+│   │   │   ├── InviteModal.tsx
+│   │   │   ├── RandomGame.tsx
+│   │   │   ├── WaitingModal.tsx
+│   │   │   ├── countdown.tsx
+│   │   │   ├── icons
+│   │   │   │   └── LeaveIcons.tsx
+│   │   │   ├── leaderBoard.tsx
+│   │   │   └── scoreBoard.tsx
+│   │   ├── navbar
+│   │   │   ├── CloseMenuButton.tsx
+│   │   │   ├── Logo.tsx
+│   │   │   ├── MenuButton.tsx
+│   │   │   ├── Navbar.tsx
+│   │   │   ├── NavbarButton.tsx
+│   │   │   ├── NavbarItems.tsx
+│   │   │   └── icons
+│   │   │       ├── ChatIcon.tsx
+│   │   │       ├── CloseIcon.tsx
+│   │   │       ├── GameIcon.tsx
+│   │   │       ├── LogoutIcon.tsx
+│   │   │       ├── MenuIcon.tsx
+│   │   │       └── ProfileIcon.tsx
+│   │   ├── notifications
+│   │   │   └── AlertGame.tsx
+│   │   └── uploadImage
+│   │       └── UploadImage.tsx
+│   ├── next-env.d.ts
+│   ├── next.config.js
+│   ├── node_modules
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── public
+│   │   └── img
+│   │       ├── ChallengeFriends.png
+│   │       ├── FindRandomOpponent.png
+│   │       ├── GameIntro.png
+│   │       ├── LoginBackground.png
+│   │       ├── PongAnimation.json
+│   │       └── avatar.png
+│   ├── tailwind.config.ts
+│   ├── tsconfig.json
+│   └── types.ts
+└── package-lock.json

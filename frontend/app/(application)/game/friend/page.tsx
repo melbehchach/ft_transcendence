@@ -2,7 +2,7 @@
 import { useState } from "react";
 import RandomMatch from "../../../../components/Game/InviteFriends";
 import ScoreBoard from "../../../../components/Game/scoreBoard";
-import PopupRandom from "../../../../components/Game/Popuprandom";
+import InviteModal from "../../../../components/Game/InviteModal";
 
 const InviteFriendPage = () => {
   const [Playerscore, setPlayerScore] = useState(0);
@@ -11,7 +11,7 @@ const InviteFriendPage = () => {
   return (
     <>
       <div className="pl-[10%] bg-background h-screen w-screen justify-center ">
-        <PopupRandom loading={loading}/>
+        <InviteModal loading={loading} setLoading={setLoading} />
         <ScoreBoard playerScore={Playerscore} opponentScore={OpponentScore} />
         <RandomMatch
           setPlayerScore={setPlayerScore}
