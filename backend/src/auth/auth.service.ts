@@ -28,6 +28,7 @@ export class AuthService {
           password: hash,
           avatar: dto.avatar,
           isAuthenticated: false,
+          socketId: '',
         },
       });
     } catch (error) {
