@@ -25,7 +25,13 @@ export class UserGuard implements CanActivate {
           email: payload.email,
         },
         include: {
-          friends: { select: { username: true } },
+          friends: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
           sentRequests: { where: { status: Status.PENDING } },
           receivedRequests: { where: { status: Status.PENDING } },
           sentMessages: {

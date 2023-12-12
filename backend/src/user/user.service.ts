@@ -6,6 +6,33 @@ import { Status } from '@prisma/client';
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
+  async getUSerProfile(userId: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          username: true,
+          avatar: true,
+          friends: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
+        },
+      });
+      if (!user) {
+        throw new Error('User Not Found');
+      }
+      console.log(user);
+      return user;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
   async sendFriendRequest(body, userId) {
     try {
       const receiver = await this.prisma.user.findUnique({
