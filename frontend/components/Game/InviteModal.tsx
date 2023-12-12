@@ -26,7 +26,7 @@ const InviteModal = ({ loading }: any) => {
             }
         )
             .then((res) => {
-                console.log("res", res.data);
+                console.log(res.data);
             })
             .catch((error) => {
                 console.log(error);
@@ -34,7 +34,7 @@ const InviteModal = ({ loading }: any) => {
     };
 
     const ChangeTextandSendRequest = (friend: any) => {
-        handleSendInvite(friend);
+        // handleSendInvite(friend);
         changeText(`waiting for ${friend.username} to accept challenge`);
     }
 
@@ -62,6 +62,7 @@ const InviteModal = ({ loading }: any) => {
                 })
                 .then((res) => {
                     setFriends(res.data.friends);
+                    console.log(res.data.friends);
                 })
                 .catch((error) => {
                     console.log(error);

@@ -22,6 +22,7 @@ export class UserController {
   @Get('profile')
   getProfile(@Req() req) {
     if (!req.user) {
+      console.log("abhlaaw")
       throw new InternalServerErrorException('BadRequest');
     }
     const {
