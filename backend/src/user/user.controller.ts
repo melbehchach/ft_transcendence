@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   InternalServerErrorException,
+  Param,
   Patch,
   Post,
   Req,
@@ -49,6 +50,14 @@ export class UserController {
       ChannelsAdmin,
       ChannelsMember,
     };
+  }
+
+  @Get(':id/profile')
+  getUserProfile(@Param('id') userId: string) {
+    if (!userId) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    return this.userService.getUSerProfile(userId);
   }
 
   @Post('sendRequest')
