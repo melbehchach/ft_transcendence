@@ -17,7 +17,7 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     handleConnection(client: any, ...args: any[]) {
         const playeId = client.handshake.auth.token;
         if (playeId){
-            console.log(`Client connected: ${playeId}`);
+            // console.log(`Client connected: ${playeId}`);
         }
     }
 
@@ -30,7 +30,7 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     handleDisconnect(client: any) {
         const playeId = client.handshake.auth.token;
         if (playeId){
-            console.log(`Client disconnected: ${playeId}`);
+            // console.log(`Client disconnected: ${playeId}`);
         }
     }
 }

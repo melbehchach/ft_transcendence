@@ -35,7 +35,10 @@ const WaitaingModal = ({ loading }: any) => {
             </p>
             <div className="w-full flex justify-center items-center">
               <div className="w-11/12">
-                <Lottie className="mb-5 rounded-lg" animationData={PongAnimation} />
+                <Lottie
+                  className="mb-5 rounded-lg"
+                  animationData={PongAnimation}
+                />
               </div>
             </div>
             <button

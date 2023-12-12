@@ -1,20 +1,52 @@
 import { useRouter } from "next/navigation";
-import AlertGame from "../notifications/AlertGame";
 import Image from "next/image";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 const InviteModal = ({ loading }: any) => {
     const [friends, setFriends] = useState([]);
     const [text, setText] = useState("Challenge");
     const router = useRouter();
     const initailText: string = "Challenge";
+
+    const handleSendInvite = (friend: any) => {
+        axios.post("http://localhost:3000/notifications/createNotification", {
+            sender: Cookies.get("USER_ID"),
+            receiver: friend._id,
+            type: "challenge",
+            message: `You have been challenged by ${Cookies.get("USER_ID")}`,
+        },
+            {
+                withCredentials: true,
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+            }
+        )
+            .then((res) => {
+                console.log("res", res.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
+
+    const ChangeTextandSendRequest = (friend: any) => {
+        handleSendInvite(friend);
+        changeText(`waiting for ${friend.username} to accept challenge`);
+    }
+
+
     useEffect(() => {
         if (text != initailText)
             setTimeout(() => {
                 setText(initailText);
             }, 60000); /// the opponent has 1 minute to accept the challenge
     }, [text]);
+
+
     const changeText = (text: string) => setText(text);
     // if (!loading) return;
     useEffect(() => {
@@ -77,7 +109,7 @@ const InviteModal = ({ loading }: any) => {
                                         </figcaption>
                                     </figure>
                                     <button
-                                        onClick={() => changeText(`waiting for ${friend.username} to accept challenge`)}
+                                        onClick={() => ChangeTextandSendRequest(friend)}
                                         className="border-solid border-2 border-textSecondary rounded-3xl pr-5 pl-5 pt-2 pb-2 text-text text-center">
                                         {text}
                                     </button>
