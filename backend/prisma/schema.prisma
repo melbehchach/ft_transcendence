@@ -20,9 +20,10 @@ model User {
   friends          User[]          @relation("Friendship")
   symmetricFriends User[]          @relation("Friendship")
 
-  ChannelsOwner  Channel[] @relation("Owner")
-  ChannelsAdmin  Channel[] @relation("Admin")
-  ChannelsMember Channel[] @relation("Member")
+  ChannelsOwner      Channel[] @relation("Owner")
+  ChannelsAdmin      Channel[] @relation("Admin")
+  ChannelsMember     Channel[] @relation("Member")
+  ChannelsBannedFrom Channel[] @relation("Banned")
 
   sentMessages     Message[] @relation("Sender")
   receivedMessages Message[] @relation("Receiver")
@@ -39,16 +40,17 @@ model FriendRequest {
 }
 
 model Channel {
-  id       String      @id @default(uuid())
-  name     String
-  image    String
-  type     ChannelType
-  password String?
-  owner    User        @relation("Owner", fields: [ownerId], references: [id])
-  ownerId  String
-  admins   User[]      @relation("Admin")
-  Members  User[]      @relation("Member")
-  Messages Message[]   @relation("channelMessages")
+  id            String      @id @default(uuid())
+  name          String
+  image         String
+  type          ChannelType
+  password      String?
+  owner         User        @relation("Owner", fields: [ownerId], references: [id])
+  ownerId       String
+  admins        User[]      @relation("Admin")
+  Members       User[]      @relation("Member")
+  bannedMembers User[]      @relation("Banned")
+  Messages      Message[]   @relation("channelMessages")
 }
 
 model Chat {
