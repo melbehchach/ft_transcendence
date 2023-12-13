@@ -1,7 +1,7 @@
 "use client";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState} from "react";
 import { User } from "../../types";
 import UploadImage from "../uploadImage/UploadImage";
 

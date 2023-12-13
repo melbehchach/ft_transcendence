@@ -1,11 +1,10 @@
-import PongGame from "./PongGame";
+import GameIntro from './GameIntro';
+import PingPong from './PingPong';
 
 export default function LeaderBoard() {
-    return (
+	return (
 		<>
-			<PongGame /> 
+			<GameIntro /> 
 		</>
-		// <div className="w-screen h-screen bg-background">
-		// </div>
-    );
+	);
 }
