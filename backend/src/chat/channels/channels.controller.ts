@@ -114,13 +114,37 @@ export class ChannelsController {
     );
   }
 
+  @Patch(':id/kick')
+  async kickUser(@Param('id') channelId: string, @Req() req, @Body() body) {
+    if (!req.userID || !channelId || !body.id) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    return this.channelsService.kickUser(req.userID, channelId, body);
+  }
+
+  @Patch(':id/ban')
+  async banUser(@Param('id') channelId: string, @Req() req, @Body() body) {
+    if (!req.userID || !channelId || !body.id) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    return this.channelsService.banUser(req.userID, channelId, body);
+  }
+
+  @Patch(':id/unban')
+  async unbanUser(@Param('id') channelId: string, @Req() req, @Body() body) {
+    if (!req.userID || !channelId || !body.id) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    return this.channelsService.unbanUser(req.userID, channelId, body);
+  }
+
   @Patch(':id/makeAdmin')
   async makeAdmin(
     @Param('id') channelId: string,
     @Req() req,
     @Body() body: makeAdminDto,
   ) {
-    if (!req.userID) {
+    if (!req.userID || !channelId) {
       throw new InternalServerErrorException('BadRequest');
     }
     return this.channelsService.makeAdmin(req.userID, channelId, body);
@@ -131,8 +155,7 @@ export class ChannelsController {
     if (!channelId || !req.userID) {
       throw new InternalServerErrorException('BadRequest');
     }
-    const result = this.channelsService.deleteChannel(channelId, req.userID);
-    return result;
+    return this.channelsService.deleteChannel(channelId, req.userID);
   }
 
   // only for debugging

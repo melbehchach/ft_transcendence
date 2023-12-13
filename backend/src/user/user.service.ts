@@ -26,7 +26,7 @@ export class UserService {
       if (!user) {
         throw new Error('User Not Found');
       }
-      console.log(user);
+      // console.log(user);
       return user;
     } catch (error) {
       throw new InternalServerErrorException(error.message);

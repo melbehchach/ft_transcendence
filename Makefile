@@ -1,5 +1,7 @@
 all: up
 
+# @docker-compose build --no-cache
+# @docker-compose up
 up:
 	@docker-compose up --build
 
