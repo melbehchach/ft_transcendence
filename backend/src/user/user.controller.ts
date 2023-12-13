@@ -24,31 +24,19 @@ export class UserController {
     if (!req.user) {
       throw new InternalServerErrorException('BadRequest');
     }
-    const {
-      id,
-      username,
-      avatar,
-      friends,
-      sentRequests,
-      receivedRequests,
-      sentMessages,
-      receivedMessages,
-      ChannelsOwner,
-      ChannelsAdmin,
-      ChannelsMember,
-    } = req.user;
     return {
-      id,
-      username,
-      avatar,
-      friends,
-      sentRequests,
-      friendRequests: receivedRequests,
-      sentMessages,
-      receivedMessages,
-      ChannelsOwner,
-      ChannelsAdmin,
-      ChannelsMember,
+      id: req.user.id,
+      username: req.user.username,
+      avatar: req.user.avatar,
+      friends: req.user.friends,
+      sentRequests: req.user.sentRequests,
+      friendRequests: req.user.receivedRequests,
+      sentMessages: req.user.sentMessages,
+      receivedMessages: req.user.receivedMessages,
+      ChannelsOwner: req.user.ChannelsOwner,
+      ChannelsAdmin: req.user.ChannelsAdmin,
+      ChannelsMember: req.user.ChannelsMember,
+      ChannelsBannedFrom: req.user.ChannelsBannedFrom,
     };
   }
 
