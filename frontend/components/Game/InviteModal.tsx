@@ -62,7 +62,7 @@ const InviteModal = ({ loading }: any) => {
                 })
                 .then((res) => {
                     setFriends(res.data.friends);
-                    console.log(res.data.friends);
+                    // console.log(res.data.friends);
                 })
                 .catch((error) => {
                     console.log(error);

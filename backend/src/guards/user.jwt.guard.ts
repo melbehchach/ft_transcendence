@@ -78,7 +78,6 @@ export class UserGuard implements CanActivate {
         },
       });
       delete user?.password;
-      console.log("user", user);
       req['user'] = user || null;
     } catch {
       throw new UnauthorizedException('Invalid Token');
