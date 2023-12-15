@@ -75,6 +75,12 @@ export class ChannelsService {
             username: true,
           },
         },
+        bannedMembers: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
         Messages: {
           select: {
             id: true,
@@ -221,6 +227,12 @@ export class ChannelsService {
             id: true,
           },
         },
+        bannedMembers: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
       },
     });
     if (!channel)
@@ -230,6 +242,128 @@ export class ChannelsService {
     }
     delete channel.password;
     return channel;
+  }
+
+  async unbanUser(userId: string, channelId: string, body: { id: string }) {
+    try {
+      const channel = await this.validateChannelUpdate(userId, channelId);
+      const user = await this.prisma.user.findUnique({
+        where: { id: body.id },
+      });
+      if (!user) {
+        throw new Error('Error retrieving record user or channel');
+      }
+      if (
+        channel.bannedMembers.map((member) => member.id).indexOf(user.id) == -1
+      ) {
+        throw new Error('Cannot unban, user is not banned');
+      }
+      const updatedChannel = await this.prisma.channel.update({
+        where: {
+          id: channel.id,
+        },
+        data: {
+          bannedMembers: {
+            disconnect: {
+              id: user.id,
+            },
+          },
+        },
+      });
+      if (!updatedChannel) {
+        throw new Error('Failed to update record!');
+      }
+      return 'success';
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async banUser(userId: string, channelId: string, body: { id: string }) {
+    try {
+      const channel = await this.validateChannelUpdate(userId, channelId);
+      const user = await this.prisma.user.findUnique({
+        where: { id: body.id },
+      });
+      if (!user) {
+        throw new Error('Error retrieving record user or channel');
+      }
+      if (channel.Members.map((member) => member.id).indexOf(user.id) == -1) {
+        throw new Error('Cannot ban, user is not in the channel');
+      }
+      if (channel.ownerId === user.id) {
+        throw new Error('Cannot ban channel owner');
+      }
+      const updatedChannel = await this.prisma.channel.update({
+        where: {
+          id: channel.id,
+        },
+        data: {
+          Members: {
+            disconnect: {
+              id: user.id,
+            },
+          },
+          admins: {
+            disconnect: {
+              id: user.id,
+            },
+          },
+          bannedMembers: {
+            connect: {
+              id: user.id,
+            },
+          },
+        },
+      });
+      if (!updatedChannel) {
+        throw new Error('Failed to update record!');
+      }
+      return 'success';
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async kickUser(userId: string, channelId: string, body: { id: string }) {
+    try {
+      const channel = await this.validateChannelUpdate(userId, channelId);
+      const user = await this.prisma.user.findUnique({
+        where: { id: body.id },
+      });
+      if (!user) {
+        throw new Error('Error retrieving record user or channel');
+      }
+      if (channel.Members.map((member) => member.id).indexOf(user.id) == -1) {
+        throw new Error('Cannot kick, user is not in the channel');
+      }
+      if (channel.ownerId === user.id) {
+        throw new Error('Cannot kick channel owner');
+      }
+      const updatedChannel = await this.prisma.channel.update({
+        where: {
+          id: channel.id,
+        },
+        data: {
+          Members: {
+            disconnect: {
+              id: user.id,
+            },
+          },
+          admins: {
+            disconnect: {
+              id: user.id,
+            },
+          },
+        },
+      });
+      if (!updatedChannel) {
+        throw new Error('Failed to update record!');
+      }
+      return 'success';
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   async makeAdmin(userId: string, channelId: string, body: makeAdminDto) {

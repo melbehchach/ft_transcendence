@@ -44,6 +44,16 @@ export class makeAdminDto {
   makeAdmin: boolean;
 }
 
+// export class BanUserDto {
+//   @IsString()
+//   @IsNotEmpty()
+//   id: string;
+
+//   @IsBoolean()
+//   @IsNotEmpty()
+//   ban: boolean;
+// }
+
 export class editTypeDto {
   @IsNotEmpty()
   @IsEnum(ChannelType)

@@ -75,6 +75,7 @@ export class UserGuard implements CanActivate {
           ChannelsOwner: { select: { id: true, name: true, type: true } },
           ChannelsAdmin: { select: { id: true, name: true, type: true } },
           ChannelsMember: { select: { id: true, name: true, type: true } },
+          ChannelsBannedFrom: { select: { id: true, name: true, type: true } },
         },
       });
       delete user?.password;
