@@ -11,6 +11,7 @@ export class newChannelDto {
   image: string;
 
   @IsNotEmpty()
+  @IsEnum(ChannelType)
   type: ChannelType;
 
   @IsString()
@@ -19,20 +20,20 @@ export class newChannelDto {
   Members: string[]; // Array of ids
 }
 
-export class updateChannelDto {
-  @IsString()
-  name: string;
+// export class updateChannelDto {
+//   @IsString()
+//   name: string;
 
-  @IsString()
-  image: string;
+//   @IsString()
+//   image: string;
 
-  type: ChannelType | null;
+//   type: ChannelType | null;
 
-  @IsString()
-  password: string;
+//   @IsString()
+//   password: string;
 
-  Members: string[]; // Array of ids
-}
+//   Members: string[]; // Array of ids
+// }
 
 export class makeAdminDto {
   @IsString()

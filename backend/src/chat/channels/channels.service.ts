@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  // BadRequestException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -550,7 +550,7 @@ export class ChannelsService {
     body: { members: string[] },
   ) {
     try {
-      await this.validateChannelUpdate(userId, channelId);
+      const channel = await this.validateChannelUpdate(userId, channelId);
       if (!body.members || body.members?.length === 0) {
         throw new Error('Invalid members list');
       }
@@ -562,9 +562,20 @@ export class ChannelsService {
         body.members.map(async (id) => {
           const user = await this.prisma.user.findUnique({
             where: { id },
+            include: {
+              ChannelsBannedFrom: true,
+            },
           });
           if (!user) {
             throw new Error('Invalid User in members list');
+          }
+          if (
+            user.ChannelsBannedFrom.map((ch) => ch.id).indexOf(channel.id) !==
+            -1
+          ) {
+            throw new Error(
+              `User ${user.username} is banned from this channel`,
+            );
           }
           return user;
         }),
