@@ -66,6 +66,11 @@ export class ChannelsController {
   //   return this.channelsService.updateChannel(req.userID, channelId, data);
   // }
 
+  @Post(':id/join')
+  async joinChannel(@Param('id') channelId: string, @Req() req) {
+    return this.channelsService.joinChannel(channelId, req.body, req.userID);
+  }
+
   @Patch(':id/editName')
   async editChannelName(@Param('id') channelId: string, @Req() req) {
     if (!channelId || !req.userID) {
