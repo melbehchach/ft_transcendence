@@ -34,6 +34,14 @@ export class ChannelsController {
     return channels;
   }
 
+  @Get('explore')
+  async exploreChannels(@Req() req) {
+    if (!req.userID) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    return this.channelsService.exploreChannels(req.userID);
+  }
+
   @Get(':id')
   async getChannelById(@Req() req, @Param('id') channelId: string) {
     if (!channelId || !req.userID) {

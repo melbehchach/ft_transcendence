@@ -104,6 +104,38 @@ export class ChannelsService {
     return channel;
   }
 
+  async exploreChannels(userId: string) {
+    try {
+      const channels = await this.prisma.channel.findMany({
+        where: {
+          type: {
+            in: [ChannelType.PROTECTED, ChannelType.PUBLIC],
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          type: true,
+          Members: true,
+          bannedMembers: true,
+        },
+      });
+      if (!channels) {
+        throw new Error('Failed to retrieve recrods');
+      }
+      const validChannels = channels.filter((channel) => {
+        return (
+          channel.Members.map((membr) => membr.id).indexOf(userId) === -1 &&
+          channel.bannedMembers.map((membr) => membr.id).indexOf(userId) === -1
+        );
+      });
+      return validChannels;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
   async createChannel(data: newChannelDto, userId: string) {
     try {
       if (data.type === ChannelType.PROTECTED) {
