@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  // BadRequestException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -9,6 +9,7 @@ import { editTypeDto, makeAdminDto, newChannelDto } from 'src/dto/channels.dto';
 // import { updateChannelDto } from 'src/dto/channels.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ChannelsGateway } from './channels.gateway';
+import * as argon from 'argon2';
 
 @Injectable()
 export class ChannelsService {
@@ -103,10 +104,45 @@ export class ChannelsService {
     return channel;
   }
 
+  async exploreChannels(userId: string) {
+    try {
+      const channels = await this.prisma.channel.findMany({
+        where: {
+          type: {
+            in: [ChannelType.PROTECTED, ChannelType.PUBLIC],
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          type: true,
+          Members: true,
+          bannedMembers: true,
+        },
+      });
+      if (!channels) {
+        throw new Error('Failed to retrieve recrods');
+      }
+      const validChannels = channels.filter((channel) => {
+        return (
+          channel.Members.map((membr) => membr.id).indexOf(userId) === -1 &&
+          channel.bannedMembers.map((membr) => membr.id).indexOf(userId) === -1
+        );
+      });
+      return validChannels;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
   async createChannel(data: newChannelDto, userId: string) {
     try {
-      if (data.type === ChannelType.PROTECTED && data.password?.length === 0) {
-        throw new Error('Password is required for Protected Channels');
+      if (data.type === ChannelType.PROTECTED) {
+        if (data.password?.length === 0) {
+          throw new Error('Password is required for Protected Channels');
+        }
+        data.password = await argon.hash(data.password);
       }
       data.Members = data.Members.concat(userId).filter((memberId: string) => {
         return memberId.length > 0;
@@ -210,6 +246,100 @@ export class ChannelsService {
   //     );
   //   }
   // }
+
+  async leaveChannel(channelId: string, userId: string) {
+    try {
+      const channel = await this.prisma.channel.findUnique({
+        where: { id: channelId },
+        include: { Members: true },
+      });
+      if (!channel) {
+        throw new Error('Channel not found');
+      }
+      if (channel.Members.map((member) => member.id).indexOf(userId) === -1) {
+        throw new Error('User not in the channel');
+      }
+      const updatedChannel = await this.prisma.channel.update({
+        where: { id: channelId },
+        data: {
+          Members: {
+            disconnect: {
+              id: userId,
+            },
+          },
+          admins: {
+            disconnect: {
+              id: userId,
+            },
+          },
+        },
+      });
+      if (!updatedChannel) {
+        throw new Error('Failed to leave channel');
+      }
+      return 'success';
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async joinChannel(
+    channelId: string,
+    body: { password: string },
+    userId: string,
+  ) {
+    try {
+      const channel = await this.prisma.channel.findUnique({
+        where: { id: channelId },
+        include: { Members: true },
+      });
+      if (!channel) {
+        throw new Error('Channel not found');
+      }
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          ChannelsBannedFrom: true,
+        },
+      });
+      if (!user) {
+        throw new Error('Error retrieving user record');
+      }
+      if (channel.Members.map((member) => member.id).indexOf(user.id) !== -1) {
+        throw new Error('User already in the channel');
+      }
+      if (
+        user.ChannelsBannedFrom.map((ch) => ch.id).indexOf(channelId) !== -1
+      ) {
+        throw new Error(`User ${user.username} is banned from this channel`);
+      }
+      if (channel.type === ChannelType.PROTECTED) {
+        if (body.password?.length === 0) {
+          throw new Error('Password is required to join channel');
+        }
+        const pwMatch = await argon.verify(channel.password, body.password);
+        if (!pwMatch) {
+          throw new Error('Incorrect Password');
+        }
+      }
+      const updatedChannel = await this.prisma.channel.update({
+        where: { id: channelId },
+        data: {
+          Members: {
+            connect: {
+              id: user.id,
+            },
+          },
+        },
+      });
+      if (!updatedChannel) {
+        throw new Error('Failed to join channel');
+      }
+      return 'success';
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
 
   async validateChannelUpdate(userId: string, channelId: string) {
     const channel = await this.prisma.channel.findUnique({
@@ -456,10 +586,11 @@ export class ChannelsService {
 
   async editChannelType(userId: string, channelId: string, body: editTypeDto) {
     try {
-      if (body.type === ChannelType.PROTECTED && body.password.length === 0) {
-        throw new BadRequestException(
-          'Password is required for Protected Channels',
-        );
+      if (body.type === ChannelType.PROTECTED) {
+        if (body.password?.length === 0) {
+          throw new Error('Password is required for Protected Channels');
+        }
+        body.password = await argon.hash(body.password);
       }
       await this.validateChannelUpdate(userId, channelId);
       const updatedChannel = await this.prisma.channel.update({
@@ -487,7 +618,7 @@ export class ChannelsService {
     body: { members: string[] },
   ) {
     try {
-      await this.validateChannelUpdate(userId, channelId);
+      const channel = await this.validateChannelUpdate(userId, channelId);
       if (!body.members || body.members?.length === 0) {
         throw new Error('Invalid members list');
       }
@@ -499,9 +630,20 @@ export class ChannelsService {
         body.members.map(async (id) => {
           const user = await this.prisma.user.findUnique({
             where: { id },
+            include: {
+              ChannelsBannedFrom: true,
+            },
           });
           if (!user) {
             throw new Error('Invalid User in members list');
+          }
+          if (
+            user.ChannelsBannedFrom.map((ch) => ch.id).indexOf(channel.id) !==
+            -1
+          ) {
+            throw new Error(
+              `User ${user.username} is banned from this channel`,
+            );
           }
           return user;
         }),
