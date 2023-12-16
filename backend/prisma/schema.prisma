@@ -8,11 +8,13 @@ datasource db {
 }
 
 model User {
-  id              String  @id @default(uuid())
-  email           String  @unique
-  username        String  @unique
-  password        String
-  avatar          String
+  id       String @id @default(uuid())
+  email    String @unique
+  username String @unique
+  password String
+  avatar   String
+  socketId String
+
   isAuthenticated Boolean
 
   sentRequests     FriendRequest[] @relation("Sender")
@@ -24,6 +26,10 @@ model User {
   ChannelsAdmin      Channel[] @relation("Admin")
   ChannelsMember     Channel[] @relation("Member")
   ChannelsBannedFrom Channel[] @relation("Banned")
+
+  Playerat   Game[] @relation("player")
+  Opponentat Game[] @relation("opponent")
+
 
   sentMessages     Message[] @relation("Sender")
   receivedMessages Message[] @relation("Receiver")
@@ -76,6 +82,14 @@ model Message {
 model Game {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
+
+  Player        User     @relation("player", fields: [playerId], references: [id])
+  Opponent      User     @relation("opponent", fields: [opponentId], references: [id])
+  playerId      String
+  opponentId    String
+  type          GameType
+  playerScore   Int      @default(0)
+  opponentScore Int      @default(0)
 }
 
 enum Status {
@@ -84,6 +98,13 @@ enum Status {
   DECLINED
   CANCELED
 }
+
+enum GameType {
+  RandomMatch
+  FriendMatch
+}
+
+// 4f -> 9d -> 70 -> 8d
 
 enum ChannelType {
   PUBLIC

@@ -39,11 +39,12 @@ export class AuthController {
   @Get('42-redirect')
   async auth42Redirect(@Req() req, @Res({ passthrough: true }) res) {
     if (req.user.isAuthenticated) {
-      const { accessToken } = await this.authService.signToken(
+      const { id, accessToken } = await this.authService.signToken(
         req.user.id,
         req.user.email,
       );
       res.cookie('JWT_TOKEN', accessToken);
+      res.cookie('USER_ID', id);
       res.redirect('http://localhost:3001/profile');
     } else {
       const userToken = await this.jwtService.signAsync({
@@ -84,8 +85,12 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const UserToken = req.cookies['USER'];
-    const token = await this.authService.finish_signup(dto, UserToken);
-    res.cookie('JWT_TOKEN', token.accessToken);
+    const { id, accessToken } = await this.authService.finish_signup(
+      dto,
+      UserToken,
+    );
+    res.cookie('JWT_TOKEN', accessToken);
+    res.cookie('USER_ID', id);
     res.cookie('USER', '', { expires: new Date() });
     return { msg: 'Success' };
   }
@@ -114,15 +119,17 @@ export class AuthController {
     @Body() dto: signinDTO,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const token = await this.authService.signin(dto);
-    res.cookie('JWT_TOKEN', token.accessToken);
-    return { token: token };
+    const { id, accessToken } = await this.authService.signin(dto);
+    res.cookie('JWT_TOKEN', accessToken);
+    res.cookie('USER_ID', id);
+    return { token: accessToken };
   }
 
   @UseGuards(AuthGuard)
   @Get('signout')
   logout(@Res({ passthrough: true }) res: Response) {
     res.cookie('JWT_TOKEN', '', { expires: new Date() });
+    res.cookie('USER_ID', '', { expires: new Date() });
     return { msg: 'Success' };
   }
 }
