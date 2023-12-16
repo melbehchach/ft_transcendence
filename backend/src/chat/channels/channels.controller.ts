@@ -68,6 +68,9 @@ export class ChannelsController {
 
   @Post(':id/join')
   async joinChannel(@Param('id') channelId: string, @Req() req) {
+    if (!channelId || !req.userID) {
+      throw new InternalServerErrorException('BadRequest');
+    }
     return this.channelsService.joinChannel(channelId, req.body, req.userID);
   }
 
