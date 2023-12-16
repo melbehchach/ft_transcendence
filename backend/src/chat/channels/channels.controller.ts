@@ -74,6 +74,14 @@ export class ChannelsController {
     return this.channelsService.joinChannel(channelId, req.body, req.userID);
   }
 
+  @Post(':id/leave')
+  async leaveChannel(@Param('id') channelId: string, @Req() req) {
+    if (!channelId || !req.userID) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    return this.channelsService.leaveChannel(channelId, req.userID);
+  }
+
   @Patch(':id/editName')
   async editChannelName(@Param('id') channelId: string, @Req() req) {
     if (!channelId || !req.userID) {

@@ -215,6 +215,42 @@ export class ChannelsService {
   //   }
   // }
 
+  async leaveChannel(channelId: string, userId: string) {
+    try {
+      const channel = await this.prisma.channel.findUnique({
+        where: { id: channelId },
+        include: { Members: true },
+      });
+      if (!channel) {
+        throw new Error('Channel not found');
+      }
+      if (channel.Members.map((member) => member.id).indexOf(userId) === -1) {
+        throw new Error('User not in the channel');
+      }
+      const updatedChannel = await this.prisma.channel.update({
+        where: { id: channelId },
+        data: {
+          Members: {
+            disconnect: {
+              id: userId,
+            },
+          },
+          admins: {
+            disconnect: {
+              id: userId,
+            },
+          },
+        },
+      });
+      if (!updatedChannel) {
+        throw new Error('Failed to leave channel');
+      }
+      return 'success';
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
   async joinChannel(
     channelId: string,
     body: { password: string },
