@@ -9,13 +9,19 @@ const InviteModal = ({ loading }: any) => {
     const [text, setText] = useState("Challenge");
     const router = useRouter();
     const initailText: string = "Challenge";
+    const [senderId, setSenderId] = useState("");
+    const [receiverId, setReceiverId] = useState("");
+    const [senderUsername, setSenderUsername] = useState("");
+    const [receiverUsername, setReceiverUsername] = useState("");
 
     const handleSendInvite = (friend: any) => {
         axios.post("http://localhost:3000/notifications/createNotification", {
-            sender: Cookies.get("USER_ID"),
-            receiver: friend._id,
+            sender: senderId,
+            receiver: receiverId,
+            senderUsername: senderUsername,
+            receiverUsername: receiverUsername,
             type: "challenge",
-            message: `You have been challenged by ${Cookies.get("USER_ID")}`,
+            message: `You have been challenged by ${senderUsername} to a game`,
         },
             {
                 withCredentials: true,
@@ -34,7 +40,7 @@ const InviteModal = ({ loading }: any) => {
     };
 
     const ChangeTextandSendRequest = (friend: any) => {
-        // handleSendInvite(friend);
+        handleSendInvite(friend);
         changeText(`waiting for ${friend.username} to accept challenge`);
     }
 
@@ -49,27 +55,30 @@ const InviteModal = ({ loading }: any) => {
 
     const changeText = (text: string) => setText(text);
     // if (!loading) return;
-    useEffect(() => {
-        if (!loading) return;
-        const fetchData = () => {
-            axios
-                .get("http://localhost:3000/user/profile", {
-                    withCredentials: true,
-                    headers: {
-                        "Content-Type": "application/json",
-                        Accept: "application/json",
-                    },
-                })
-                .then((res) => {
-                    setFriends(res.data.friends);
-                    // console.log(res.data.friends);
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-        };
-        fetchData();
-    }, [loading]);
+ useEffect(() => {
+    if (!loading) return;
+    const fetchData = () => {
+        axios.get(`http://localhost:3000/user/${Cookies.get("USER_ID")}/profile`, {
+                withCredentials: true,
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+            })
+            .then((res) => {
+                setFriends(res.data.friends);
+                setSenderId(res.data.id);
+                setSenderUsername(res.data.username);
+                setReceiverId(res.data.friends[0].id); // dont judge , i coded this at 4 am
+                setReceiverUsername(res.data.friends[0].username); // dont judge , i coded this at 4 am
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
+    fetchData();
+}, [loading]);
+
     return (
         <>
             <div className="h-screen fixed inset-0 backdrop-blur-sm bg-black/60 flex justify-center items-center z-30">

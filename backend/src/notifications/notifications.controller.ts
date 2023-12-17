@@ -7,12 +7,11 @@ export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
   @Post('createNotification')
   async createNotification(@Req() req, @Body() body) {
-    console.log(body);
-    return this.notificationsService.createNotification();
+    return this.notificationsService.createNotification(body.sender, body.receiver);
   }
 
   @Get('get-notifications')
-  async getNotifications() {
-    // i guess it will hold the logic for getting notifications
+  async getNotifications(@Req() req, @Body() body) {
+    return this.notificationsService.getNotification(body.notificationId);
   }
 }

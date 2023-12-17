@@ -7,12 +7,12 @@ import { NotificationType } from "@prisma/client";
 export class NotificationsService {
     constructor(private prisma: PrismaService) {}
 
-    async createNotification() {
+    async createNotification(senderId: string, receiverId: string) {
      const sender = await this.prisma.user.findUnique({
-         where: { id: "2dc04dff-c2b3-4aa9-aa15-ede086c7ddf5" },
+         where: { id: senderId },
          })
     const receiver = await this.prisma.user.findUnique({
-        where: { id: "3f3edd2e-a0cb-4d59-bbf7-65f7e1ba2314" },
+        where: { id: receiverId },
         })
     if (!sender || !receiver) {
         throw new Error('Internal Server Error: cannotSendRequest');
@@ -34,5 +34,17 @@ export class NotificationsService {
     });
     return notification
 }
+
+    async getNotification(notificationId: string) {
+        const notifications = await this.prisma.notification.findMany({
+            where: {
+                receiverId: notificationId,
+            },
+            include: {
+                sender: true,
+            },
+        });
+        return notifications;
+    }
 
 }
