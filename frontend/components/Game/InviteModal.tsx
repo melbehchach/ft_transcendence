@@ -13,9 +13,10 @@ const InviteModal = ({ loading }: any) => {
     const [receiverId, setReceiverId] = useState("");
     const [senderUsername, setSenderUsername] = useState("");
     const [receiverUsername, setReceiverUsername] = useState("");
+    const [friendAvatar, setFriendAvatar] = useState("");
 
-    const handleSendInvite = (friend: any) => {
-        axios.post("http://localhost:3000/notifications/createNotification", {
+    const handleSendInvite = () => {
+        axios.post("http://localhost:3000/game/sendgamerequest", {
             sender: senderId,
             receiver: receiverId,
             senderUsername: senderUsername,
@@ -32,7 +33,6 @@ const InviteModal = ({ loading }: any) => {
             }
         )
             .then((res) => {
-                console.log(res.data);
             })
             .catch((error) => {
                 console.log(error);
@@ -40,7 +40,7 @@ const InviteModal = ({ loading }: any) => {
     };
 
     const ChangeTextandSendRequest = (friend: any) => {
-        handleSendInvite(friend);
+        handleSendInvite();
         changeText(`waiting for ${friend.username} to accept challenge`);
     }
 
@@ -69,8 +69,11 @@ const InviteModal = ({ loading }: any) => {
                 setFriends(res.data.friends);
                 setSenderId(res.data.id);
                 setSenderUsername(res.data.username);
-                setReceiverId(res.data.friends[0].id); // dont judge , i coded this at 4 am
-                setReceiverUsername(res.data.friends[0].username); // dont judge , i coded this at 4 am
+                friends.map((friend: any) => { // dont judge , i coded this at 4 am
+                    setReceiverId(friend.id);
+                    setReceiverUsername(friend.username);
+                    setFriendAvatar(friend.avatar);
+                });
             })
             .catch((error) => {
                 console.log(error);
@@ -109,7 +112,8 @@ const InviteModal = ({ loading }: any) => {
                                 <ul key={index} className="flex justify-between items-center ">
                                     <figure className="flex items-center text-center gap-5">
                                         <Image
-                                            src="/img/avatar.png"
+                                            className="rounded-full"
+                                            src={friend.avatar}
                                             width={55}
                                             height={55}
                                             alt="Friend's picture"

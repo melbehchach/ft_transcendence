@@ -225,6 +225,9 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
           // push the player to deashboard game to start a new game
         } 
       });
+      // socket.on("countdown", (data: any) => {
+      //   setCountdown(false);
+      // });
     }
   }, [socket]);
 

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import RandomMatch from "../../../../components/Game/InviteFriends";
+import RandomMatch from "../../../../components/Game/RandomGame";
 import ScoreBoard from "../../../../components/Game/scoreBoard";
 import InviteModal from "../../../../components/Game/InviteModal";
 
