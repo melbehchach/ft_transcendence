@@ -8,19 +8,17 @@ type Props = {
 export default function AcceptOrRefuse({sender} : Props) {
     const handleAccept = () => {
         try {
-            axios.post("http://localhost:3000/game/accept", {
-              receiver: cookie.get("USER_ID"),
-              sender: sender,
-            });
+          axios.post(`http://localhost:3000/game/accept/${cookie.get("USER_ID")}`, {
+           id : sender
+          });
             
         } catch (error) {}
     };
 
     const handleRefuse = () => {
        try {
-         axios.post("http://localhost:3000/game/refuse", {
-           receiver: cookie.get("USER_ID"),
-            sender: sender,
+         axios.post(`http://localhost:3000/game/refuse/${cookie.get("USER_ID")}`, {
+            id: sender,
          });
        } catch (error) {}
      };

@@ -1,28 +1,43 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { GameService } from './game.service';
+import { GameRequestDTO } from 'src/dto/game.dto';
 
 @Controller('game')
 export class GameController {
+  constructor(private gameService: GameService) {}
 
-    constructor(private gameService: GameService) {}
-
-    @Post('sendgamerequest')
-    async sendGameRequest(@Body() body: any) {
-        return this.gameService.sendGameRequest(body.sender, body.receiver);
+  @Post(':id/send-game-request')
+  async sendGameRequest(
+    @Body() sender: GameRequestDTO,
+    @Param() receiver: GameRequestDTO,
+  ) {
+    if (sender && receiver) {
+      return this.gameService.sendGameRequest(sender.id, receiver.id);
+    } else {
+      throw new BadRequestException('Invalid sender or receiver data.');
     }
+  }
 
-    @Post('accept')
-    async acceptGameRequest(@Body() body: any) {
-        return this.gameService.acceptGameRequest(body.sender, body.receiver);
+  @Post('accept/:id')
+  async acceptGameRequest(@Param() receiver: GameRequestDTO, @Body() sender: GameRequestDTO) {
+    if (receiver && sender){
+        return this.gameService.acceptGameRequest(sender.id, receiver.id);
+    }else {
+        throw new BadRequestException('Invalid sender or receiver data.');
     }
+  }
 
-    @Post('refuse')
-    async refuseGameRequest(@Body() body: any) {
-        return this.gameService.declineGameRequest(body.sender, body.receiver);
+  @Post('refuse/:id')
+  async refuseGameRequest(@Param() receiver: GameRequestDTO,@Body() sender: GameRequestDTO) {
+    if (receiver && sender){
+        return this.gameService.declineGameRequest(sender.id, receiver.id);
+    }else{
+        throw new BadRequestException('Invalid sender or receiver data.');
     }
+  }
 
-    @Get('MatchHistory')
-    async getMatchHistory(@Req() req: any, @Body() body: any) {
-        return this.gameService.getMatchHistory(req.params.id);
-    }
+  @Get('MatchHistory')
+  async getMatchHistory(@Req() req: any, @Body() body: any) {
+    return this.gameService.getMatchHistory(req.params.id);
+  }
 }

@@ -1,13 +1,7 @@
-export class Player1 {
-  readonly PlayerId: string;
-  readonly SocketId: string;
-  readonly Score: number;
-  readonly IsWinner: boolean;
-}
+import { IsNotEmpty, IsString } from 'class-validator';
 
-export class Player2 {
-  readonly PlayerId: string;
-  readonly SocketId: string;
-  readonly Score: number;
-  readonly IsWinner: boolean;
+export class GameRequestDTO {
+  @IsNotEmpty()
+  @IsString()
+  id : string
 }

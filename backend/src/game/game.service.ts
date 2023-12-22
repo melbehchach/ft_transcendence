@@ -21,15 +21,8 @@ export class GameService {
       const receiver = await this.prisma.user.findUnique({
         where: { id: receiverId },
       });
-
-      if (!sender || !receiver) {
-        throw new Error('Sender or receiver not found');
-      }
-
-      if (sender.id === receiver.id) {
-        throw new Error('Sender and receiver cannot be the same');
-      }
-
+      // we should also check if the sender and receiver are already friends
+      // also if the receiver is not in game or he/she is offline
       this.notificationsService.createNotification(senderId, receiverId);
       this.notificationsGateway.handleNotificationEvent(senderId, receiverId);
     } catch (error) {
