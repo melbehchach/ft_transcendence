@@ -1,13 +1,19 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class messageDto {
+export class ChannelMessageDto {
   @IsString()
   @IsNotEmpty()
-  body: string;
+  senderId: string;
 
   @IsString()
   @IsNotEmpty()
-  receiverId: string;
-  //   channelId: string;
-  //   chatId: string;
+  channelName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  channelId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  body: string;
 }

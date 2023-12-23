@@ -1,30 +1,43 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
   InternalServerErrorException,
+  Param,
   Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { MessageService } from './message.service';
-import { messageDto } from 'src/dto/message.dto';
+import { ChannelMessageDto } from 'src/dto/message.dto';
 import { ChatGuard } from 'src/guards/chat.jwt.guard';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @UseGuards(ChatGuard)
 @Controller('message')
 export class MessageController {
-  constructor(private readonly messageService: MessageService) {}
+  constructor(
+    private readonly messageService: MessageService,
+    private readonly prisma: PrismaService,
+  ) {}
 
-  // @Get(':id')
-  // async getMesssageById(@Param() messageId: string) {
-  //   return this.messageService.getMessageById(parseInt(messageId));
-  // }
-
-  @Post('new')
-  async newMessage(@Req() req, @Body() body: messageDto) {
+  @Post('/channel/new')
+  async newChannelMessage(@Req() req, @Body() body: ChannelMessageDto) {
     if (!req.userID) {
       throw new InternalServerErrorException('BadRequest');
     }
-    return this.messageService.newMessage(body, req.userID);
+    return this.messageService.newChannelMessage(body, req.userID);
+  }
+
+  @Get(':id')
+  async getMesssageById(@Param('id') messageId: string) {
+    return this.messageService.getMessageById(parseInt(messageId));
+  }
+
+  // only for debugging
+  @Delete('all')
+  async clearMessages() {
+    return await this.prisma.message.deleteMany();
   }
 }

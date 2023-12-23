@@ -30,7 +30,6 @@ model User {
   Playerat   Game[] @relation("player")
   Opponentat Game[] @relation("opponent")
 
-
   sentMessages     Message[] @relation("Sender")
   receivedMessages Message[] @relation("Receiver")
   chats            Chat[]
@@ -72,7 +71,7 @@ model Message {
   sender     User     @relation("Sender", fields: [senderId], references: [id])
   senderId   String
   receiver   User?    @relation("Receiver", fields: [receiverId], references: [id])
-  receiverId String
+  receiverId String?
   Channel    Channel? @relation("channelMessages", fields: [channelId], references: [id])
   channelId  String?
   Chat       Chat?    @relation(fields: [chatId], references: [id])

@@ -1,9 +1,5 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
-import { messageDto } from 'src/dto/message.dto';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ChannelMessageDto } from 'src/dto/message.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ChannelsGateway } from '../channels/channels.gateway';
 
@@ -11,20 +7,24 @@ import { ChannelsGateway } from '../channels/channels.gateway';
 export class MessageService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly gateway: ChannelsGateway,
+    private readonly channelsGateway: ChannelsGateway,
   ) {}
 
-  async newMessage(data: messageDto, userId: string) {
-    if (userId === data.receiverId) {
-      throw new BadRequestException();
-    }
-    const receiver = await this.prisma.user.findUnique({
-      where: { id: data.receiverId },
-    });
-    if (receiver) {
-      throw new BadRequestException('Record Does Not Exist');
-    }
+  async newChannelMessage(data: ChannelMessageDto, userId: string) {
     try {
+      if (data.senderId !== userId) {
+        throw new Error('Forbidden');
+      }
+      const channel = await this.prisma.channel.findUnique({
+        where: { id: data.channelId },
+        include: { Members: true },
+      });
+      if (!channel) {
+        throw new Error('Channel not found');
+      }
+      if (channel.Members.map((member) => member.id).indexOf(userId) === -1) {
+        throw new Error('User not member');
+      }
       const message = await this.prisma.message.create({
         data: {
           body: data.body,
@@ -33,35 +33,35 @@ export class MessageService {
               id: userId,
             },
           },
-          receiver: {
+          Channel: {
             connect: {
-              id: data.receiverId,
+              id: data.channelId,
             },
           },
         },
       });
+      if (!message) {
+        throw new Error('Failed to save record');
+      }
+      this.channelsGateway.sendMessage(data);
       return message;
     } catch (error) {
       console.log(error);
-      throw new InternalServerErrorException(
-        'Error occured while creating record',
-      );
+      throw new InternalServerErrorException(error);
     }
   }
 
-  //   async getMessageById(id: number) {
-  //     try {
-  //       const message = await this.prisma.message.findUnique({
-  //         where: {
-  //           id,
-  //         },
-  //       });
-  //       return message;
-  //     } catch (error) {
-  //       console.log(error);
-  //       throw new InternalServerErrorException(
-  //         'Error occured while retreiving record',
-  //       );
-  //     }
-  //   }
+  async getMessageById(id: number) {
+    try {
+      const message = await this.prisma.message.findUnique({
+        where: { id },
+      });
+      return message ?? null;
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException(
+        'Error occured while retreiving record',
+      );
+    }
+  }
 }
