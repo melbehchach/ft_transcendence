@@ -3,7 +3,7 @@ import PongAnimation from "../../public/img/PongAnimation.json";
 import { useRouter } from "next/navigation";
 import Lottie from "lottie-react";
 
-const PopupRandom = ({ loading }: any) => {
+const WaitaingModal = ({ loading }: any) => {
   const router = useRouter();
   if (!loading) return;
   return (
@@ -54,4 +54,4 @@ const PopupRandom = ({ loading }: any) => {
   );
 };
 
-export default PopupRandom;
+export default WaitaingModal;

@@ -1,47 +1,104 @@
-import { Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import { NotificationsGateway } from "src/notifications/notifications.gateway";
+import { NotificationsService } from "src/notifications/notifications.service";
+import { PrismaService } from "src/prisma/prisma.service";
+import { Inject, Injectable } from "@nestjs/common";
+import { GameType } from "@prisma/client";
+import { Server, Socket } from 'socket.io';
 
 @Injectable()
 export class GameService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+    private readonly notificationsGateway: NotificationsGateway,
+  ) {}
 
-  private roomGame: Map<string, string[]> = new Map();
-
-  createRoom(): string {
-    const roomName = uuidv4();
-    this.roomGame.set(roomName, []);
-    return roomName;
-  }
-
-  getRoomName(): string {
-    return Array.from(this.roomGame.keys())[0];
-  }
-
-  addPlayerToRoom(roomName: string, playerId: string): string[] {
-    const players = this.roomGame.get(roomName);
-    if (players.length === 2) {
-      throw new Error('Room is already full');
+  async sendGameRequest(senderId: string, receiverId: string) {
+    try {
+      const sender = await this.prisma.user.findUnique({
+        where: { id: senderId },
+      });
+      const receiver = await this.prisma.user.findUnique({
+        where: { id: receiverId },
+      });
+      // we should also check if the sender and receiver are already friends
+      // also if the receiver is not in game or he/she is offline
+      this.notificationsService.createNotification(senderId, receiverId);
+      this.notificationsGateway.handleNotificationEvent(senderId, receiverId);
+    } catch (error) {
+      console.log(error);
     }
-    players.push(playerId);
-    return players;
   }
 
-  removePlayerFromRoom(roomName: string, playerId: string): void {
-    this.roomGame.set(
-      roomName,
-      this.roomGame.get(roomName).filter((id) => id !== playerId),
-    );
+  async acceptGameRequest(senderId: string, receiverId: string) {
+    try {
+      const game = await this.prisma.game.create({
+        data: {
+          Player: {
+            connect: { id: senderId },
+          },
+          Opponent: {
+            connect: { id: receiverId },
+          },
+          type: GameType.FriendMatch,
+        },
+      });
+      this.notificationsGateway.handleAcceptEvent(senderId, receiverId, game.id);
+	  return game;
+    }
+    catch (error) {
+      console.log(error);
+    }
   }
 
-  getPlayersInRoom(roomName: string){
-    if (!roomName)
-      return this.roomGame.get(roomName);
+  async declineGameRequest(senderId: string, receiverId: string) {
+    try {
+      this.notificationsGateway.handleDeclineEvent(senderId, receiverId);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  checkIfRoomIsFull(roomName: string): boolean {
-    return this.roomGame.get(roomName).length === 2;
+  // async Achievements(userId: string) {
+  //   try {
+  //     const Achievements = await this.prisma.acheivement.findUnique({
+  //       where: {
+  //         id: userId,
+  //       },
+  //     });
+  //     Achievements.
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
+
+  async getMatchHistory(userId: string) {
+    try {
+      const MatchHistory = await this.prisma.game.findMany({
+        where: {
+          OR: [
+            {
+              Player: {
+                id: userId,
+              },
+            },
+            {
+              Opponent: {
+                id: userId,
+              },
+            },
+          ],
+        },
+        orderBy: {  createdAt: 'desc' },
+        include: {
+          Player: true,
+          Opponent: true,
+        },
+      });
+      return MatchHistory;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  checkIfRoomExists(roomName: string): boolean {
-    return this.roomGame.has(roomName);
-  }
 }

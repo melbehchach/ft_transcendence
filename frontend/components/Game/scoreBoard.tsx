@@ -1,5 +1,9 @@
 'use client';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
 
 interface ScoreBoardProps {
   playerScore: number;
@@ -8,11 +12,22 @@ interface ScoreBoardProps {
 
 export default function ScoreBoard({playerScore, opponentScore}: ScoreBoardProps) {
     const router = useRouter();
+    // const [playerAvatar, setPlayerAvatar] = useState('');
+    // const [opponentAvatar, setOpponentAvatar] = useState('');
+
+  
+    
   return (
     <>
       <div className="flex justify-between items-center m-5 p-5">
         <div className="flex items-center justify-center gap-1">
-        {/* <avatar alt='player1' img="" rounded/> */}
+          <Image
+            className='rounded-full'
+            src= "/img/avatar.png"
+            width={55}
+            height={55}
+            alt="Friend's picture"
+          />
           <span className="mx-2 text-text text-center text-5xl font-bold">{playerScore}</span>
         </div>
         <button className="inline-flex items-center h-12 bg-primary rounded-3xl p-4 px-14 gap-3">
@@ -54,7 +69,13 @@ export default function ScoreBoard({playerScore, opponentScore}: ScoreBoardProps
         </button>
         <div className="flex items-center justify-center gap-1">
           <span className="mx-2 text-text text-center text-5xl font-bold">{opponentScore}</span>
-          {/* <Avatar alt='player2' img="" rounded /> */}
+          <Image
+            className='rounded-full'
+            src="/img/avatar.png"
+            width={55}
+            height={55}
+            alt="Friend's picture"
+          />
         </div>
       </div>
     </>

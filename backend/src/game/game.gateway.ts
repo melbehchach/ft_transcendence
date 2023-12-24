@@ -6,6 +6,7 @@ import {
   SubscribeMessage,
 } from '@nestjs/websockets';
 import { PrismaService } from '../prisma/prisma.service';
+import { GameService } from './game.service';
 import { Server, Socket } from 'socket.io';
 import { GameType } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
@@ -18,13 +19,17 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   canvasWidth = 1080;
   canvasHeight = 720;
   gameQueue: any[] = []; // queue of players waiting for a game
+  gameQueue2: any[] = []; // queue of invited players waiting for a game aka vip room
   mapPlayers: Map<string, any> = new Map(); // map of players in a game key is player id and value is player object
   mapSocketToPlayer: Map<string, Socket> = new Map(); // map of connected players with their socket
   MapRoomToPlayers: Map<string, any> = new Map(); // map of players in a game with their room
   private MapGames = new Map<string, any>(); // map of games
   private playerInterval: Map<string, any> = new Map(); // map of player interval
   @WebSocketServer() server: Server;
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly gameService: GameService,
+  ) {}
 
   handleConnection(client: Socket, ...args: any[]) {
     const playeId: string = client.handshake.auth.token;
@@ -35,10 +40,91 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // console.log('Player connected: ', client.id);
   }
 
+  private countdown = () => {
+      let count = 3;
+      const interval = setInterval(() => {
+        count--;
+        if (count < 0) {
+          clearInterval(interval);
+          return count;
+        }
+      }, 1000);
+      return count
+  };
+
 
   @SubscribeMessage('InviteFriend')
-  async createFriendMatch(socket: Socket, payload: any): Promise<void> {
-    
+  async createInviteMatch(socket: Socket, payload: any): Promise<void> {
+    try {
+      const playerId = socket.handshake.auth.token;
+      const ObjectPlayer = {
+        id: playerId,
+        socket: this.mapSocketToPlayer.get(playerId),
+        x: 10,
+        y: this.canvasHeight / 2 - 75,
+        score: 0,
+        width: 20,
+        velocityY: 0,
+        height: 150,
+      };
+      if (!this.gameQueue2.some((player) => player.id === ObjectPlayer.id)) {
+        this.gameQueue2.push(ObjectPlayer);
+      }
+      if (this.gameQueue2.length >= 2){
+        const player = this.gameQueue2.shift(); // player 1
+        const opponent = this.gameQueue2.shift(); // player 2
+        const room = payload.room;
+        opponent.x = this.canvasWidth - 30;
+        player.socket.join(room);
+        opponent.socket.join(room);
+        this.server.to(room).emit('gameStartInvite', {});
+        this.mapPlayers.set(player.id, player);
+        this.mapPlayers.set(opponent.id, opponent);
+        this.MapRoomToPlayers.set(room, [player, opponent]);
+        const gameState = {
+          roomName: room,
+          player1Obj: player,
+          player2Obj: opponent,
+          ball: {
+            x: this.canvasWidth / 2,
+            y: this.canvasHeight / 2,
+            radius: 10,
+            velocityX: 1,
+            velocityY: 1,
+            speed: 2,
+          },
+        };
+        this.MapGames.set(room, gameState);
+        try {
+          await this.prisma.game.update({
+            where: {
+              id: room,
+            },
+            data: {
+              Player: {
+                connect: { id: player.id },
+              },
+              Opponent: {
+                connect: { id: opponent.id },
+              },
+              playerScore: gameState.player1Obj.score,
+              opponentScore: gameState.player2Obj.score,
+              type: GameType.FriendMatch,
+            },
+          });
+        } catch (error) {}
+        const gameRoom = this.MapGames.get(room);
+        this.server.to(gameRoom.roomName).emit('InviteFriend', {
+          player: gameRoom.player1Obj.id,
+          opponent: gameRoom.player2Obj.id,
+          playerY: gameRoom.player1Obj.y,
+          opponentY: gameRoom.player2Obj.y,
+          room: gameRoom.roomName,
+          playerScore: gameRoom.player1Obj.score,
+          opponentScore: gameRoom.player2Obj.score,
+        });
+      }
+    } catch (error) {}
   }
 
   @SubscribeMessage('RandomMatch')
@@ -219,16 +305,16 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         opponentScore: room.player2Obj.score,
         room: room.roomName,
       });
-      this.server.to(room.roomName).emit('BallMoved', {
-        x: room.ball.x,
-        y: room.ball.y,
-        player: room.player1Obj.id,
-        opponent: room.player2Obj.id,
-      });
+        this.server.to(room.roomName).emit('BallMoved', {
+          x: room.ball.x,
+          y: room.ball.y,
+          player: room.player1Obj.id,
+          opponent: room.player2Obj.id,
+        });
     });
   }
 
- private GameOver = async (room: string) => {
+  private GameOver = async (room: string) => {
     const gameRoom = this.MapGames.get(room);
     if (gameRoom.player1Obj.score === 5 || gameRoom.player2Obj.score === 5) {
       await this.prisma.game.updateMany({
@@ -292,14 +378,14 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           if (gameRoom.player1Obj.id === playerId) {
             gameRoom.player2Obj.score = 5;
             await this.prisma.game.updateMany({
-                where: {
-                    id: roomName,
-                },
-                data: {
-                    playerScore: gameRoom.player1Obj.score,
-                    opponentScore: gameRoom.player2Obj.score,
-                },
-            })
+              where: {
+                id: roomName,
+              },
+              data: {
+                playerScore: gameRoom.player1Obj.score,
+                opponentScore: gameRoom.player2Obj.score,
+              },
+            });
             this.resetBall(roomName);
             this.server
               .to(gameRoom.player2Obj.socket.id)

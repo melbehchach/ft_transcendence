@@ -2,7 +2,7 @@
 import { useState } from "react";
 import RandomMatch from "../../../../components/Game/RandomGame";
 import ScoreBoard from "../../../../components/Game/scoreBoard";
-import PopupRandom from "../../../../components/Game/Popuprandom";
+import WaitaingModal from "../../../../components/Game/WaitingModal";
 
 const RandomMatchPage = () => {
   const [Playerscore, setPlayerScore] = useState(0);
@@ -11,7 +11,7 @@ const RandomMatchPage = () => {
   return (
     <>
       <div className="pl-[10%] bg-background h-screen w-screen justify-center ">
-        <PopupRandom loading={loading}/>
+        <WaitaingModal loading={loading}/>
         <ScoreBoard playerScore={Playerscore} opponentScore={OpponentScore} />
         <RandomMatch
           setPlayerScore={setPlayerScore}
