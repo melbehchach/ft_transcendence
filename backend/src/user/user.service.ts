@@ -1,10 +1,76 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Status } from '@prisma/client';
+import { ChannelType, Status } from '@prisma/client';
+import { searchDto } from 'src/dto/search.dto';
+import { SearchType } from 'src/dto/search.dto';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
+
+  async search(params: searchDto) {
+    console.log(params);
+    const findUsers = async (query) => {
+      return await this.prisma.user.findMany({
+        where: {
+          username: {
+            mode: 'insensitive',
+            startsWith: query,
+          },
+        },
+        select: {
+          id: true,
+          username: true,
+          avatar: true,
+        },
+      });
+    };
+    const findChannels = async (query) => {
+      return await this.prisma.channel.findMany({
+        where: {
+          name: {
+            mode: 'insensitive',
+            startsWith: query,
+          },
+          type: {
+            in: [ChannelType.PUBLIC, ChannelType.PROTECTED],
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          type: true,
+          Members: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
+        },
+      });
+    };
+    try {
+      if (params.type === SearchType.USERS) {
+        console.log('users');
+        const users = await findUsers(params.query);
+        return users;
+      } else if (params.type === SearchType.CHANNELS) {
+        console.log('channels');
+        const channels = await findChannels(params.query);
+        return channels;
+      } else {
+        console.log('all');
+        const users = await findUsers(params.query);
+        const channels = await findChannels(params.query);
+        return { users, channels };
+      }
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException(error.message);
+    }
+  }
 
   async getUSerProfile(userId: string) {
     try {
