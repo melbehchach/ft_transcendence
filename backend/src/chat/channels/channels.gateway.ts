@@ -2,7 +2,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
-  SubscribeMessage,
+  // SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
@@ -22,7 +22,7 @@ export class ChannelsGateway
 {
   constructor(
     private readonly jwt: JwtService,
-    private readonly prisma: PrismaService, // private readonly message: MessageService,
+    private readonly prisma: PrismaService,
   ) {}
 
   // private logger = new Logger(ChannelsGateway.name);
@@ -37,13 +37,20 @@ export class ChannelsGateway
     }
     this.clientsMap[userId].add(client);
   }
-  deleteClientFromMap(userId: string, client: Socket) {
-    if (this.clientsMap[userId]) {
-      this.clientsMap[userId].delete(client);
-      if (this.clientsMap[userId].size === 0) {
-        delete this.clientsMap[userId];
-      }
-    }
+  deleteClientFromMap(clientId: string) {
+    Object.entries(this.clientsMap).forEach(
+      ([userId, clientSet]: [string, Set<Socket>]) => {
+        for (const client of clientSet) {
+          if (client.id === clientId) {
+            clientSet.delete(client);
+            break;
+          }
+        }
+        if (clientSet.size === 0) {
+          delete this.clientsMap[userId];
+        }
+      },
+    );
   }
   // getClientFromMap(userId: string) {
   //   return this.clientsMap[userId] || new Set();
@@ -65,7 +72,11 @@ export class ChannelsGateway
           select: {
             id: true,
             username: true,
-            ChannelsMember: true,
+            ChannelsMember: {
+              include: {
+                Messages: true,
+              },
+            },
           },
         });
         if (!payload || !this.user) {
@@ -79,25 +90,32 @@ export class ChannelsGateway
     });
   }
 
-  async handleConnection(client: Socket) {
+  handleConnection(client: Socket) {
     // const { sockets } = this.server.sockets;
     const channels = this.user.ChannelsMember;
 
     this.addClientToMap(this.user.id, client);
-    client.join(this.user.id);
+    // client.join(this.user.id);
     console.log(this.user.username + ' channels:', channels);
     channels.forEach((channel) => {
-      client.join(channel.name);
+      client.join(channel.id);
+      channel.Messages.forEach((msg) => {
+        if (!msg.delivered) {
+          this.server
+            .to(channel.id)
+            .emit('channelMessage', { sender: msg.senderId, body: msg.body });
+        }
+      });
     });
     console.log(`${client.id} joined`);
     console.log(this.clientsMap);
   }
 
   handleDisconnect(client: any) {
-    const { sockets } = this.server.sockets;
-    this.deleteClientFromMap(this.user.id, client);
+    // const { sockets } = this.server.sockets;
+    this.deleteClientFromMap(client.id);
     console.log(`${client.id} left`);
-    console.log(`${sockets?.size || 0} Connected Clients`);
+    // console.log(`${sockets?.size || 0} Connected Clients`);
   }
 
   newRoom(channelId: string, channelName: string, members: string[]) {
@@ -109,7 +127,7 @@ export class ChannelsGateway
       for (const index in members) {
         if (this.clientsMap[members[index]]) {
           this.clientsMap[members[index]].forEach((client) => {
-            client.join(channelName);
+            client.join(channelId);
             client.emit('joinRoom', { channelId });
             console.log(`${members[index]} added to ${channelName}`);
           });
@@ -127,7 +145,7 @@ export class ChannelsGateway
     try {
       if (this.clientsMap[userId]) {
         this.clientsMap[userId].forEach((client) => {
-          client.join(channelName);
+          client.join(channelId);
           client.emit('joinRoom', { channelId });
           console.log(`${userId} added to ${channelName}`);
         });
@@ -143,7 +161,7 @@ export class ChannelsGateway
     try {
       if (this.clientsMap[userId]) {
         this.clientsMap[userId].forEach((client) => {
-          client.leave(channelName);
+          client.leave(channelId);
           client.emit('leaveRoom', { channelId });
           console.log(`${userId} left ${channelName}`);
         });
@@ -155,11 +173,14 @@ export class ChannelsGateway
     }
   }
 
-  @SubscribeMessage('channelMessage')
+  // @SubscribeMessage('channelMessage')
   sendMessage(data: ChannelMessageDto) {
     try {
+      if (!data) {
+        throw new WsException('invalid message data');
+      }
       this.server
-        .to(data.channelName)
+        .to(data.channelId)
         .emit('channelMessage', { sender: data.senderId, body: data.body });
     } catch (error) {
       console.log(`Failed to send message: ${error.message}`);
