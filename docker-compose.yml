@@ -11,6 +11,18 @@ services:
       - ping-pong
     restart: on-failure
 
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - 8080:80
+    networks:
+      - ping-pong
+
   frontend:
     build: ./frontend
     image: frontend

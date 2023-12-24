@@ -33,11 +33,12 @@ model User {
   sender     Notification[] @relation("sender")
   receiver   Notification[] @relation("receiver")
 
-
   sentMessages     Message[] @relation("Sender")
   receivedMessages Message[] @relation("Receiver")
-  chats            Chat[]
   acheivements Acheivement[]
+  // chats            Chat[]
+  startedChats     Chat[]    @relation("started")
+  invitedChats     Chat[]    @relation("invited")
 }
 
 model FriendRequest {
@@ -65,7 +66,11 @@ model Channel {
 
 model Chat {
   id       String    @id @default(uuid())
-  users    User[]
+  // users    User[]
+  myself   User      @relation("started", fields: [user1Id], references: [id])
+  user1Id  String
+  myfriend User      @relation("invited", fields: [user2Id], references: [id])
+  user2Id  String
   messages Message[]
 }
 
@@ -76,11 +81,12 @@ model Message {
   sender     User     @relation("Sender", fields: [senderId], references: [id])
   senderId   String
   receiver   User?    @relation("Receiver", fields: [receiverId], references: [id])
-  receiverId String
+  receiverId String?
   Channel    Channel? @relation("channelMessages", fields: [channelId], references: [id])
   channelId  String?
   Chat       Chat?    @relation(fields: [chatId], references: [id])
   chatId     String?
+  delivered  Boolean  @default(false)
 }
 
 model Game {

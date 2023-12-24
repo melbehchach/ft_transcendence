@@ -124,12 +124,13 @@ export class AuthService {
       where: {
         email: email,
       },
-      include: {
-        ChannelsOwner: true,
-        ChannelsAdmin: true,
-        ChannelsMember: true,
-        chats: true,
-      },
+      // include: {
+      //   ChannelsOwner: true,
+      //   ChannelsAdmin: true,
+      //   ChannelsMember: true,
+      //   ChannelsBannedFrom: true,
+      //   chats: true,
+      // },
     });
     delete user?.password;
     return user;
