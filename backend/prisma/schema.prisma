@@ -32,7 +32,9 @@ model User {
 
   sentMessages     Message[] @relation("Sender")
   receivedMessages Message[] @relation("Receiver")
-  chats            Chat[]
+  // chats            Chat[]
+  startedChats     Chat[]    @relation("started")
+  invitedChats     Chat[]    @relation("invited")
 }
 
 model FriendRequest {
@@ -60,7 +62,11 @@ model Channel {
 
 model Chat {
   id       String    @id @default(uuid())
-  users    User[]
+  // users    User[]
+  myself   User      @relation("started", fields: [user1Id], references: [id])
+  user1Id  String
+  myfriend User      @relation("invited", fields: [user2Id], references: [id])
+  user2Id  String
   messages Message[]
 }
 
@@ -76,6 +82,7 @@ model Message {
   channelId  String?
   Chat       Chat?    @relation(fields: [chatId], references: [id])
   chatId     String?
+  delivered  Boolean  @default(false)
 }
 
 model Game {

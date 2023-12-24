@@ -42,7 +42,8 @@ export class UserGuard implements CanActivate {
               Chat: {
                 select: {
                   id: true,
-                  users: { select: { username: true } },
+                  myself: { select: { username: true } },
+                  myfriend: { select: { username: true } },
                 },
               },
               Channel: {
@@ -61,7 +62,8 @@ export class UserGuard implements CanActivate {
               Chat: {
                 select: {
                   id: true,
-                  users: { select: { username: true } },
+                  myself: { select: { username: true } },
+                  myfriend: { select: { username: true } },
                 },
               },
               Channel: {
