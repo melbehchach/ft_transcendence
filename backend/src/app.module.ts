@@ -7,6 +7,9 @@ import { UserModule } from './user/user.module';
 import { GameService } from './game/game.service';
 import { GameController } from './game/game.controller';
 import { GameModule } from './game/game.module';
+import { NotificationsModule } from './notifications/notifications.module';
+// import { NotificationsGateway } from './notifications/notifications.gateway';
+// import { NotificationsService } from './notifications/notifications.service';
 import { ChatModule } from './chat/chat.module';
 
 @Module({
@@ -17,6 +20,7 @@ import { ChatModule } from './chat/chat.module';
     PassportModule,
     UserModule,
     GameModule,
+    NotificationsModule,
     ChatModule,
   ],
   providers: [GameService],

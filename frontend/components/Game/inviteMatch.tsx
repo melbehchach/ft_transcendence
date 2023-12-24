@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Socket, io } from "socket.io-client";
 import cookie from "js-cookie";
+import { useParams } from "next/navigation";
 import Countdown from "./countdown";
 import { Player, Net } from "../../types";
 
@@ -67,12 +68,20 @@ let net: Net = {
   color: "white",
 };
 
-export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoading }: any) {
+interface Props {
+  setPlayerScore: (playerScore: number) => void;
+  setOpponentScore: (opponentScore: number) => void;
+  setLoading: (loading: boolean) => void;
+}
+
+export default function InviteMatch({setPlayerScore, setOpponentScore, setLoading}: Props) {
+  const { id } = useParams();
+  console.log(id);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
-  const Player : Player = {
+  const Player: Player = {
     x: 10,
     y: canvasHeight / 2 - 50,
     width: 20,
@@ -80,7 +89,7 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
     color: "white",
     // score: 0,
   };
-  const Opponent : Player = {
+  const Opponent: Player = {
     x: canvasWidth - 30,
     y: canvasHeight / 2 - 50,
     width: 20,
@@ -121,12 +130,11 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
     setCountdown(false);
   }, []);
 
-
   useEffect(() => {
     const gameLoop = () => {
-        setPlayerY((preV) => preV + (playerY - preV) * 0.6);
-        setOpenentY((preV) => preV + (openentY - preV) * 0.6);
-        render();
+      setPlayerY((preV) => preV + (playerY - preV) * 0.6);
+      setOpenentY((preV) => preV + (openentY - preV) * 0.6);
+      render();
     };
     gameLoop();
   }, [countdown, playerY, openentY, ballX, ballY]);
@@ -163,7 +171,7 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
   useEffect(() => {
     if (!socket) return;
     window?.addEventListener("keydown", keyPress);
-    socket.emit("InviteFriend", { player: cookie.get("USER_ID"), room: room });
+    socket.emit("InviteFriend", { player: cookie.get("USER_ID"), room: id, });
     return () => {
       socket?.disconnect();
     };
@@ -215,20 +223,18 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
           alert("You lose");
         }
       });
-      socket.on("gameStart", () => {
+      socket.on("gameStartInvite", () => {
         setLoading(false);
       });
       socket.on("UnexpectedWinner", (data: any) => {
         if (data.winner === cookie.get("USER_ID")) {
-          setPlayerScore(data.score)
+          setPlayerScore(data.score);
           console.log("You win");
           // push the player to deashboard game to start a new game
-        } 
+        }
       });
     }
   }, [socket]);
-
- 
 
   return (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">

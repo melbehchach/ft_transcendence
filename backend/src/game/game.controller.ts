@@ -1,17 +1,43 @@
-import { Controller, Get, Post, Req } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
+import { GameService } from './game.service';
+import { GameRequestDTO } from 'src/dto/game.dto';
 
 @Controller('game')
 export class GameController {
-  @Post('create-game')
-  async createGame() {}
+  constructor(private gameService: GameService) {}
 
-  @Get('challenge-friends')
-  async challengeFriends() {
-    // i guess it will hold the logic for challenging friends
+  @Post(':id/send-game-request')
+  async sendGameRequest(
+    @Body() sender: GameRequestDTO,
+    @Param() receiver: GameRequestDTO,
+  ) {
+    if (sender && receiver) {
+      return this.gameService.sendGameRequest(sender.id, receiver.id);
+    } else {
+      throw new BadRequestException('Invalid sender or receiver data.');
+    }
   }
 
-  @Get('challenge-random')
-  async challengeRandom(@Req() req) {
-    // i guess it will hold the logic for challenging random
+  @Post('accept/:id')
+  async acceptGameRequest(@Param() receiver: GameRequestDTO, @Body() sender: GameRequestDTO) {
+    if (receiver && sender){
+        return this.gameService.acceptGameRequest(sender.id, receiver.id);
+    }else {
+        throw new BadRequestException('Invalid sender or receiver data.');
+    }
+  }
+
+  @Post('refuse/:id')
+  async refuseGameRequest(@Param() receiver: GameRequestDTO,@Body() sender: GameRequestDTO) {
+    if (receiver && sender){
+        return this.gameService.declineGameRequest(sender.id, receiver.id);
+    }else{
+        throw new BadRequestException('Invalid sender or receiver data.');
+    }
+  }
+
+  @Get('MatchHistory')
+  async getMatchHistory(@Req() req: any, @Body() body: any) {
+    return this.gameService.getMatchHistory(req.params.id);
   }
 }
