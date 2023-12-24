@@ -5,12 +5,14 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserGuard } from 'src/guards/user.jwt.guard';
+import { searchDto } from 'src/dto/search.dto';
 
 @Controller('user')
 @UseGuards(UserGuard)
@@ -38,6 +40,11 @@ export class UserController {
       ChannelsMember: req.user.ChannelsMember,
       ChannelsBannedFrom: req.user.ChannelsBannedFrom,
     };
+  }
+
+  @Get('search')
+  async search(@Query() params: searchDto) {
+    return this.userService.search(params);
   }
 
   @Get(':id/profile')

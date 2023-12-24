@@ -186,6 +186,7 @@ export class ChannelsService {
         },
       });
       delete newChannel?.password;
+      this.gateway.newRoom(newChannel.id, newChannel.name, data.Members);
       return newChannel;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -248,6 +249,7 @@ export class ChannelsService {
   // }
 
   async leaveChannel(channelId: string, userId: string) {
+    //disconnect userId socket in the gateway
     try {
       const channel = await this.prisma.channel.findUnique({
         where: { id: channelId },
@@ -256,9 +258,13 @@ export class ChannelsService {
       if (!channel) {
         throw new Error('Channel not found');
       }
+      if (userId === channel.ownerId) {
+        throw new Error('Owner cannot leave the channel without deleting it');
+      }
       if (channel.Members.map((member) => member.id).indexOf(userId) === -1) {
         throw new Error('User not in the channel');
       }
+      this.gateway.leaveRoom(channel.id, channel.name, userId);
       const updatedChannel = await this.prisma.channel.update({
         where: { id: channelId },
         data: {
@@ -277,6 +283,7 @@ export class ChannelsService {
       if (!updatedChannel) {
         throw new Error('Failed to leave channel');
       }
+      //gateway.leaveRoom()
       return 'success';
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -322,6 +329,7 @@ export class ChannelsService {
           throw new Error('Incorrect Password');
         }
       }
+      this.gateway.joinRoom(channel.id, channel.name, userId);
       const updatedChannel = await this.prisma.channel.update({
         where: { id: channelId },
         data: {
