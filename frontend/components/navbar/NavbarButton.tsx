@@ -1,8 +1,5 @@
 "use client";
 export default function NavbarButton({ label, icon, clicked }: any) {
-  const handleClick = () => {
-    console.log(label);
-  };
   return (
     <>
       <div

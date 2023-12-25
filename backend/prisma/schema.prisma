@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,10 +8,152 @@ datasource db {
 }
 
 model User {
-  id  Int @id @default(autoincrement())
-  email           String @unique
-  username        String @unique
-  hash            String
-  avatarLink      String
+  id       String @id @default(uuid())
+  email    String @unique
+  username String @unique
+  password String
+  avatar   String
+  socketId String
+
   isAuthenticated Boolean
+
+  sentRequests     FriendRequest[] @relation("Sender")
+  receivedRequests FriendRequest[] @relation("Receiver")
+  friends          User[]          @relation("Friendship")
+  symmetricFriends User[]          @relation("Friendship")
+
+
+  ChannelsOwner      Channel[] @relation("Owner")
+  ChannelsAdmin      Channel[] @relation("Admin")
+  ChannelsMember     Channel[] @relation("Member")
+  ChannelsBannedFrom Channel[] @relation("Banned")
+
+  Playerat   Game[] @relation("player")
+  Opponentat Game[] @relation("opponent")
+  sender     Notification[] @relation("sender")
+  receiver   Notification[] @relation("receiver")
+
+  sentMessages     Message[] @relation("Sender")
+  receivedMessages Message[] @relation("Receiver")
+  acheivements Acheivement[]
+  // chats            Chat[]
+  startedChats     Chat[]    @relation("started")
+  invitedChats     Chat[]    @relation("invited")
+}
+
+model FriendRequest {
+  id         String @id @default(uuid())
+  sender     User   @relation("Sender", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User   @relation("Receiver", fields: [receiverId], references: [id])
+  receiverId String
+  status     Status
+}
+
+model Channel {
+  id            String      @id @default(uuid())
+  name          String
+  image         String
+  type          ChannelType
+  password      String?
+  owner         User        @relation("Owner", fields: [ownerId], references: [id])
+  ownerId       String
+  admins        User[]      @relation("Admin")
+  Members       User[]      @relation("Member")
+  bannedMembers User[]      @relation("Banned")
+  Messages      Message[]   @relation("channelMessages")
+}
+
+model Chat {
+  id       String    @id @default(uuid())
+  // users    User[]
+  myself   User      @relation("started", fields: [user1Id], references: [id])
+  user1Id  String
+  myfriend User      @relation("invited", fields: [user2Id], references: [id])
+  user2Id  String
+  messages Message[]
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  body       String
+  sender     User     @relation("Sender", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User?    @relation("Receiver", fields: [receiverId], references: [id])
+  receiverId String?
+  Channel    Channel? @relation("channelMessages", fields: [channelId], references: [id])
+  channelId  String?
+  Chat       Chat?    @relation(fields: [chatId], references: [id])
+  chatId     String?
+  delivered  Boolean  @default(false)
+}
+
+model Game {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  Player        User     @relation("player", fields: [playerId], references: [id])
+  Opponent      User     @relation("opponent", fields: [opponentId], references: [id])
+  playerId      String
+  opponentId    String
+  type          GameType
+  playerScore   Int      @default(0)
+  opponentScore Int      @default(0)
+
+}
+
+model Acheivement {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  freshman      Boolean @default(false)
+  freshmanDescription String?
+  Snowden    Boolean @default(false)
+  SnowdenDescription String?
+  NewHeroInTown    Boolean @default(false)
+  NewHeroInTownDescription String?
+  Rak3ajabni   Boolean @default(false)
+  Rak3ajabniDescription String?
+  sbe3    Boolean @default(false)
+  sbe3Description String?
+  aqwadPonger    Boolean @default(false)
+  aqwadPongerDescription String?
+  GetALifebro    Boolean @default(false)
+  GetALifebroDescription String?
+  users     User[]
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  type      NotificationType
+  sender    User     @relation("sender", fields: [senderId], references: [id])
+  senderId  String
+  receiver  User     @relation("receiver", fields: [receiverId], references: [id])
+  receiverId String
+}
+
+enum Status {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELED
+}
+
+enum GameType {
+  RandomMatch
+  FriendMatch
+}
+
+enum NotificationType {
+  FriendRequest
+  GameRequest
+}
+
+
+
+enum ChannelType {
+  PUBLIC
+  PROTECTED
+  PRIVATE
 }

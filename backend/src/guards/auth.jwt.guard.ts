@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from '../auth/auth.service';
+import { validateToken } from 'src/helpers/auth.helpers';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -19,28 +20,19 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.get<boolean>(
-      'isPublic',
-      context.getHandler(),
-    );
-    if (isPublic) return true;
     const req = context.switchToHttp().getRequest();
-    const token = req.cookies['JWT_TOKEN'];
-    if (!token) throw new UnauthorizedException('Invalid Token');
     try {
-      const payload = await this.jwt.verifyAsync(token, {
-        secret: this.config.get('JWT_SECRET'),
-      });
-      const { username, email, avatarLink, isAuthenticated } =
+      const payload = await validateToken(req.cookies['JWT_TOKEN'], this.jwt);
+      const { username, email, avatar, isAuthenticated } =
         await this.authservice.findUser(payload.email);
       req['user'] = {
         username,
         email,
-        avatarLink,
+        avatar,
         isAuthenticated,
       };
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid Token');
     }
     return true;
   }

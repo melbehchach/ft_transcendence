@@ -1,0 +1,60 @@
+version: '3.8'
+services:
+  database:
+    image: postgres:latest
+    container_name: database
+    ports:
+      - 5434:5432
+    env_file: 
+      - backend/.env
+    networks:
+      - ping-pong
+    restart: on-failure
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - 8080:80
+    networks:
+      - ping-pong
+
+  frontend:
+    build: ./frontend
+    image: frontend
+    container_name: frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - 3001:3001
+    networks:
+      - ping-pong
+    depends_on:
+      - backend
+    restart: on-failure
+
+  backend:
+    build: ./backend
+    image: backend
+    container_name: backend
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    ports:
+      - 3000:3000
+      - 5555:5555
+    networks:
+      - ping-pong
+    depends_on: 
+      - database
+    restart: on-failure
+
+networks:
+  ping-pong:
+    driver: bridge
+    name: ping-pong

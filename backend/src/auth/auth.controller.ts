@@ -6,7 +6,6 @@ import {
   Post,
   Req,
   Res,
-  SetMetadata,
   UnauthorizedException,
   UploadedFile,
   UseGuards,
@@ -21,6 +20,7 @@ import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { AuthGuard } from 'src/guards/auth.jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -32,24 +32,23 @@ export class AuthController {
   ) {}
 
   @UseGuards(FTAuthGuard)
-  @SetMetadata('isPublic', true)
   @Get('42')
   auth42() {}
 
   @UseGuards(FTAuthGuard)
-  @SetMetadata('isPublic', true)
   @Get('42-redirect')
   async auth42Redirect(@Req() req, @Res({ passthrough: true }) res) {
     if (req.user.isAuthenticated) {
-      const { accessToken } = await this.authService.signToken(
+      const { id, accessToken } = await this.authService.signToken(
         req.user.id,
-        req.user.username,
+        req.user.email,
       );
       res.cookie('JWT_TOKEN', accessToken);
+      res.cookie('USER_ID', id);
       res.redirect('http://localhost:3001/profile');
     } else {
       const userToken = await this.jwtService.signAsync({
-        sub: -42,
+        sub: req.user.id,
         email: req.user.email,
       });
       res.cookie('USER', userToken);
@@ -57,7 +56,6 @@ export class AuthController {
     }
   }
 
-  @SetMetadata('isPublic', true)
   @Get('preAuthData')
   async getPreAuthData(@Req() req) {
     const token = req.cookies['USER'];
@@ -66,21 +64,20 @@ export class AuthController {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.config.get('JWT_SECRET'),
       });
-      const { email, username, avatarLink } = await this.authService.findUser(
+      const { email, username, avatar } = await this.authService.findUser(
         payload.email,
       );
       const user = {
         email,
         username,
-        avatarLink,
+        avatar,
       };
       return { user };
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid Token');
     }
   }
 
-  @SetMetadata('isPublic', true)
   @Post('finish_signup')
   async finish_signup(
     @Body() dto: signupDTO,
@@ -88,13 +85,16 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const UserToken = req.cookies['USER'];
-    const token = await this.authService.finish_signup(dto, UserToken);
-    res.cookie('JWT_TOKEN', token.accessToken);
+    const { id, accessToken } = await this.authService.finish_signup(
+      dto,
+      UserToken,
+    );
+    res.cookie('JWT_TOKEN', accessToken);
+    res.cookie('USER_ID', id);
     res.cookie('USER', '', { expires: new Date() });
     return { msg: 'Success' };
   }
 
-  @SetMetadata('isPublic', true)
   @Post('uploadAvatar')
   @UseInterceptors(
     FileInterceptor('avatar', {
@@ -114,20 +114,22 @@ export class AuthController {
   }
 
   @HttpCode(200)
-  @SetMetadata('isPublic', true)
   @Post('signin')
   async signin(
     @Body() dto: signinDTO,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const token = await this.authService.signin(dto);
-    res.cookie('JWT_TOKEN', token.accessToken);
-    return { token: token };
+    const { id, accessToken } = await this.authService.signin(dto);
+    res.cookie('JWT_TOKEN', accessToken);
+    res.cookie('USER_ID', id);
+    return { token: accessToken };
   }
 
+  @UseGuards(AuthGuard)
   @Get('signout')
   logout(@Res({ passthrough: true }) res: Response) {
     res.cookie('JWT_TOKEN', '', { expires: new Date() });
+    res.cookie('USER_ID', '', { expires: new Date() });
     return { msg: 'Success' };
   }
 }

@@ -25,9 +25,10 @@ export class AuthService {
         data: {
           email: dto.email,
           username: dto.username,
-          hash: hash,
-          avatarLink: dto.avatar,
+          password: hash,
+          avatar: dto.avatar,
           isAuthenticated: false,
+          socketId: '',
         },
       });
     } catch (error) {
@@ -41,7 +42,7 @@ export class AuthService {
     }
   }
 
-  async signin(dto: signinDTO): Promise<{ accessToken: string }> {
+  async signin(dto: signinDTO): Promise<{ id: string; accessToken: string }> {
     const user = await await this.prisma.user.findFirst({
       where: {
         username: dto.username,
@@ -50,13 +51,16 @@ export class AuthService {
     if (!user) throw new ForbiddenException('username or password incorrect');
     if (!user.isAuthenticated)
       throw new ForbiddenException('Unauthenticated User');
-    const pwMatch = await argon.verify(user.hash, dto.password);
+    const pwMatch = await argon.verify(user.password, dto.password);
     if (!pwMatch)
       throw new ForbiddenException('username or password incorrect');
-    return this.signToken(user.id, user.username);
+    return this.signToken(user.id, user.email);
   }
 
-  async finish_signup(dto: signupDTO, UserToken: string) {
+  async finish_signup(
+    dto: signupDTO,
+    UserToken: string,
+  ): Promise<{ id: string; accessToken: string }> {
     if (!UserToken) throw new UnauthorizedException('Invalid Request');
     try {
       await this.jwtService.verifyAsync(UserToken, {
@@ -65,7 +69,7 @@ export class AuthService {
     } catch {
       throw new UnauthorizedException();
     }
-    let user = await this.findUser(dto.email);
+    const user = await this.findUser(dto.email);
     if (!user)
       throw new ForbiddenException('you need to signup with intra first');
     if (user.isAuthenticated)
@@ -73,18 +77,17 @@ export class AuthService {
     if (dto.password !== dto.passwordConf)
       throw new ForbiddenException("passwords don't match");
     const hash = await argon.hash(dto.password);
-    await this.prisma.user.updateMany({
+    await this.prisma.user.update({
       where: {
         email: dto.email,
       },
       data: {
         username: dto.username,
-        hash: hash,
+        password: hash,
         isAuthenticated: true,
       },
     });
-    user = await this.findUser(dto.email);
-    return this.signToken(user.id, user.username);
+    return await this.signToken(user.id, user.email);
   }
 
   async saveAvatar(userToken: string, file: Express.Multer.File) {
@@ -97,7 +100,7 @@ export class AuthService {
           email: payload.email,
         },
         data: {
-          avatarLink: file.path,
+          avatar: file.path,
         },
       });
     } catch {
@@ -106,21 +109,30 @@ export class AuthService {
   }
 
   async signToken(
-    userID: number,
-    username: string,
-  ): Promise<{ accessToken: string }> {
-    const payload = { sub: userID, username };
+    userID: string,
+    email: string,
+  ): Promise<{ id: string; accessToken: string }> {
+    const payload = { sub: userID, email };
     return {
+      id: userID,
       accessToken: await this.jwtService.signAsync(payload),
     };
   }
 
   async findUser(email: string) {
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prisma.user.findUnique({
       where: {
         email: email,
       },
+      // include: {
+      //   ChannelsOwner: true,
+      //   ChannelsAdmin: true,
+      //   ChannelsMember: true,
+      //   ChannelsBannedFrom: true,
+      //   chats: true,
+      // },
     });
+    delete user?.password;
     return user;
   }
 }
