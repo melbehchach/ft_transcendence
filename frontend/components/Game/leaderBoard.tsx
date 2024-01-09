@@ -1,9 +1,9 @@
-import GameIntro from './GameIntro';
+import GameIntro from "./GameIntro";
 
 export default function LeaderBoard() {
-	return (
-		<>
-			<GameIntro /> 
-		</>
-	);
+  return (
+    <>
+      <GameIntro />
+    </>
+  );
 }

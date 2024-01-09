@@ -11,7 +11,7 @@ const RandomMatchPage = () => {
   return (
     <>
       <div className="pl-[10%] bg-background h-screen w-screen justify-center ">
-        <WaitaingModal loading={loading}/>
+        <WaitaingModal loading={loading} />
         <ScoreBoard playerScore={Playerscore} opponentScore={OpponentScore} />
         <RandomMatch
           setPlayerScore={setPlayerScore}

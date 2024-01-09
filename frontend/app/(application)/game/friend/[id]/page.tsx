@@ -9,9 +9,9 @@ import ScoreBoard from "../../../../../components/Game/scoreBoard";
 export default function Page() {
   const { id } = useParams();
   const [loadingGame, setLoadingGame] = useState(true);
-    const [Playerscore, setPlayerScore] = useState(0);
-    const [OpponentScore, setOpponentScore] = useState(0);
-    const [loading, setLoading] = useState(true);
+  const [Playerscore, setPlayerScore] = useState(0);
+  const [OpponentScore, setOpponentScore] = useState(0);
+  const [loading, setLoading] = useState(true);
   // useEffect(() => {
   //   const checkUser = async () => {
   //     try {
@@ -23,7 +23,7 @@ export default function Page() {
   //     } catch (error) {
   //       console.log(error);
   //     }
-     
+
   //   };
   //   checkUser();
   // }, []);
