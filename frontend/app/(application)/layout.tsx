@@ -40,12 +40,12 @@ export default function Layout({ children }: React.PropsWithChildren<{}>) {
   }, [socket]);
 
  return (
-    <>
-      <div className="flex">
-        <Navbar />
-        {notifications ? <AcceptOrRefuse  sender={sender} /> : null}
-        {children}
-      </div>
-    </>
-  );
+   <>
+     <div className="h-screen flex flex-row justify-start">
+       <Navbar />
+       {notifications ? <AcceptOrRefuse sender={sender} /> : null}
+       {children}
+     </div>
+   </>
+ );
 }

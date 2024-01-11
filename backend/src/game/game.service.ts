@@ -1,9 +1,8 @@
 import { NotificationsGateway } from "src/notifications/notifications.gateway";
 import { NotificationsService } from "src/notifications/notifications.service";
 import { PrismaService } from "src/prisma/prisma.service";
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable , BadRequestException} from "@nestjs/common";
 import { GameType } from "@prisma/client";
-import { Server, Socket } from 'socket.io';
 
 @Injectable()
 export class GameService {
@@ -26,7 +25,7 @@ export class GameService {
       this.notificationsService.createNotification(senderId, receiverId);
       this.notificationsGateway.handleNotificationEvent(senderId, receiverId);
     } catch (error) {
-      console.log(error);
+      throw new BadRequestException('Invalid sender or receiver data.');
     }
   }
 
@@ -47,7 +46,7 @@ export class GameService {
 	  return game;
     }
     catch (error) {
-      console.log(error);
+      throw new BadRequestException('Invalid sender or receiver data.');
     }
   }
 
@@ -91,13 +90,22 @@ export class GameService {
         },
         orderBy: {  createdAt: 'desc' },
         include: {
-          Player: true,
-          Opponent: true,
+          Player: {
+            select : {
+              username: true,
+            }
+          }
+          , 
+          Opponent: {
+            select : {
+              username: true,
+            }
+          },
         },
       });
       return MatchHistory;
     } catch (error) {
-      console.log(error);
+      throw new BadRequestException('Invalid user data.');
     }
   }
 

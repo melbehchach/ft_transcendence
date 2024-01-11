@@ -28,6 +28,7 @@ export class ChatGuard implements CanActivate {
         },
       });
       req['userID'] = user?.id;
+      console.log(req['userID']);
     } catch {
       throw new UnauthorizedException('Invalid Token');
     }

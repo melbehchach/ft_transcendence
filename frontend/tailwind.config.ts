@@ -10,6 +10,7 @@ const config: Config = {
     extend: {
       backgroundImage: {
         login: "url('/img/LoginBackground.png')",
+        friend: "url('/img/ChallengeFriends.png')",
       },
       colors: {
         background: "#1B1C26",
