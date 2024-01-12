@@ -8,12 +8,13 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(uuid())
-  email    String @unique
-  username String @unique
-  password String
-  avatar   String
-  socketId String
+  id        String    @id @default(uuid())
+  email     String    @unique
+  username  String    @unique
+  password  String
+  avatar    String
+  socketId  String
+  gameTheme GameTheme @default(Retro)
 
   isAuthenticated Boolean
 
@@ -22,23 +23,23 @@ model User {
   friends          User[]          @relation("Friendship")
   symmetricFriends User[]          @relation("Friendship")
 
-
   ChannelsOwner      Channel[] @relation("Owner")
   ChannelsAdmin      Channel[] @relation("Admin")
   ChannelsMember     Channel[] @relation("Member")
   ChannelsBannedFrom Channel[] @relation("Banned")
 
+  startedChats Chat[] @relation("started")
+  invitedChats Chat[] @relation("invited")
+
   Playerat   Game[] @relation("player")
   Opponentat Game[] @relation("opponent")
-  sender     Notification[] @relation("sender")
-  receiver   Notification[] @relation("receiver")
 
-  sentMessages     Message[] @relation("Sender")
-  receivedMessages Message[] @relation("Receiver")
-  acheivements Acheivement[]
-  // chats            Chat[]
-  startedChats     Chat[]    @relation("started")
-  invitedChats     Chat[]    @relation("invited")
+  sentNotifications     Notification[] @relation("sender")
+  receivedNotifications Notification[] @relation("receiver")
+
+  sentMessages     Message[]     @relation("Sender")
+  receivedMessages Message[]     @relation("Receiver")
+  acheivements     Acheivement[]
 }
 
 model FriendRequest {
@@ -100,37 +101,39 @@ model Game {
   type          GameType
   playerScore   Int      @default(0)
   opponentScore Int      @default(0)
-
 }
 
 model Acheivement {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  freshman      Boolean @default(false)
-  freshmanDescription String?
-  Snowden    Boolean @default(false)
-  SnowdenDescription String?
-  NewHeroInTown    Boolean @default(false)
+  id                       String   @id @default(uuid())
+  createdAt                DateTime @default(now())
+  freshman                 Boolean  @default(false)
+  freshmanDescription      String?
+  Snowden                  Boolean  @default(false)
+  SnowdenDescription       String?
+  NewHeroInTown            Boolean  @default(false)
   NewHeroInTownDescription String?
-  Rak3ajabni   Boolean @default(false)
-  Rak3ajabniDescription String?
-  sbe3    Boolean @default(false)
-  sbe3Description String?
-  aqwadPonger    Boolean @default(false)
-  aqwadPongerDescription String?
-  GetALifebro    Boolean @default(false)
-  GetALifebroDescription String?
-  users     User[]
+  Rak3ajabni               Boolean  @default(false)
+  Rak3ajabniDescription    String?
+  sbe3                     Boolean  @default(false)
+  sbe3Description          String?
+  aqwadPonger              Boolean  @default(false)
+  aqwadPongerDescription   String?
+  GetALifebro              Boolean  @default(false)
+  GetALifebroDescription   String?
+  users                    User[]
 }
 
 model Notification {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  type      NotificationType
-  sender    User     @relation("sender", fields: [senderId], references: [id])
-  senderId  String
-  receiver  User     @relation("receiver", fields: [receiverId], references: [id])
+  id         String           @id @default(uuid())
+  createdAt  DateTime         @default(now())
+  type       NotificationType
+  sender     User             @relation("sender", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User             @relation("receiver", fields: [receiverId], references: [id])
   receiverId String
+  delivered  Boolean          @default(false)
+  read       Boolean          @default(false)
+  message    String
 }
 
 enum Status {
@@ -140,17 +143,28 @@ enum Status {
   CANCELED
 }
 
+enum userStatus {
+  ONLINE
+  OFFLINE
+  PLAYING
+}
+
 enum GameType {
   RandomMatch
   FriendMatch
 }
 
+enum GameTheme {
+  Retro
+  Blue
+  Gray
+}
+
 enum NotificationType {
   FriendRequest
   GameRequest
+  Acheivement
 }
-
-
 
 enum ChannelType {
   PUBLIC

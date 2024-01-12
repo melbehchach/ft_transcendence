@@ -101,6 +101,14 @@ export class UserService {
 
   async sendFriendRequest(body, userId) {
     try {
+      const sender = await this.prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          username: true,
+        },
+      });
       const receiver = await this.prisma.user.findUnique({
         where: { id: body.receiverId },
         select: {
@@ -150,6 +158,11 @@ export class UserService {
       if (!newRequest) {
         throw new Error('Failed to create record');
       }
+      this.notifications.createNotification(userId, {
+        receiverId: body.receiverId,
+        type: NotificationType.FriendRequest,
+        message: `${sender.username} has sent you a friend request`,
+      });
       return { msg: 'Success' };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
