@@ -1,4 +1,4 @@
-export default function LogoutIcon() {
+export default function LogoutIcony() {
   return (
     <>
       <svg
