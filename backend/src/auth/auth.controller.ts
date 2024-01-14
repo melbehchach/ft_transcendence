@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   HttpCode,
+  Patch,
   Post,
   Req,
   Res,
@@ -131,5 +133,35 @@ export class AuthController {
     res.cookie('JWT_TOKEN', '', { expires: new Date() });
     res.cookie('USER_ID', '', { expires: new Date() });
     return { msg: 'Success' };
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('tfa/secret')
+  async getSecret(@Req() req) {
+    return this.authService.TFAgetSecret(req.user.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('tfa/enable')
+  async TFAenable(@Req() req) {
+    if (!req.body.token) {
+      throw new BadRequestException({ error: 'Token missing' });
+    }
+    return this.authService.TFAenable(req.user.id, req.body.token);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('tfa/disable')
+  async TFAdisable(@Req() req) {
+    return this.authService.TFAdisable(req.user.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('tfa/verify')
+  async TFAverify(@Req() req) {
+    if (!req.body.token) {
+      throw new BadRequestException({ error: 'Token missing' });
+    }
+    return this.authService.TFAverifyCode(req.user.id, req.body.token);
   }
 }

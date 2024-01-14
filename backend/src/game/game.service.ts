@@ -1,9 +1,10 @@
-import { NotificationsGateway } from "src/notifications/notifications.gateway";
-import { NotificationsService } from "src/notifications/notifications.service";
-import { PrismaService } from "src/prisma/prisma.service";
-import { Inject, Injectable } from "@nestjs/common";
-import { GameType } from "@prisma/client";
+import { NotificationsGateway } from 'src/notifications/notifications.gateway';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Inject, Injectable } from '@nestjs/common';
+import { GameType, NotificationType } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
+import { notificationDto } from 'src/dto/notification.dto';
 
 @Injectable()
 export class GameService {
@@ -23,8 +24,8 @@ export class GameService {
       });
       // we should also check if the sender and receiver are already friends
       // also if the receiver is not in game or he/she is offline
-      this.notificationsService.createNotification(senderId, receiverId);
-      this.notificationsGateway.handleNotificationEvent(senderId, receiverId);
+      // this.notificationsService.createNotification(senderId, receiverId);
+      // this.notificationsGateway.handleNotificationEvent(senderId, receiverId);
     } catch (error) {
       console.log(error);
     }
@@ -43,10 +44,13 @@ export class GameService {
           type: GameType.FriendMatch,
         },
       });
-      this.notificationsGateway.handleAcceptEvent(senderId, receiverId, game.id);
-	  return game;
-    }
-    catch (error) {
+      this.notificationsGateway.handleAcceptEvent(
+        senderId,
+        receiverId,
+        game.id,
+      );
+      return game;
+    } catch (error) {
       console.log(error);
     }
   }
@@ -89,7 +93,7 @@ export class GameService {
             },
           ],
         },
-        orderBy: {  createdAt: 'desc' },
+        orderBy: { createdAt: 'desc' },
         include: {
           Player: true,
           Opponent: true,
@@ -100,5 +104,4 @@ export class GameService {
       console.log(error);
     }
   }
-
 }
