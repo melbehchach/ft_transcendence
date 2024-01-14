@@ -1,12 +1,22 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ChannelType, Status } from '@prisma/client';
+import {
+  ChannelType,
+  NotificationType,
+  Status,
+  GameTheme,
+} from '@prisma/client';
 import { searchDto } from 'src/dto/search.dto';
 import { SearchType } from 'src/dto/search.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import * as argon from 'argon2';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationsService,
+  ) {}
 
   async search(params: searchDto) {
     console.log(params);
@@ -68,6 +78,169 @@ export class UserService {
       }
     } catch (error) {
       console.log(error);
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async getProfile(id: string) {
+    try {
+      const user = this.prisma.user.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          id: true,
+          username: true,
+          avatar: true,
+          friends: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
+          sentRequests: {},
+          receivedRequests: {},
+          receivedNotifications: true,
+          gameTheme: true,
+        },
+      });
+      return user;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async getFriendRequests(id: string) {
+    try {
+      const user = this.prisma.user.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          id: true,
+          sentRequests: {},
+          receivedRequests: {},
+        },
+      });
+      return user;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async getFriends(id: string) {
+    try {
+      const user = this.prisma.user.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          id: true,
+          friends: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
+        },
+      });
+      return user;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  // verify with the auth method before pushing
+  async editAvatar(id: string, avatar: Express.Multer.File) {
+    try {
+      const user = await this.prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          avatar: avatar.path,
+        },
+      });
+      if (!user) {
+        throw new Error('Failed to update record');
+      }
+      return { msg: 'success' };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async editUsername(id: string, username: string) {
+    try {
+      const user = await this.prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          username,
+        },
+      });
+      if (!user) {
+        throw new Error('Failed to update record');
+      }
+      return { msg: 'success' };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async editPassword(id: string, old_password: string, new_password: string) {
+    try {
+      if (!old_password || !new_password) {
+        throw new Error('missing fields');
+      }
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          password: true,
+        },
+      });
+      const pwMatch = await argon.verify(user.password, old_password);
+      if (!pwMatch) {
+        throw new Error('password incorrect');
+      }
+      const hash = await argon.hash(new_password);
+      const updatedUser = await this.prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          password: hash,
+        },
+      });
+      if (!updatedUser) {
+        throw new Error('Failed to update record');
+      }
+      return { msg: 'success' };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async editTheme(id: string, theme: GameTheme) {
+    try {
+      const user = await this.prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          gameTheme: theme,
+        },
+      });
+      if (!user) {
+        throw new Error('Failed to update record');
+      }
+      return { msg: 'success' };
+    } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
   }
