@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { User } from "../../types";
 import UploadImage from "../uploadImage/UploadImage";
+import React from "react";
 
 async function finishSignup(
   email: string,
@@ -174,9 +175,9 @@ const SignUpForm: React.FC<User> = ({ email, username, avatar }) => {
                 className={
                   passwd.length > 0
                     ? passwdCheck.isValid
-                      ? "hidden"
+                      ? "block text-xs text-transparent"
                       : "block" + " text-xs text-red-500"
-                    : "hidden"
+                    : "block text-xs text-transparent"
                 }
               >
                 {passwdCheck.errorMessage}
@@ -194,9 +195,9 @@ const SignUpForm: React.FC<User> = ({ email, username, avatar }) => {
                 className={
                   confPasswd.length > 0
                     ? passwd === confPasswd
-                      ? "hidden"
-                      : "block" + " text-xs text-red-500"
-                    : "hidden"
+                      ? "block text-xs text-red-500"
+                      : "block text-xs text-transparent"
+                    : "block text-xs text-transparent"
                 }
               >
                 {"Passwords don't match"}
