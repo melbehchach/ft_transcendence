@@ -41,7 +41,7 @@ export default function Layout({ children }: React.PropsWithChildren<{}>) {
 
  return (
    <>
-     <div className="h-screen flex flex-row justify-start">
+     <div className="flex flex-row justify-start">
        <Navbar />
        {notifications ? <AcceptOrRefuse sender={sender} /> : null}
        {children}
