@@ -23,7 +23,12 @@ async function login(
   });
   if (response.ok) {
     const res = await response.json();
-    router.push("/profile");
+    console.log(res);
+    if (res.TFA) {
+      router.push("/auth/TFA");
+    } else {
+      router.push("/profile");
+    }
   } else {
     alert("Failed To Signin");
   }
