@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import SignUpForm from "../../../components/Forms/SignUpForm";
 import { User } from "../../../types";
 import Failure from "../failure/page";
+import React from "react";
 
 async function getPreAuthData() {
   const cookie = cookies();
