@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   InternalServerErrorException,
@@ -7,12 +8,18 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserGuard } from 'src/guards/user.jwt.guard';
 import { searchDto } from 'src/dto/search.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { isEnum } from 'class-validator';
+import { GameTheme } from '@prisma/client';
 
 @Controller('user')
 @UseGuards(UserGuard)
@@ -21,25 +28,78 @@ export class UserController {
     private readonly userService: UserService,
     private prisma: PrismaService,
   ) {}
+
   @Get('profile')
-  getProfile(@Req() req) {
+  async getProfile(@Req() req) {
     if (!req.user) {
       throw new InternalServerErrorException('BadRequest');
     }
-    return {
-      id: req.user.id,
-      username: req.user.username,
-      avatar: req.user.avatar,
-      friends: req.user.friends,
-      sentRequests: req.user.sentRequests,
-      friendRequests: req.user.receivedRequests,
-      sentMessages: req.user.sentMessages,
-      receivedMessages: req.user.receivedMessages,
-      ChannelsOwner: req.user.ChannelsOwner,
-      ChannelsAdmin: req.user.ChannelsAdmin,
-      ChannelsMember: req.user.ChannelsMember,
-      ChannelsBannedFrom: req.user.ChannelsBannedFrom,
-    };
+    return this.userService.getProfile(req.user.id);
+  }
+
+  @Get('friends')
+  async getFriends(@Req() req) {
+    if (!req.user) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    return this.userService.getFriends(req.user.id);
+  }
+
+  @Get('friendRequests')
+  async getFriendRequests(@Req() req) {
+    if (!req.user) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    return this.userService.getFriendRequests(req.user.id);
+  }
+
+  @Patch('settings/avatar')
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Math.round(Math.random() * 1e9);
+          cb(null, `${uniqueSuffix}_${file.originalname}`);
+        },
+      }),
+    }),
+  )
+  async updateAvatar(@Req() req, @UploadedFile() avatar) {
+    if (!avatar) {
+      return new InternalServerErrorException({ error: 'missing file' });
+    }
+    return this.userService.editAvatar(req.user.id, avatar);
+  }
+
+  @Patch('settings/username')
+  async editUsername(@Req() req, @Body() body) {
+    if (!body.username) {
+      return new InternalServerErrorException({ error: 'missing username' });
+    }
+    return this.userService.editUsername(req.user.id, body.username);
+  }
+
+  @Patch('settings/password')
+  async editPassword(@Req() req, @Body() body) {
+    if (!body.old_password || !body.new_password) {
+      return new InternalServerErrorException({ error: 'missing data' });
+    }
+    return this.userService.editPassword(
+      req.user.id,
+      body.old_password,
+      body.new_password,
+    );
+  }
+
+  @Patch('settings/theme')
+  async editTheme(@Req() req, @Body() body) {
+    if (!body.theme || !isEnum(body.theme, GameTheme)) {
+      return new InternalServerErrorException({
+        error: 'missing or invalid data',
+      });
+    }
+    return this.userService.editTheme(req.user.id, body.theme);
   }
 
   @Get('search')
@@ -48,7 +108,7 @@ export class UserController {
   }
 
   @Get(':id/profile')
-  getUserProfile(@Param('id') userId: string) {
+  async getUserProfile(@Param('id') userId: string) {
     if (!userId) {
       throw new InternalServerErrorException('BadRequest');
     }

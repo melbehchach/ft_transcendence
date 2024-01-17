@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { authDTO, signinDTO, signupDTO } from '../dto';
@@ -9,6 +10,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import * as speakeasy from 'speakeasy';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +23,7 @@ export class AuthService {
   async signup(dto: authDTO) {
     const hash = await argon.hash(dto.password);
     try {
-      await this.prisma.user.create({
+      const user = await this.prisma.user.create({
         data: {
           email: dto.email,
           username: dto.username,
@@ -31,6 +33,7 @@ export class AuthService {
           socketId: '',
         },
       });
+      return user;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
@@ -42,7 +45,48 @@ export class AuthService {
     }
   }
 
-  async signin(dto: signinDTO): Promise<{ id: string; accessToken: string }> {
+  async redirect(req: any, res: any) {
+    if (req.user.isAuthenticated) {
+      const { id, accessToken } = await this.signToken(
+        req.user.id,
+        // req.user.email,
+      );
+      res.cookie('JWT_TOKEN', accessToken);
+      res.cookie('USER_ID', id);
+      if (req.user.TFAenabled) {
+        res.redirect('http://localhost:3001/auth/TFA');
+      } else {
+        res.redirect('http://localhost:3001/profile');
+      }
+    } else {
+      const { accessToken } = await this.signToken(
+        req.user.id,
+        // req.user.email,
+      );
+      // const userToken = await this.jwtService.signAsync({
+      //   sub: req.user.id,
+      //   email: req.user.email,
+      // });
+      res.cookie('USER', accessToken);
+      res.redirect('http://localhost:3001/auth/42-redirect');
+    }
+  }
+
+  async preAuth(req: any) {
+    const token = req.cookies['USER'];
+    if (!token) throw new UnauthorizedException('Invalid Request');
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: this.config.get('JWT_SECRET'),
+      });
+      const user = await this.findUser(payload.sub);
+      return { user };
+    } catch {
+      throw new UnauthorizedException('Invalid Token');
+    }
+  }
+
+  async signin(dto: signinDTO, res: any) {
     const user = await await this.prisma.user.findFirst({
       where: {
         username: dto.username,
@@ -54,7 +98,10 @@ export class AuthService {
     const pwMatch = await argon.verify(user.password, dto.password);
     if (!pwMatch)
       throw new ForbiddenException('username or password incorrect');
-    return this.signToken(user.id, user.email);
+    const { id, accessToken } = await this.signToken(user.id);
+    res.cookie('JWT_TOKEN', accessToken);
+    res.cookie('USER_ID', id);
+    return user.TFAenabled;
   }
 
   async finish_signup(
@@ -63,31 +110,37 @@ export class AuthService {
   ): Promise<{ id: string; accessToken: string }> {
     if (!UserToken) throw new UnauthorizedException('Invalid Request');
     try {
-      await this.jwtService.verifyAsync(UserToken, {
+      const payload = await this.jwtService.verifyAsync(UserToken, {
         secret: this.config.get('JWT_SECRET'),
       });
-    } catch {
-      throw new UnauthorizedException();
+      const user = await this.findUser(payload.sub);
+      if (!user)
+        throw new ForbiddenException('you need to signup with intra first');
+      if (user.isAuthenticated)
+        throw new ForbiddenException('User Already Authenticated ');
+      if (dto.password !== dto.passwordConf)
+        throw new ForbiddenException("passwords don't match");
+      const hash = await argon.hash(dto.password);
+      await this.prisma.user.update({
+        where: {
+          email: dto.email,
+        },
+        data: {
+          username: dto.username,
+          password: hash,
+          isAuthenticated: true,
+        },
+      });
+      return await this.signToken(user.id);
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new UnauthorizedException({
+          error: `username ${dto.username} is already taken`,
+        });
+      } else {
+        throw new UnauthorizedException({ error: error.message });
+      }
     }
-    const user = await this.findUser(dto.email);
-    if (!user)
-      throw new ForbiddenException('you need to signup with intra first');
-    if (user.isAuthenticated)
-      throw new ForbiddenException('User Already Authenticated ');
-    if (dto.password !== dto.passwordConf)
-      throw new ForbiddenException("passwords don't match");
-    const hash = await argon.hash(dto.password);
-    await this.prisma.user.update({
-      where: {
-        email: dto.email,
-      },
-      data: {
-        username: dto.username,
-        password: hash,
-        isAuthenticated: true,
-      },
-    });
-    return await this.signToken(user.id, user.email);
   }
 
   async saveAvatar(userToken: string, file: Express.Multer.File) {
@@ -97,42 +150,151 @@ export class AuthService {
       });
       await this.prisma.user.updateMany({
         where: {
-          email: payload.email,
+          id: payload.sub,
         },
         data: {
           avatar: file.path,
         },
       });
-    } catch {
-      throw new UnauthorizedException();
+    } catch (error) {
+      throw new InternalServerErrorException({
+        error: 'Failed to upload avatar',
+      });
     }
   }
 
   async signToken(
     userID: string,
-    email: string,
+    // email: string,
   ): Promise<{ id: string; accessToken: string }> {
-    const payload = { sub: userID, email };
+    const payload = { sub: userID };
     return {
       id: userID,
       accessToken: await this.jwtService.signAsync(payload),
     };
   }
 
-  async findUser(email: string) {
+  async findUser(id: string) {
     const user = await this.prisma.user.findUnique({
       where: {
-        email: email,
+        // email: email,
+        id,
       },
-      // include: {
-      //   ChannelsOwner: true,
-      //   ChannelsAdmin: true,
-      //   ChannelsMember: true,
-      //   ChannelsBannedFrom: true,
-      //   chats: true,
-      // },
     });
     delete user?.password;
     return user;
+  }
+
+  async TFAgetSecret(id: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+        select: { TFAenabled: true },
+      });
+      if (!user.TFAenabled) {
+        const secretObject = speakeasy.generateSecret();
+        const TFAtempSecret = secretObject.base32;
+        const userUpdate = await this.prisma.user.update({
+          where: {
+            id,
+          },
+          data: {
+            TFAtempSecret,
+          },
+        });
+        if (!userUpdate) {
+          throw new Error('Failed to update record');
+        }
+        return { secret: userUpdate.TFAtempSecret };
+      } else {
+        return {};
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async TFAenable(id: string, token: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+        select: { TFAtempSecret: true, TFAenabled: true },
+      });
+      if (!user.TFAenabled) {
+        const isValid = speakeasy.totp.verify({
+          secret: user.TFAtempSecret,
+          encoding: 'base32',
+          token: token,
+        });
+        if (isValid) {
+          const userUpdate = await this.prisma.user.update({
+            where: {
+              id,
+            },
+            data: {
+              TFAtempSecret: null,
+              TFAenabled: true,
+              TFAsecret: user.TFAtempSecret,
+            },
+          });
+          if (!userUpdate) {
+            throw new Error('Failed to update record');
+          }
+          return { enabled: true };
+        } else {
+          return { enabled: false };
+        }
+      } else {
+        return {};
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async TFAverifyCode(id: string, token: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+        select: { TFAsecret: true, TFAenabled: true },
+      });
+      if (user.TFAenabled) {
+        const isValid = speakeasy.totp.verify({
+          secret: user.TFAsecret,
+          encoding: 'base32',
+          token: token,
+        });
+        return isValid;
+        // if (isValid) {
+        //   return { valid: true };
+        // } else {
+        //   return { valid: false };
+        // }
+      } else {
+        return {};
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async TFAdisable(id: string) {
+    try {
+      const user = await this.prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          TFAenabled: false,
+          TFAsecret: null,
+        },
+      });
+      if (!user) {
+        throw new Error('Failed to update record');
+      }
+      return { success: true };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 }

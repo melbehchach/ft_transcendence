@@ -12,16 +12,18 @@ const prisma = new PrismaClient();
 async function main() {
   // Create some users
   const users = await Promise.all(
-    ['Alice', 'Bob', 'Charlie', 'Dave'].map(async (username) => {
+    ['Mugiwara', 'Sanji', 'Zoro', 'Brook'].map(async (username) => {
       const hashedPassword = await argon2.hash('aBcd!123');
       return prisma.user.create({
         data: {
           username,
-          email: `${username.toLowerCase()}@example.com`,
+          email: `${username.toLowerCase()}@pong.com`,
           password: hashedPassword,
           avatar: 'avatar.png',
           socketId: 'socketId',
           isAuthenticated: true,
+          TFAenabled: username !== 'Mugiwara' ? true : false,
+          TFAsecret: 'EFQW2S2TOQSVGS32LZGTK5TYFZZTIYLILZBWK3LLJRDXURTGINZA',
         },
       });
     }),

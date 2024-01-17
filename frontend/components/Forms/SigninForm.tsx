@@ -2,6 +2,7 @@
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import React from "react";
 
 async function login(
   username: string,
@@ -22,7 +23,12 @@ async function login(
   });
   if (response.ok) {
     const res = await response.json();
-    router.push("/profile");
+    console.log(res);
+    if (res.TFA) {
+      router.push("/auth/TFA");
+    } else {
+      router.push("/profile");
+    }
   } else {
     alert("Failed To Signin");
   }

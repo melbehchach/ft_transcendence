@@ -6,7 +6,7 @@ export default function MenuButton({ navbarOpen, setNavbarOpen }: any) {
       <button
         className={
           (navbarOpen ? "hidden" : "block") +
-          " absolute block sm:hidden text-text py-5 ml-5"
+          "absolute block sm:hidden text-text py-5 ml-5"
         }
         onClick={() => {
           setNavbarOpen(!navbarOpen);
