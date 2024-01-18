@@ -19,18 +19,21 @@ export class ChatGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
     try {
       const payload = await validateToken(req.cookies['JWT_TOKEN'], this.jwt);
+      console.log(payload.sub);
       const user = await this.prisma.user.findUnique({
         where: {
-          email: payload.email,
+          id: payload.sub,
         },
         select: {
           id: true,
         },
       });
+      console.log(user);
       req['userID'] = user?.id;
-    } catch {
-      throw new UnauthorizedException('Invalid Token');
+      console.log(req.userID);
+      return true;
+    } catch (error) {
+      throw new UnauthorizedException({ error: error.message });
     }
-    return true;
   }
 }

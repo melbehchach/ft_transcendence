@@ -22,7 +22,7 @@ export class UserGuard implements CanActivate {
       const payload = await validateToken(req.cookies['JWT_TOKEN'], this.jwt);
       const user = await this.prisma.user.findFirst({
         where: {
-          email: payload.email,
+          id: payload.sub,
         },
         // include: {
         //   friends: {
