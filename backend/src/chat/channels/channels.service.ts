@@ -161,8 +161,7 @@ export class ChannelsService {
       const newChannel = await this.prisma.channel.create({
         data: {
           name: data.name,
-          //   image: data.image.path,
-          image: data.image,
+          image: '',
           type: data.type,
           password: data.type === ChannelType.PROTECTED ? data.password : null,
           owner: {
@@ -567,11 +566,10 @@ export class ChannelsService {
   async editChannelAvatar(
     userId: string,
     channelId: string,
-    // avatar: Express.Multer.File
-    body: { avatar: string },
+    avatar: Express.Multer.File,
   ) {
     try {
-      if (!body.avatar) {
+      if (!avatar) {
         throw new Error('BadRequest');
       }
       await this.validateChannelUpdate(userId, channelId);
@@ -580,7 +578,7 @@ export class ChannelsService {
           id: channelId,
         },
         data: {
-          image: body.avatar,
+          image: avatar.path,
         },
       });
       if (!updatedChannel) {

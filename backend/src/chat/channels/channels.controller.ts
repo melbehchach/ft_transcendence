@@ -9,13 +9,17 @@ import {
   Post,
   // Put,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
 import { editTypeDto, makeAdminDto, newChannelDto } from 'src/dto/channels.dto';
 // import { updateChannelDto } from 'src/dto/channels.dto';
 import { ChatGuard } from 'src/guards/chat.jwt.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @UseGuards(ChatGuard)
 @Controller('channels')
@@ -103,15 +107,26 @@ export class ChannelsController {
   }
 
   @Patch(':id/editAvatar')
-  async editChannelAvatar(@Param('id') channelId: string, @Req() req) {
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Math.round(Math.random() * 1e9);
+          cb(null, `${uniqueSuffix}_${file.originalname}`);
+        },
+      }),
+    }),
+  )
+  async editChannelAvatar(
+    @Param('id') channelId: string,
+    @Req() req,
+    @UploadedFile() file,
+  ) {
     if (!channelId || !req.userID) {
       throw new InternalServerErrorException('BadRequest');
     }
-    return this.channelsService.editChannelAvatar(
-      req.userID,
-      channelId,
-      req.body,
-    );
+    return this.channelsService.editChannelAvatar(req.userID, channelId, file);
   }
 
   @Patch(':id/editType')
