@@ -141,24 +141,20 @@ export class ChannelsController {
     return this.channelsService.editChannelType(req.userID, channelId, body);
   }
 
-  @Patch(':id/editMembers')
+  @Patch(':id/addMembers')
   async editChannelMembers(@Param('id') channelId: string, @Req() req) {
     if (!channelId || !req.userID) {
       throw new InternalServerErrorException('BadRequest');
     }
-    return this.channelsService.editChannelMembers(
-      req.userID,
-      channelId,
-      req.body,
-    );
+    return this.channelsService.addMembers(req.userID, channelId, req.body);
   }
 
-  @Patch(':id/kick')
-  async kickUser(@Param('id') channelId: string, @Req() req, @Body() body) {
-    if (!req.userID || !channelId || !body.id) {
+  @Patch(':id/kickMembers')
+  async kickMembers(@Param('id') channelId: string, @Req() req, @Body() body) {
+    if (!req.userID || !channelId) {
       throw new InternalServerErrorException('BadRequest');
     }
-    return this.channelsService.kickUser(req.userID, channelId, body);
+    return this.channelsService.kickMembers(req.userID, channelId, body);
   }
 
   @Patch(':id/ban')
