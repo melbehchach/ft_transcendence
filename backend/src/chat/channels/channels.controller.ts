@@ -9,13 +9,17 @@ import {
   Post,
   // Put,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
 import { editTypeDto, makeAdminDto, newChannelDto } from 'src/dto/channels.dto';
 // import { updateChannelDto } from 'src/dto/channels.dto';
 import { ChatGuard } from 'src/guards/chat.jwt.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @UseGuards(ChatGuard)
 @Controller('channels')
@@ -103,15 +107,26 @@ export class ChannelsController {
   }
 
   @Patch(':id/editAvatar')
-  async editChannelAvatar(@Param('id') channelId: string, @Req() req) {
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Math.round(Math.random() * 1e9);
+          cb(null, `${uniqueSuffix}_${file.originalname}`);
+        },
+      }),
+    }),
+  )
+  async editChannelAvatar(
+    @Param('id') channelId: string,
+    @Req() req,
+    @UploadedFile() file,
+  ) {
     if (!channelId || !req.userID) {
       throw new InternalServerErrorException('BadRequest');
     }
-    return this.channelsService.editChannelAvatar(
-      req.userID,
-      channelId,
-      req.body,
-    );
+    return this.channelsService.editChannelAvatar(req.userID, channelId, file);
   }
 
   @Patch(':id/editType')
@@ -126,24 +141,20 @@ export class ChannelsController {
     return this.channelsService.editChannelType(req.userID, channelId, body);
   }
 
-  @Patch(':id/editMembers')
+  @Patch(':id/addMembers')
   async editChannelMembers(@Param('id') channelId: string, @Req() req) {
     if (!channelId || !req.userID) {
       throw new InternalServerErrorException('BadRequest');
     }
-    return this.channelsService.editChannelMembers(
-      req.userID,
-      channelId,
-      req.body,
-    );
+    return this.channelsService.addMembers(req.userID, channelId, req.body);
   }
 
-  @Patch(':id/kick')
-  async kickUser(@Param('id') channelId: string, @Req() req, @Body() body) {
-    if (!req.userID || !channelId || !body.id) {
+  @Patch(':id/kickMembers')
+  async kickMembers(@Param('id') channelId: string, @Req() req, @Body() body) {
+    if (!req.userID || !channelId) {
       throw new InternalServerErrorException('BadRequest');
     }
-    return this.channelsService.kickUser(req.userID, channelId, body);
+    return this.channelsService.kickMembers(req.userID, channelId, body);
   }
 
   @Patch(':id/ban')
