@@ -20,7 +20,6 @@ async function main() {
           email: `${username.toLowerCase()}@pong.com`,
           password: hashedPassword,
           avatar: 'avatar.png',
-          socketId: 'socketId',
           isAuthenticated: true,
           TFAenabled: username !== 'Mugiwara' ? true : false,
           TFAsecret: 'EFQW2S2TOQSVGS32LZGTK5TYFZZTIYLILZBWK3LLJRDXURTGINZA',
