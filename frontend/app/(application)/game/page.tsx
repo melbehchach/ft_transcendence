@@ -7,18 +7,16 @@ import DashboadImage from "../../../components/Game/Dashboad/Images/dashboardIma
 export default function GamePage() {
   return (
     <>
-      <section className=" bg-background flex flex-col items-center justify-center h-screeen w-screen">
-        <div className="lg:flex lg:items-center lg:justify-around border-2 border-red-500 lg:w-full">
-          <div className="xl:flex xl:justify-center xl:flex-col ">
-            <HeaderTitle />
-            <div className="xl:flex md:flex xl:justify-around xl:items-center xl:p-16">
-              <FriendMode />
-              <RandomMode />
-            </div>
+      <section className="bg-background h-full w-full sm:p-2 lg:flex lg:w-screen lg:h-screen lg:justify-center lg:items-center lg:space-y-5 lg:gap-10">
+        <div className="flex flex-col justify-center items-center py-5 space-y-5">
+          <HeaderTitle />
+          <div className="space-y-5 sm:space-y-0 sm:flex sm:justify-around sm:items-center h-full w-full ">
+            <FriendMode />
+            <RandomMode />
           </div>
-          <DashboadImage />
         </div>
+          <DashboadImage />
       </section>
     </>
-  );
+  ); 
 }
