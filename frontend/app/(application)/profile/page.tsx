@@ -49,7 +49,7 @@ export default function ProfilePage() {
               </Swiper>
             </div>
           </div>
-          <div className="w-full h-[25rem] flex flex-col gap-[1rem] border border-2 border-black">
+          <div className="w-full h-[25rem] flex flex-col gap-[1rem] border-2 border-black">
             <div className="flex gap-[2rem] mt-[1rem] text-white font-semibold text-3xl border-b border-gray-500 border-solid border-1">
               <div className="w-fit h-fit">
                 <button type="button" onClick={handleFriendsClick}>

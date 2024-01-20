@@ -1,5 +1,5 @@
 import Image from "next/image";
-import SettingsButton from "./settingsButton.svg";
+import SettingsButton from "./SettingsButton.svg";
 
 const SettingButton = () => {
   return (
