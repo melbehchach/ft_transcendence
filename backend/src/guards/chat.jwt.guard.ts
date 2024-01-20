@@ -28,9 +28,7 @@ export class ChatGuard implements CanActivate {
           id: true,
         },
       });
-      console.log(user);
       req['userID'] = user?.id;
-      console.log(req.userID);
       return true;
     } catch (error) {
       throw new UnauthorizedException({ error: error.message });

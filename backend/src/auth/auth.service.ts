@@ -33,7 +33,6 @@ export class AuthService {
           password: hash,
           avatar: dto.avatar,
           isAuthenticated: false,
-          socketId: '',
         },
       });
       return user;

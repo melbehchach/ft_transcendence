@@ -13,7 +13,6 @@ model User {
   username      String     @unique
   password      String
   avatar        String
-  socketId      String
   gameTheme     GameTheme  @default(Retro)
   TFAenabled    Boolean    @default(false)
   TFAtempSecret String?
@@ -21,6 +20,7 @@ model User {
   status        userStatus @default(OFFLINE)
 
   isAuthenticated Boolean
+  win             Int     @default(0)
 
   sentRequests     FriendRequest[] @relation("Sender")
   receivedRequests FriendRequest[] @relation("Receiver")
@@ -108,23 +108,10 @@ model Game {
 }
 
 model Acheivement {
-  id                       String   @id @default(uuid())
-  createdAt                DateTime @default(now())
-  freshman                 Boolean  @default(false)
-  freshmanDescription      String?
-  Snowden                  Boolean  @default(false)
-  SnowdenDescription       String?
-  NewHeroInTown            Boolean  @default(false)
-  NewHeroInTownDescription String?
-  Rak3ajabni               Boolean  @default(false)
-  Rak3ajabniDescription    String?
-  sbe3                     Boolean  @default(false)
-  sbe3Description          String?
-  aqwadPonger              Boolean  @default(false)
-  aqwadPongerDescription   String?
-  GetALifebro              Boolean  @default(false)
-  GetALifebroDescription   String?
-  users                    User[]
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  description Int      @default(0)
+  users       User[]
 }
 
 model Notification {

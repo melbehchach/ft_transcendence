@@ -37,6 +37,7 @@ export class NotificationsGateway
     }
     this.clientsMap[userId].add(client);
   }
+
   deleteClientFromMap(clientId: string) {
     Object.entries(this.clientsMap).forEach(
       ([userId, clientSet]: [string, Set<Socket>]) => {

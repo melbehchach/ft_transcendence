@@ -1,8 +1,10 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { GameService } from './game.service';
 import { GameRequestDTO } from 'src/dto/game.dto';
+import { ChatGuard } from 'src/guards/chat.jwt.guard';
 
 @Controller('game')
+@UseGuards(ChatGuard)
 export class GameController {
   constructor(private gameService: GameService) {}
 
@@ -37,7 +39,13 @@ export class GameController {
   }
 
   @Get('MatchHistory')
-  async getMatchHistory(@Req() req: any, @Body() body: any) {
-    return this.gameService.getMatchHistory(req.params.id);
+  async getMatchHistory(@Req() req: any) {
+    if (req.userID) {
+      return this.gameService.getMatchHistory(req.userID);
+    } else {
+      throw new BadRequestException('Invalid user data.');
+    }
   }
 }
+
+
