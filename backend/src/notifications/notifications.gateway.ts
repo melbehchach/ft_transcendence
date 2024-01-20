@@ -131,7 +131,7 @@ export class NotificationsGateway
     //   });
     // }
     for (const client of this.clientsMap[receiverId]) {
-      client.emit('FriendRequest', {
+      client.emit(type, {
         data: resource,
       });
     }
