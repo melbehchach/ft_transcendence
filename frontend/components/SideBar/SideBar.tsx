@@ -5,6 +5,7 @@ import ProfileIcon from "./SideBarButtons/icons/ProfileIcon";
 import ChatIcon from "./SideBarButtons/icons/ChatIcon";
 import GameIcon from "./SideBarButtons/icons/GameIcon";
 import { buttounObject } from "./buttonObject.types";
+import Link from "next/link";
 
 function SideBar({ active }) {
   const pagesArray: buttounObject[] = [
@@ -34,7 +35,7 @@ function SideBar({ active }) {
   return (
     <div className="flex flex-col items-center gap-[1rem]">
       <div className="h-1/7 mt-[2rem] text-4xl text-white">
-        <h1>Pong</h1>
+        <Link href={"./profile"}>Pong</Link>
       </div>
       <div className="relative w-[11rem] h-[15] mt-[2rem] gap-[3rem] flex flex-col items-center justify-center">
         {pagesArray.map((page) => (

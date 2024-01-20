@@ -29,6 +29,7 @@ async function verifyToken(
       }
     } else {
       const res = await response.json();
+      console.log(res);
       alert(`Request Failed: ${res.error}`);
     }
   } catch (error) {
@@ -38,8 +39,8 @@ async function verifyToken(
 
 export default function TFAform() {
   const [validToken, setValidToken] = useState<boolean | null>(null);
+  const [token, setToken] = useState<string>("");
   const router = useRouter();
-  let token: string;
 
   function handleClick(e: any) {
     e.preventDefault();
@@ -70,7 +71,7 @@ export default function TFAform() {
                 placeholder="Enter the code"
                 onChange={(e) => {
                   setValidToken(true);
-                  token = e.target.value;
+                  setToken(e.target.value);
                 }}
               ></input>
               <span

@@ -90,7 +90,6 @@ export class AuthController {
     @Body() dto: signinDTO,
     @Res({ passthrough: true }) res: Response,
   ) {
-    // refactor this shit and check TFA
     const TFA: boolean = await this.authService.signin(dto, res);
     if (TFA) {
       res.cookie('JWT_TOKEN', '', { expires: new Date() });
@@ -101,7 +100,6 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('signout')
   logout(@Res({ passthrough: true }) res: Response) {
-    // is this really it?
     res.cookie('JWT_TOKEN', '', { expires: new Date() });
     res.cookie('USER_ID', '', { expires: new Date() });
     return { msg: 'Success' };

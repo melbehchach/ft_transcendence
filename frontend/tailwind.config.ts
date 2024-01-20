@@ -31,8 +31,12 @@ const config: Config = {
       fontFamily: {
         sans: ["inter", "sans-serif"],
       },
+      zIndex: {
+        '0': '0',
+        '100': '100',
+      }
     },
   },
-  plugins: [],
+  plugins: [require('flowbite/plugin')],
 };
 export default config;

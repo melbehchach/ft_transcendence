@@ -1,19 +1,11 @@
 "use client";
-import Navbar from "../../components/navbar/Navbar";
 import { useEffect, useState } from "react";
-import { Socket, io } from "socket.io-client";
-import cookie from "js-cookie";
 import { usePathname, useRouter } from "next/navigation";
-import AcceptOrRefuse from "@/../../components/Game/AcceptOrRefuse";
-import "swiper/css";
 import SideBar from "../../components/SideBar/SideBar";
-import ProfilePage from "./profile/page";
-import Link from "next/link";
-import SideBarButton from "../../components/SideBar/SideBarButtons/SideBarButton";
+import "swiper/css";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState<string>("");
-  const [open, setOpen] = useState<boolean>(false);
   const location = usePathname();
   const locations = ["profile", "chat", "game"];
   useEffect(() => {
@@ -25,7 +17,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [location]);
 
   return (
-    <div className="flex">
+    <div className="flex relative">
       <div className={"w-[14rem] hidden sm:block h-screen border border-black border-solid border-r-1 bg-background"}>
         <SideBar active={active} />
       </div>

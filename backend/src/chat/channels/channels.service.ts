@@ -31,13 +31,16 @@ export class ChannelsService {
               id: true,
               name: true,
               image: true,
+              type: true,
               owner: {
                 select: {
+                  id: true,
                   username: true,
                 },
               },
               Members: {
                 select: {
+                  id: true,
                   username: true,
                 },
               },
@@ -117,8 +120,18 @@ export class ChannelsService {
           name: true,
           image: true,
           type: true,
-          Members: true,
-          bannedMembers: true,
+          Members: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+          bannedMembers: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
         },
       });
       if (!channels) {
@@ -161,8 +174,7 @@ export class ChannelsService {
       const newChannel = await this.prisma.channel.create({
         data: {
           name: data.name,
-          //   image: data.image.path,
-          image: data.image,
+          image: '',
           type: data.type,
           password: data.type === ChannelType.PROTECTED ? data.password : null,
           owner: {
@@ -463,40 +475,58 @@ export class ChannelsService {
     }
   }
 
-  async kickUser(userId: string, channelId: string, body: { id: string }) {
+  async kickMembers(
+    userId: string,
+    channelId: string,
+    body: { members: string[] },
+  ) {
     try {
-      const channel = await this.validateChannelUpdate(userId, channelId);
-      const user = await this.prisma.user.findUnique({
-        where: { id: body.id },
-      });
-      if (!user) {
-        throw new Error('Error retrieving record user or channel');
-      }
-      if (channel.Members.map((member) => member.id).indexOf(user.id) == -1) {
-        throw new Error('Cannot kick, user is not in the channel');
-      }
-      if (channel.ownerId === user.id) {
-        throw new Error('Cannot kick channel owner');
-      }
-      const updatedChannel = await this.prisma.channel.update({
-        where: {
-          id: channel.id,
-        },
-        data: {
-          Members: {
-            disconnect: {
-              id: user.id,
+      console.log(body.members);
+      if (body.members?.length > 0) {
+        if (!body.members) {
+          throw new Error('Invalid members list');
+        }
+        const channel = await this.validateChannelUpdate(userId, channelId);
+        await Promise.all(
+          body.members.map(async (id) => {
+            const user = await this.prisma.user.findUnique({
+              where: { id },
+            });
+            if (!user) {
+              throw new Error('Invalid User in members list');
+            }
+            if (
+              channel.Members.map((member) => member.id).indexOf(user.id) == -1
+            ) {
+              throw new Error('Cannot kick, user is not in the channel');
+            }
+            if (channel.ownerId === id) {
+              throw new Error('Cannot kick channel owner');
+            }
+            return user;
+          }),
+        );
+        const updatedChannel = await this.prisma.channel.update({
+          where: {
+            id: channel.id,
+          },
+          data: {
+            Members: {
+              disconnect: body.members?.map((memberId: string) => ({
+                id: memberId,
+              })),
+            },
+            admins: {
+              disconnect: body.members?.map((memberId: string) => ({
+                id: memberId,
+              })),
             },
           },
-          admins: {
-            disconnect: {
-              id: user.id,
-            },
-          },
-        },
-      });
-      if (!updatedChannel) {
-        throw new Error('Failed to update record!');
+        });
+        if (!updatedChannel) {
+          throw new Error('Failed to update record!');
+        }
+        console.log(updatedChannel);
       }
       return 'success';
     } catch (error) {
@@ -567,11 +597,10 @@ export class ChannelsService {
   async editChannelAvatar(
     userId: string,
     channelId: string,
-    // avatar: Express.Multer.File
-    body: { avatar: string },
+    avatar: Express.Multer.File,
   ) {
     try {
-      if (!body.avatar) {
+      if (!avatar) {
         throw new Error('BadRequest');
       }
       await this.validateChannelUpdate(userId, channelId);
@@ -580,7 +609,7 @@ export class ChannelsService {
           id: channelId,
         },
         data: {
-          image: body.avatar,
+          image: avatar.path,
         },
       });
       if (!updatedChannel) {
@@ -619,57 +648,58 @@ export class ChannelsService {
     }
   }
 
-  // only fire a request from the client if the channel members change
-  async editChannelMembers(
+  async addMembers(
     userId: string,
     channelId: string,
     body: { members: string[] },
   ) {
     try {
-      const channel = await this.validateChannelUpdate(userId, channelId);
-      if (!body.members || body.members?.length === 0) {
-        throw new Error('Invalid members list');
-      }
-      // make sure ownser is not added to the members array in the frontend
-      body.members = body.members.concat(userId).filter((memberId: string) => {
-        return memberId.length > 0;
-      });
-      await Promise.all(
-        body.members.map(async (id) => {
-          const user = await this.prisma.user.findUnique({
-            where: { id },
-            include: {
-              ChannelsBannedFrom: true,
-            },
-          });
-          if (!user) {
-            throw new Error('Invalid User in members list');
-          }
-          if (
-            user.ChannelsBannedFrom.map((ch) => ch.id).indexOf(channel.id) !==
-            -1
-          ) {
-            throw new Error(
-              `User ${user.username} is banned from this channel`,
-            );
-          }
-          return user;
-        }),
-      );
-      const updatedChannel = await this.prisma.channel.update({
-        where: {
-          id: channelId,
-        },
-        data: {
-          Members: {
-            connect: body.members?.map((memberId: string) => ({
-              id: memberId,
-            })),
+      if (body.members?.length > 0) {
+        const channel = await this.validateChannelUpdate(userId, channelId);
+        if (!body.members) {
+          throw new Error('Invalid members list');
+        }
+        await Promise.all(
+          body.members.map(async (id) => {
+            const user = await this.prisma.user.findUnique({
+              where: { id },
+              include: {
+                ChannelsBannedFrom: true,
+              },
+            });
+            if (!user) {
+              throw new Error('Invalid User in members list');
+            }
+            if (
+              user.ChannelsBannedFrom.map((ch) => ch.id).indexOf(channel.id) !==
+              -1
+            ) {
+              throw new Error(
+                `User ${user.username} is banned from this channel`,
+              );
+            }
+            return user;
+          }),
+        );
+        const currentMembers = channel.Members.map((member) => {
+          return member.id;
+        });
+        const members = currentMembers.concat(body.members);
+        const updatedChannel = await this.prisma.channel.update({
+          where: {
+            id: channelId,
           },
-        },
-      });
-      if (!updatedChannel) {
-        throw new Error('Failed to update record');
+          data: {
+            Members: {
+              connect: members?.map((memberId: string) => ({
+                id: memberId,
+              })),
+            },
+          },
+        });
+        if (!updatedChannel) {
+          throw new Error('Failed to update record');
+        }
       }
       return 'success';
     } catch (error) {
