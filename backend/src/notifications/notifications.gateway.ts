@@ -130,10 +130,12 @@ export class NotificationsGateway
     //     });
     //   });
     // }
-    for (const client of this.clientsMap[receiverId]) {
-      client.emit(type, {
-        data: resource,
-      });
+    if (this.clientsMap[receiverId]) {
+      for (const client of this.clientsMap[receiverId]) {
+        client.emit(type, {
+          data: resource,
+        });
+      }
     }
   }
 
