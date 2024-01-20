@@ -19,7 +19,7 @@ import { searchDto } from 'src/dto/search.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { isEnum } from 'class-validator';
-import { GameTheme } from '@prisma/client';
+import { GameTheme, userStatus } from '@prisma/client';
 
 @Controller('user')
 @UseGuards(UserGuard)
@@ -43,6 +43,22 @@ export class UserController {
       throw new InternalServerErrorException('BadRequest');
     }
     return this.userService.getFriends(req.user.id);
+  }
+
+  @Get('status/get')
+  async getUserStatus(@Req() req) {
+    if (!req.user) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    return this.userService.getUserStatus(req.user.id);
+  }
+
+  @Patch('status/update')
+  async updateUserStatus(@Req() req) {
+    if (!req.user || !req.body.status || !isEnum(req.body.status, userStatus)) {
+      throw new InternalServerErrorException('BadRequest');
+    }
+    return this.userService.updateUserStatus(req.user.id, req.body.status);
   }
 
   @Get('friendRequests')

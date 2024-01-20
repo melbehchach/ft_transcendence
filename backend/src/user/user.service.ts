@@ -5,17 +5,20 @@ import {
   NotificationType,
   Status,
   GameTheme,
+  userStatus,
 } from '@prisma/client';
 import { searchDto } from 'src/dto/search.dto';
 import { SearchType } from 'src/dto/search.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import * as argon from 'argon2';
+import { userGateway } from './user.gateway';
 
 @Injectable()
 export class UserService {
   constructor(
     private prisma: PrismaService,
     private notifications: NotificationsService,
+    private gateway: userGateway,
   ) {}
 
   async search(params: searchDto) {
@@ -103,9 +106,57 @@ export class UserService {
           receivedRequests: {},
           receivedNotifications: true,
           gameTheme: true,
+          status: true,
         },
       });
       return user;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async getUserStatus(id: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+        select: {
+          status: true,
+        },
+      });
+      if (!user) {
+        throw new Error('Failed to get record');
+      }
+      return user.status;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async updateUserStatus(id: string, status: userStatus) {
+    try {
+      const user = await this.prisma.user.update({
+        where: { id },
+        data: {
+          status,
+        },
+        select: {
+          id: true,
+          status: true,
+          friends: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+      if (!user) {
+        throw new Error('Failed to update record');
+      }
+      const friends = user.friends.map((friend) => {
+        return friend.id;
+      });
+      this.gateway.updateStatusEvent(user.id, user.status, friends);
+      return 'success';
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -260,6 +311,7 @@ export class UserService {
               avatar: true,
             },
           },
+          status: true,
         },
       });
       if (!user) {

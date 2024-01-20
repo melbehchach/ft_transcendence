@@ -8,6 +8,10 @@ import { FTAuthGuard } from '../guards/auth.42.guard';
 import { PassportModule } from '@nestjs/passport';
 import { MulterModule } from '@nestjs/platform-express';
 import { ConfigModule } from '@nestjs/config';
+import { UserService } from 'src/user/user.service';
+import { userGateway } from 'src/user/user.gateway';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { NotificationsGateway } from 'src/notifications/notifications.gateway';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -22,7 +26,16 @@ import { ConfigModule } from '@nestjs/config';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthGuard, FTAuthGuard, FTStrategy],
+  providers: [
+    AuthService,
+    AuthGuard,
+    FTAuthGuard,
+    FTStrategy,
+    UserService,
+    userGateway,
+    NotificationsService,
+    NotificationsGateway,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

@@ -11,6 +11,8 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as speakeasy from 'speakeasy';
+// import { userStatus } from '@prisma/client';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +20,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private config: ConfigService,
+    private userService: UserService,
   ) {}
 
   async signup(dto: authDTO) {
@@ -87,21 +90,28 @@ export class AuthService {
   }
 
   async signin(dto: signinDTO, res: any) {
-    const user = await await this.prisma.user.findFirst({
-      where: {
-        username: dto.username,
-      },
-    });
-    if (!user) throw new ForbiddenException('username or password incorrect');
-    if (!user.isAuthenticated)
-      throw new ForbiddenException('Unauthenticated User');
-    const pwMatch = await argon.verify(user.password, dto.password);
-    if (!pwMatch)
-      throw new ForbiddenException('username or password incorrect');
-    const { id, accessToken } = await this.signToken(user.id);
-    res.cookie('JWT_TOKEN', accessToken);
-    res.cookie('USER_ID', id);
-    return user.TFAenabled;
+    try {
+      const user = await await this.prisma.user.findFirst({
+        where: {
+          username: dto.username,
+        },
+      });
+      if (!user) throw new ForbiddenException('username or password incorrect');
+      if (!user.isAuthenticated)
+        throw new ForbiddenException('Unauthenticated User');
+      const pwMatch = await argon.verify(user.password, dto.password);
+      if (!pwMatch)
+        throw new ForbiddenException('username or password incorrect');
+      const { id, accessToken } = await this.signToken(user.id);
+      res.cookie('JWT_TOKEN', accessToken);
+      res.cookie('USER_ID', id);
+      // if (!user.TFAenabled) {
+      //   await this.userService.updateUserStatus(user.id, userStatus.ONLINE);
+      // }
+      return user.TFAenabled;
+    } catch (error) {
+      throw new InternalServerErrorException({ error: error.message });
+    }
   }
 
   async finish_signup(
@@ -256,7 +266,7 @@ export class AuthService {
     try {
       const user = await this.prisma.user.findUnique({
         where: { id },
-        select: { TFAsecret: true, TFAenabled: true },
+        select: { id: true, TFAsecret: true, TFAenabled: true },
       });
       if (user.TFAenabled) {
         const isValid = speakeasy.totp.verify({
@@ -264,12 +274,10 @@ export class AuthService {
           encoding: 'base32',
           token: token,
         });
-        return isValid;
         // if (isValid) {
-        //   return { valid: true };
-        // } else {
-        //   return { valid: false };
+        //   await this.userService.updateUserStatus(user.id, userStatus.ONLINE);
         // }
+        return isValid;
       } else {
         return {};
       }
