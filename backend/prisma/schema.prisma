@@ -8,17 +8,19 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  username      String    @unique
+  id            String     @id @default(uuid())
+  email         String     @unique
+  username      String     @unique
   password      String
   avatar        String
-  gameTheme     GameTheme @default(Retro)
-  TFAenabled    Boolean   @default(false)
+  gameTheme     GameTheme  @default(Retro)
+  TFAenabled    Boolean    @default(false)
   TFAtempSecret String?
   TFAsecret     String?
+  status        userStatus @default(OFFLINE)
+
   isAuthenticated Boolean
-  win          Int       @default(0)
+  win             Int     @default(0)
 
   sentRequests     FriendRequest[] @relation("Sender")
   receivedRequests FriendRequest[] @relation("Receiver")
@@ -101,14 +103,14 @@ model Game {
   playerId      String
   opponentId    String
   type          GameType
-  playerScore   Int       @default(0)
-  opponentScore Int       @default(0)
+  playerScore   Int      @default(0)
+  opponentScore Int      @default(0)
 }
 
 model Acheivement {
   id          String   @id @default(uuid())
   createdAt   DateTime @default(now())
-  description Int     @default(0)
+  description Int      @default(0)
   users       User[]
 }
 
