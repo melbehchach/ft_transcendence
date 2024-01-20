@@ -100,35 +100,42 @@ export class NotificationsGateway
     receiverId: string,
     resource: any,
   ) {
-    if (type === NotificationType.GameRequest) {
-      // const senderSocket = this.socketMap.get(senderId);
-      // if (senderSocket) {
-      //   this.server.to(senderSocket.id).emit('GameRequest', {
-      //     message: "you're the sender",
-      //     sender: senderId,
-      //   });
-      // }
-      // const receiverSocket = this.socketMap.get(receiverId);
-      // if (receiverSocket) {
-      //   this.server.to(receiverSocket.id).emit('GameRequest', {
-      //     message: "you're the receiver",
-      //     receiver: receiverId,
-      //     sender: senderId,
-      //   });
-      // }
-    } else if (type === NotificationType.FriendRequest) {
-      // console.log('notification object', resource);
-      this.clientsMap[receiverId].forEach((client) => {
-        client.emit('FriendRequest', {
+    // if (type === NotificationType.GameRequest) {
+    // const senderSocket = this.socketMap.get(senderId);
+    // if (senderSocket) {
+    //   this.server.to(senderSocket.id).emit('GameRequest', {
+    //     message: "you're the sender",
+    //     sender: senderId,
+    //   });
+    // }
+    // const receiverSocket = this.socketMap.get(receiverId);
+    // if (receiverSocket) {
+    //   this.server.to(receiverSocket.id).emit('GameRequest', {
+    //     message: "you're the receiver",
+    //     receiver: receiverId,
+    //     sender: senderId,
+    //   });
+    // }
+    // } else if (type === NotificationType.FriendRequest) {
+    //   // console.log('notification object', resource);
+    //   this.clientsMap[receiverId].forEach((client) => {
+    //     client.emit('FriendRequest', {
+    //       data: resource,
+    //     });
+    //   });
+    // } else if (type === NotificationType.Acheivement) {
+    //   this.clientsMap[receiverId].forEach((client) => {
+    //     client.emit('Acheivement', {
+    //       data: resource, // "X Achievement unlocked, congrats champ!"
+    //     });
+    //   });
+    // }
+    if (this.clientsMap[receiverId]) {
+      for (const client of this.clientsMap[receiverId]) {
+        client.emit(type, {
           data: resource,
         });
-      });
-    } else if (type === NotificationType.Acheivement) {
-      this.clientsMap[receiverId].forEach((client) => {
-        client.emit('Acheivement', {
-          data: resource, // "X Achievement unlocked, congrats champ!"
-        });
-      });
+      }
     }
   }
 
