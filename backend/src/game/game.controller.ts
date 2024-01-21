@@ -1,4 +1,13 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { GameService } from './game.service';
 import { GameRequestDTO } from 'src/dto/game.dto';
 import { ChatGuard } from 'src/guards/chat.jwt.guard';
@@ -21,20 +30,26 @@ export class GameController {
   }
 
   @Post('accept/:id')
-  async acceptGameRequest(@Param() receiver: GameRequestDTO, @Body() sender: GameRequestDTO) {
-    if (receiver && sender){
-        return this.gameService.acceptGameRequest(sender.id, receiver.id);
-    }else {
-        throw new BadRequestException('Invalid sender or receiver data.');
+  async acceptGameRequest(
+    @Param() receiver: GameRequestDTO,
+    @Body() sender: GameRequestDTO,
+  ) {
+    if (receiver && sender) {
+      return this.gameService.acceptGameRequest(sender.id, receiver.id);
+    } else {
+      throw new BadRequestException('Invalid sender or receiver data.');
     }
   }
 
   @Post('refuse/:id')
-  async refuseGameRequest(@Param() receiver: GameRequestDTO,@Body() sender: GameRequestDTO) {
-    if (receiver && sender){
-        return this.gameService.declineGameRequest(sender.id, receiver.id);
-    }else{
-        throw new BadRequestException('Invalid sender or receiver data.');
+  async refuseGameRequest(
+    @Param() receiver: GameRequestDTO,
+    @Body() sender: GameRequestDTO,
+  ) {
+    if (receiver && sender) {
+      return this.gameService.declineGameRequest(sender.id, receiver.id);
+    } else {
+      throw new BadRequestException('Invalid sender or receiver data.');
     }
   }
 
@@ -47,5 +62,3 @@ export class GameController {
     }
   }
 }
-
-

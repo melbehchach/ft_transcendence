@@ -168,7 +168,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           },
         };
         this.MapGames.set(room, gameState);
-        if (player.id && opponent.id) {
+        const playerDb = await this.prisma.user.findUnique({
+          where: { id: player.id },
+        });
+        const opponentDb = await this.prisma.user.findUnique({
+          where: { id: opponent.id },
+        });
+        if (playerDb && opponentDb) {
           try {
             await this.prisma.game.create({
               data: {
@@ -328,33 +334,42 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         },
       });
       if (gameRoom.player1Obj.score > gameRoom.player2Obj.score) {
-        await this.prisma.user.update({
-          where: { id: gameRoom.player1Obj.id },
-          data: {
-            win: {
-              increment: 1,
-            },
-          },
-        });
         const user = await this.prisma.user.findUnique({
           where: { id: gameRoom.player1Obj.id },
         });
-        this.gameService.UnlockAchievements(gameRoom.player1Obj.id, user?.win);
+        if (user) {
+          await this.prisma.user.update({
+            where: { id: gameRoom.player1Obj.id },
+            data: {
+              win: {
+                increment: 1,
+              },
+            },
+          });
+          this.gameService.UnlockAchievements(
+            gameRoom.player1Obj.id,
+            user?.win,
+          );
+        }
       } else if (gameRoom.player1Obj.score < gameRoom.player2Obj.score) {
-        await this.prisma.user.update({
-          where: { id: gameRoom.player2Obj.id },
-          data: {
-            win: {
-              increment: 1,
-            },
-          },
-        });
         const user = await this.prisma.user.findUnique({
           where: { id: gameRoom.player2Obj.id },
         });
-        this.gameService.UnlockAchievements(gameRoom.player2Obj.id, user?.win);
+        if (user) {
+          await this.prisma.user.update({
+            where: { id: gameRoom.player2Obj.id },
+            data: {
+              win: {
+                increment: 1,
+              },
+            },
+          });
+          this.gameService.UnlockAchievements(
+            gameRoom.player2Obj.id,
+            user?.win,
+          );
+        }
       }
-
       this.server.to(room).emit('GameOver', {
         player: gameRoom.player1Obj.id,
         playerScore: gameRoom.player1Obj.score,
@@ -416,6 +431,23 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
               },
             });
             this.resetBall(roomName);
+            const user = await this.prisma.user.findUnique({
+              where: { id: gameRoom.player2Obj.id },
+            });
+            if (user) {
+              await this.prisma.user.update({
+                where: { id: gameRoom.player2Obj.id },
+                data: {
+                  win: {
+                    increment: 1,
+                  },
+                },
+              });
+              this.gameService.UnlockAchievements(
+                gameRoom.player2Obj.id,
+                user?.win,
+              );
+            }
             this.server
               .to(gameRoom.player2Obj.socket.id)
               .emit('UnexpectedWinner', {
@@ -425,6 +457,32 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           } else if (gameRoom.player2Obj.id === playerId) {
             gameRoom.player1Obj.score = 5;
             this.resetBall(roomName);
+            await this.prisma.game.updateMany({
+              where: {
+                id: roomName,
+              },
+              data: {
+                playerScore: gameRoom.player1Obj.score,
+                opponentScore: gameRoom.player2Obj.score,
+              },
+            });
+            const user = await this.prisma.user.findUnique({
+              where: { id: gameRoom.player1Obj.id },
+            });
+            if (user) {
+              await this.prisma.user.update({
+                where: { id: gameRoom.player1Obj.id },
+                data: {
+                  win: {
+                    increment: 1,
+                  },
+                },
+              });
+              this.gameService.UnlockAchievements(
+                gameRoom.player1Obj.id,
+                user?.win,
+              );
+            }
             this.server
               .to(gameRoom.player1Obj.socket.id)
               .emit('UnexpectedWinner', {
@@ -435,7 +493,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.MapRoomToPlayers.delete(roomName);
           this.MapGames.delete(roomName);
         }
-        // console.log('Player disconnected: ', socket.id);
       }
     }
   }

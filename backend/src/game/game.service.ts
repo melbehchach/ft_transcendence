@@ -2,8 +2,7 @@ import { NotificationsGateway } from 'src/notifications/notifications.gateway';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { GameType } from '@prisma/client';
-// import { notificationDto } from 'src/dto/notification.dto';
+import { GameType, userStatus, NotificationType } from '@prisma/client';
 
 @Injectable()
 export class GameService {
@@ -17,24 +16,34 @@ export class GameService {
     try {
       const sender = await this.prisma.user.findUnique({
         where: { id: senderId },
+        select: {
+          username: true,
+        },
       });
 
       const receiver = await this.prisma.user.findUnique({
         where: { id: receiverId },
         select: {
-          friends: {
-            where: {
-              id: senderId,
-            },
-          },
+          status: true,
+          friends: true,
         },
       });
 
-      if (!sender || !receiver || receiver.friends.length !== 0) {
+      if (
+        !sender ||
+        !receiver ||
+        receiver.friends.length === 0 ||
+        receiver.status === userStatus.OFFLINE
+      ) {
         throw new BadRequestException(
           'Internal Server Error: cannotSendGameRequest',
         );
       }
+      this.notificationsGateway.handleNotificationEvent(
+        NotificationType.GameRequest,
+        receiverId,
+        `${sender.username} wants to play a game with you.`,
+      );
     } catch (error) {
       throw new BadRequestException('Invalid sender or receiver data.');
     }
@@ -103,6 +112,11 @@ export class GameService {
           },
         });
       }
+      this.notificationsGateway.handleNotificationEvent(
+        NotificationType.Acheivement,
+        userId,
+        `You have unlocked new ${achievementCondition}`,
+      );
     } catch (error) {
       throw error;
     }

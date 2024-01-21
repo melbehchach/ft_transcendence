@@ -31,6 +31,7 @@ export class UserController {
 
   @Get('profile')
   async getProfile(@Req() req) {
+    console.log(req.user);
     if (!req.user) {
       throw new InternalServerErrorException('BadRequest');
     }
