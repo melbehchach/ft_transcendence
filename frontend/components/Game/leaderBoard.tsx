@@ -1,11 +1,9 @@
-import PongGame from "./PongGame";
+import GameIntro from "./GameIntro";
 
 export default function LeaderBoard() {
-    return (
-		<>
-			<PongGame /> 
-		</>
-		// <div className="w-screen h-screen bg-background">
-		// </div>
-    );
+  return (
+    <>
+      <GameIntro />
+    </>
+  );
 }

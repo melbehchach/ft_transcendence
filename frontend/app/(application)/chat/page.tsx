@@ -1,10 +1,8 @@
 "use client";
-export default function ProfilePage() {
+export default function ChatPage() {
   return (
-    <>
-      <div className="bg-background h-screen w-screen flex flex-col	items-center justify-center">
-        <h1 className="text-text text-5xl pb-10"> Chat </h1>
-      </div>
-    </>
+    <div className="w-screen h-screen bg-red-300 flex justify-center items-center">
+      <h1 className="text-4xl text-black">Chat User</h1>
+    </div>
   );
 }

@@ -2,6 +2,7 @@
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import React from "react";
 
 async function login(
   username: string,
@@ -22,7 +23,12 @@ async function login(
   });
   if (response.ok) {
     const res = await response.json();
-    router.push("/profile");
+    console.log(res);
+    if (res.TFA) {
+      router.push("/auth/TFA");
+    } else {
+      router.push("/profile");
+    }
   } else {
     alert("Failed To Signin");
   }
@@ -81,11 +87,11 @@ export default function SigninForm() {
               <span className="text-text text-opacity-20">OR</span>
               <div className="border-t w-full  border-text border-opacity-20"></div>
             </div>
-            <Link href="http://localhost:3000/auth/42">
+            <a href="http://localhost:3000/auth/42">
               <button className="block bg-accent text-text px-6 py-3 rounded-lg w-full">
                 Continue With Intra
               </button>
-            </Link>
+            </a>
           </div>
         </div>
       </div>

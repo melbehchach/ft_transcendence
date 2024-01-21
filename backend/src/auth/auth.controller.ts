@@ -1,12 +1,14 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   HttpCode,
+  InternalServerErrorException,
+  Patch,
   Post,
   Req,
   Res,
-  SetMetadata,
   UnauthorizedException,
   UploadedFile,
   UseGuards,
@@ -16,71 +18,29 @@ import { AuthService } from './auth.service';
 import { signinDTO, signupDTO } from 'src/dto';
 import { FTAuthGuard } from 'src/guards/auth.42.guard';
 import { Request, Response } from 'express';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { AuthGuard } from 'src/guards/auth.jwt.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private config: ConfigService,
-    private jwtService: JwtService,
-    private prisma: PrismaService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @UseGuards(FTAuthGuard)
-  @SetMetadata('isPublic', true)
   @Get('42')
   auth42() {}
 
   @UseGuards(FTAuthGuard)
-  @SetMetadata('isPublic', true)
   @Get('42-redirect')
   async auth42Redirect(@Req() req, @Res({ passthrough: true }) res) {
-    if (req.user.isAuthenticated) {
-      const { accessToken } = await this.authService.signToken(
-        req.user.id,
-        req.user.username,
-      );
-      res.cookie('JWT_TOKEN', accessToken);
-      res.redirect('http://localhost:3001/profile');
-    } else {
-      const userToken = await this.jwtService.signAsync({
-        sub: -42,
-        email: req.user.email,
-      });
-      res.cookie('USER', userToken);
-      res.redirect('http://localhost:3001/auth/42-redirect');
-    }
+    return this.authService.redirect(req, res);
   }
 
-  @SetMetadata('isPublic', true)
   @Get('preAuthData')
   async getPreAuthData(@Req() req) {
-    const token = req.cookies['USER'];
-    if (!token) throw new UnauthorizedException('Invalid Request');
-    try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: this.config.get('JWT_SECRET'),
-      });
-      const { email, username, avatarLink } = await this.authService.findUser(
-        payload.email,
-      );
-      const user = {
-        email,
-        username,
-        avatarLink,
-      };
-      return { user };
-    } catch {
-      throw new UnauthorizedException();
-    }
+    return this.authService.preAuth(req);
   }
 
-  @SetMetadata('isPublic', true)
   @Post('finish_signup')
   async finish_signup(
     @Body() dto: signupDTO,
@@ -88,13 +48,19 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const UserToken = req.cookies['USER'];
-    const token = await this.authService.finish_signup(dto, UserToken);
-    res.cookie('JWT_TOKEN', token.accessToken);
-    res.cookie('USER', '', { expires: new Date() });
+    if (!UserToken) {
+      return new UnauthorizedException({ Forbidden: 'invalid USER token' });
+    }
+    const { id, accessToken } = await this.authService.finish_signup(
+      dto,
+      UserToken,
+    );
+    res.cookie('JWT_TOKEN', accessToken);
+    res.cookie('USER_ID', id);
     return { msg: 'Success' };
   }
 
-  @SetMetadata('isPublic', true)
+  // @UseGuards(AuthGuard)
   @Post('uploadAvatar')
   @UseInterceptors(
     FileInterceptor('avatar', {
@@ -107,27 +73,76 @@ export class AuthController {
       }),
     }),
   )
-  async uploadAvatar(@Req() req, @UploadedFile() file) {
+  async uploadAvatar(
+    @Req() req,
+    @UploadedFile() file,
+    @Res({ passthrough: true }) res,
+  ) {
     const UserToken = req.cookies['USER'];
     this.authService.saveAvatar(UserToken, file);
+    res.cookie('USER', '', { expires: new Date() });
     return { msg: 'success' };
   }
 
   @HttpCode(200)
-  @SetMetadata('isPublic', true)
   @Post('signin')
   async signin(
     @Body() dto: signinDTO,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const token = await this.authService.signin(dto);
-    res.cookie('JWT_TOKEN', token.accessToken);
-    return { token: token };
+    const TFA: boolean = await this.authService.signin(dto, res);
+    if (TFA) {
+      res.cookie('JWT_TOKEN', '', { expires: new Date() });
+    }
+    return { TFA };
   }
 
+  @UseGuards(AuthGuard)
   @Get('signout')
   logout(@Res({ passthrough: true }) res: Response) {
     res.cookie('JWT_TOKEN', '', { expires: new Date() });
+    res.cookie('USER_ID', '', { expires: new Date() });
     return { msg: 'Success' };
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('tfa/secret')
+  async getSecret(@Req() req) {
+    return this.authService.TFAgetSecret(req.user.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('tfa/enable')
+  async TFAenable(@Req() req) {
+    if (!req.body.token) {
+      throw new BadRequestException({ error: 'Token missing' });
+    }
+    return this.authService.TFAenable(req.user.id, req.body.token);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('tfa/disable')
+  async TFAdisable(@Req() req) {
+    return this.authService.TFAdisable(req.user.id);
+  }
+
+  // @UseGuards(AuthGuard)
+  @Post('tfa/verify')
+  async TFAverify(@Req() req, @Res({ passthrough: true }) res) {
+    if (!req.body.token) {
+      throw new BadRequestException({ error: 'Token missing' });
+    }
+    const id = req.cookies['USER_ID'];
+    if (!id) {
+      throw new InternalServerErrorException({
+        error: 'Something went wrong. Try again',
+      });
+    }
+    const valid = await this.authService.TFAverifyCode(id, req.body.token);
+    if (valid) {
+      const { accessToken } = await this.authService.signToken(id);
+      res.cookie('JWT_TOKEN', accessToken);
+    }
+    return { valid };
   }
 }

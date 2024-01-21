@@ -1,3 +1,10 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+
+const nextConfig = {
+    images: {
+        domains: ['cdn.intra.42.fr'],
+        domains: ["images.unsplash.com"]
+    },
+};
+
 module.exports = nextConfig;

@@ -10,6 +10,7 @@ const config: Config = {
     extend: {
       backgroundImage: {
         login: "url('/img/LoginBackground.png')",
+        friend: "url('/img/ChallengeFriends.png')",
       },
       colors: {
         background: "#1B1C26",
@@ -25,12 +26,17 @@ const config: Config = {
         title: "2rem",
         body: "1.125rem",
         small: "0.875rem",
+        countdown: "15rem",
       },
       fontFamily: {
         sans: ["inter", "sans-serif"],
       },
+      zIndex: {
+        '0': '0',
+        '100': '100',
+      }
     },
   },
-  plugins: [],
+  plugins: [require('flowbite/plugin')],
 };
 export default config;
