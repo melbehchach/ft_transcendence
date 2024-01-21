@@ -396,6 +396,12 @@ export class UserService {
 
   async cancelFriendRequest(friendRequest, userId) {
     try {
+      const sender = await this.prisma.user.findUnique({
+        where: { id: friendRequest.senderId },
+        select: {
+          username: true,
+        },
+      });
       if (
         friendRequest.senderId !== userId ||
         friendRequest.status !== Status.PENDING
@@ -413,6 +419,11 @@ export class UserService {
       if (!request) {
         throw new Error('Internal Server Error: requestNotFound');
       }
+      this.notifications.createNotification(userId, {
+        receiverId: friendRequest.receiverId,
+        type: NotificationType.FriendRequest,
+        message: `${sender.username} cancelled the friend request`,
+      });
       return { msg: 'Success' };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -421,6 +432,12 @@ export class UserService {
 
   async declineFriendRequest(friendRequest, userId) {
     try {
+      const receiver = await this.prisma.user.findUnique({
+        where: { id: friendRequest.receiverId },
+        select: {
+          username: true,
+        },
+      });
       if (
         friendRequest.receiverId !== userId ||
         friendRequest.status !== Status.PENDING
@@ -439,6 +456,11 @@ export class UserService {
       if (!request) {
         throw new Error('Internal Server Error: requestNotFound');
       }
+      this.notifications.createNotification(userId, {
+        receiverId: friendRequest.senderId,
+        type: NotificationType.FriendRequest,
+        message: `${receiver.username} declined your friend request`,
+      });
       return { msg: 'Success' };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -447,6 +469,12 @@ export class UserService {
 
   async acceptFriendRequest(friendRequest, userId) {
     try {
+      const receiver = await this.prisma.user.findUnique({
+        where: { id: friendRequest.receiverId },
+        select: {
+          username: true,
+        },
+      });
       if (
         friendRequest.receiverId !== userId ||
         friendRequest.status !== Status.PENDING
@@ -481,6 +509,11 @@ export class UserService {
       if (!request) {
         throw new Error('Internal Server Error: requestNotFound');
       }
+      this.notifications.createNotification(userId, {
+        receiverId: friendRequest.senderId,
+        type: NotificationType.FriendRequest,
+        message: `${receiver.username} accepted your friend request`,
+      });
       return { msg: 'Success' };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
