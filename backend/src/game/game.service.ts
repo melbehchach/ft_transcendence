@@ -81,115 +81,63 @@ export class GameService {
     }
   }
 
-  async UnlockAchievements(userId: string, achievementCondition: number) {
+  async unlockAchievement(userId: string) {
     try {
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
-        include: { acheivements: true },
+        select: {
+          achivements: true,
+          wins: true,
+        },
       });
-
-      if (!user) {
-        throw new BadRequestException('Invalid user data.');
+      const achievement = await this.prisma.acheivement.findUnique({
+        where: { playerId: userId },
+      });
+      if (!user || !achievement) {
+        throw new BadRequestException('Invalid user or achievement data.');
       }
-
-      if (
-        user.acheivements.some(
-          (achievement) => achievement.description === achievementCondition,
-        )
-      ) {
-        throw new BadRequestException('Achievement already unlocked.');
-      }
-
-      if (this.checkAchievement(achievementCondition, userId)) {
-        await this.prisma.user.update({
-          where: { id: userId },
-          data: {
-            acheivements: {
-              create: {
-                description: achievementCondition,
-              },
-            },
-          },
+      if (user.wins === 1) {
+        await this.prisma.acheivement.update({
+          where: { playerId: userId },
+          data: { NewHero: true },
         });
       }
-      this.notificationsGateway.handleNotificationEvent(
-        NotificationType.Acheivement,
-        userId,
-        `You have unlocked new ${achievementCondition}`,
-      );
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  private checkAchievement(
-    achievementCondition: number,
-    user: string,
-  ): Promise<boolean> {
-    switch (achievementCondition) {
-      case 1:
-        return this.checkSingleWin(user);
-      case 3:
-        return this.checkThreeWins(user);
-      case 10:
-        return this.checkTenWins(user);
-      case 50:
-        return this.checkFiftyWins(user);
-      case 100:
-        return this.checkHundredWins(user);
-      default:
-        return Promise.resolve(false);
-    }
-  }
-
-  private async checkSingleWin(userId: string): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!user) {
-      throw new BadRequestException('Invalid user data.');
-    }
-    return user.win === 1;
-  }
-
-  private async checkThreeWins(userId: string): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!user) {
-      throw new BadRequestException('Invalid user data.');
-    }
-    return user.win === 3;
-  }
-
-  private async checkTenWins(userId: any): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!user) {
-      throw new BadRequestException('Invalid user data.');
-    }
-    return user.win === 10;
-  }
-
-  private async checkFiftyWins(userId: any): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!user) {
-      throw new BadRequestException('Invalid user data.');
-    }
-    return user.win === 50;
-  }
-
-  private async checkHundredWins(userId: any): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!user) {
-      throw new BadRequestException('Invalid user data.');
-    }
-    return user.win === 100;
+      if (user.wins === 3 && achievement.NewHero) {
+        await this.prisma.acheivement.update({
+          where: { playerId: userId },
+          data: { Rak3ajbni: true },
+        });
+      }
+      if (user.wins === 10 && achievement.Rak3ajbni && achievement.NewHero) {
+        await this.prisma.acheivement.update({
+          where: { playerId: userId },
+          data: { Sbe3: true },
+        });
+      }
+      if (
+        user.wins === 50 &&
+        achievement.Rak3ajbni &&
+        achievement.NewHero &&
+        achievement.Sbe3
+      ) {
+        await this.prisma.acheivement.update({
+          where: { playerId: userId },
+          data: { a9wedPonger: true },
+        });
+      }
+      if (
+        user.wins === 100 &&
+        achievement.Rak3ajbni &&
+        achievement.NewHero &&
+        achievement.Sbe3 &&
+        achievement.a9wedPonger
+      ) {
+        await this.prisma.acheivement.update({
+          where: { playerId: userId },
+          data: { GetAlifeBro: true },
+        });
+      }
+    } catch (error) {}
   }
 
   async getMatchHistory(userId: string) {

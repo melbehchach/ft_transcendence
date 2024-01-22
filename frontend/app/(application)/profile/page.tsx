@@ -7,7 +7,6 @@ import OtherProfile from "../../../components/OtherProfile/OtherProfile";
 
 export default function Page() {
   const [normalUser, setNormalUser] = useState<boolean>(false);
-  console.log("hamoood");
   return (
     <main className="w-screen h-screen bg-background flex flex-col overflow-x-hidden">
       <div className="w-full h-[6rem] flex justify-center items-center gap-[1rem] border border-black border-solid border-1">

@@ -20,7 +20,8 @@ model User {
   status        userStatus @default(OFFLINE)
 
   isAuthenticated Boolean
-  win             Int     @default(0)
+  wins          Int     @default(0)
+  loses          Int     @default(0)
 
   sentRequests     FriendRequest[] @relation("Sender")
   receivedRequests FriendRequest[] @relation("Receiver")
@@ -43,7 +44,7 @@ model User {
 
   sentMessages     Message[]     @relation("Sender")
   receivedMessages Message[]     @relation("Receiver")
-  acheivements     Acheivement[]
+  achivements      Acheivement?
 }
 
 model FriendRequest {
@@ -108,10 +109,16 @@ model Game {
 }
 
 model Acheivement {
-  id          String   @id @default(uuid())
-  createdAt   DateTime @default(now())
-  description Int      @default(0)
-  users       User[]
+  acheivementId          String   @id @default(uuid())
+  player      User  @relation(fields: [playerId], references: [id])
+  playerId    String   @unique
+  freshman       Boolean  @default(true)
+  snowdedn      Boolean  @default(true)
+  NewHero      Boolean  @default(false)
+  Rak3ajbni      Boolean  @default(false)
+  Sbe3     Boolean  @default(false)
+  a9wedPonger     Boolean  @default(false)
+  GetAlifeBro    Boolean  @default(false)
 }
 
 model Notification {
