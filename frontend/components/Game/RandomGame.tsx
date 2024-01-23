@@ -290,11 +290,15 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
           setOpponentScore(data.playerScore);
         }
       });
-      socket.on("gameOver", (data: any) => {
-        if (data.player === cookie.get("USER_ID")) {
-          alert("You win");
-        } else {
-          alert("You lose");
+      socket.on("CheckingWinner", (data: any) => {
+        console.log("CheckingWinner", data);
+        if (data.player === cookie.get("USER_ID") && data.playerScore === 5) {
+          alert("player win");
+        } else if (
+          data.opponent === cookie.get("USER_ID") &&
+          data.opponentScore === 5
+        ) {
+          alert("opponent win");
         }
       });
       socket.on("gameStart", () => {
@@ -306,6 +310,9 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
           console.log("You win");
           // push the player to deashboard game to start a new game
         } 
+      });
+      socket.on("SubmiteScore", (data: any) => {
+        socket.emit("GameIsOver", { data });
       });
       // socket.on("countdown", (data: any) => {
       //   setCountdown(false);

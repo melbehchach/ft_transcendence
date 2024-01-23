@@ -27,6 +27,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   MapRoomToPlayers: Map<string, any> = new Map(); // map of players in a game with their room
   private MapGames = new Map<string, any>(); // map of games
   private playerInterval: Map<string, any> = new Map(); // map of player interval
+  private alreadySubbmited: Set<string> = new Set();
   @WebSocketServer() server: Server;
   constructor(
     private readonly prisma: PrismaService,
@@ -89,9 +90,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
             x: this.canvasWidth / 2,
             y: this.canvasHeight / 2,
             radius: 10,
-            velocityX: 0.005,
-            velocityY: 0.005,
-            speed: 0.1,
+            velocityX: 0.0005,
+            velocityY: 0.0005,
+            speed: 0.01,
           },
         };
         this.MapGames.set(room, gameState);
@@ -322,7 +323,37 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  private GameOver = async (room: string) => {
+  async endGame(GameRoom: any): Promise<void> {
+    // console.log('end game');
+    const player = await this.prisma.user.findUnique({
+      where: { id: GameRoom.player1Obj.id },
+    });
+    if (player) {
+      await this.prisma.user.update({
+        where: { id: GameRoom.player1Obj.id },
+        data: {
+          wins: GameRoom.player1Obj.score === 5 ? { increment: 1 } : undefined,
+          loses: GameRoom.player1Obj.score !== 5 ? { increment: 1 } : undefined,
+        },
+      });
+      this.gameService.unlockAchievement(GameRoom.player1Obj.id);
+    }
+    const opponent = await this.prisma.user.findUnique({
+      where: { id: GameRoom.player2Obj.id },
+    });
+    if (opponent) {
+      await this.prisma.user.update({
+        where: { id: GameRoom.player2Obj.id },
+        data: {
+          wins: GameRoom.player2Obj.score === 5 ? { increment: 1 } : undefined,
+          loses: GameRoom.player2Obj.score !== 5 ? { increment: 1 } : undefined,
+        },
+      });
+      this.gameService.unlockAchievement(GameRoom.player2Obj.id);
+    }
+  }
+
+  async GameOver(room: string): Promise<void> {
     const gameRoom = this.MapGames.get(room);
     if (gameRoom.player1Obj.score === 5 || gameRoom.player2Obj.score === 5) {
       await this.prisma.game.updateMany({
@@ -334,86 +365,50 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           opponentScore: gameRoom.player2Obj.score,
         },
       });
-      const player = await this.prisma.user.findUnique({
-        where: { id: gameRoom.player1Obj.id },
+      this.server.to(room).emit('SubmiteScore', {
+        room: room,
       });
-      if (player) {
-        await this.prisma.user.update({
-          where: { id: gameRoom.player1Obj.id },
-          data: {
-            wins:
-              gameRoom.player1Obj.score === 5 ? { increment: 1 } : undefined,
-            loses:
-              gameRoom.player1Obj.score !== 5 ? { increment: 1 } : undefined,
-          },
-        });
-        await this.gameService.unlockAchievement(gameRoom.player1Obj.id);
-      }
-      const opponent = await this.prisma.user.findUnique({
-        where: { id: gameRoom.player2Obj.id },
-      });
-      if (opponent) {
-        await this.prisma.user.update({
-          where: { id: gameRoom.player2Obj.id },
-          data: {
-            wins:
-              gameRoom.player2Obj.score === 5 ? { increment: 1 } : undefined,
-            loses:
-              gameRoom.player2Obj.score !== 5 ? { increment: 1 } : undefined,
-          },
-        });
-        await this.gameService.unlockAchievement(gameRoom.player2Obj.id);
-      }
-      this.server.to(room).emit('GameOver', {
-        player: gameRoom.player1Obj.id,
-        playerScore: gameRoom.player1Obj.score,
-        opponentScore: gameRoom.player2Obj.score,
-        room: gameRoom.roomName,
-      });
-      this.resetBall(room);
-      this.MapGames.delete(room);
-      this.MapRoomToPlayers.delete(room);
     }
-  };
+  }
 
-  // startInterval(socket: Socket) {
-  //   const playerId: string = socket.handshake.auth.token;
-  //   if (this.playerInterval.has(playerId)) {
-  //     clearInterval(this.playerInterval.get(playerId));
-  //   }
-  //   const intervalId = setInterval(() => {
-  //     this.moveBall(socket);
-  //     this.MapRoomToPlayers.forEach((players, room) => {
-  //       this.GameOver(room);
-  //     });
-  //   }, 1000 / 60);
-  //   this.playerInterval.set(playerId, intervalId);
-  // }
+  @SubscribeMessage('GameIsOver')
+  submiteScore(client: Socket, payload: any): void {
+    const gameRoom = this.MapGames.get(payload.data.room);
+    this.server.to(payload.data.room).emit('CheckingWinner', {
+      player: gameRoom.player1Obj.id,
+      opponent: gameRoom.player2Obj.id,
+      playerScore: gameRoom.player1Obj.score,
+      opponentScore: gameRoom.player2Obj.score,
+      room: gameRoom.roomName,
+    });
+    this.endGame(gameRoom);
+    gameRoom.player1Obj.socket.leave(payload.data.room);
+    gameRoom.player2Obj.socket.leave(payload.data.room);
+  }
 
   startInterval(socket: Socket) {
     const playerId: string = socket.handshake.auth.token;
     if (this.playerInterval.has(playerId)) {
       clearInterval(this.playerInterval.get(playerId));
     }
-
-    // Set up interval for moving the ball
-    const moveBallIntervalId = setInterval(() => {
-      this.MapRoomToPlayers.forEach((players, room) => {
-        this.moveBall(socket);
-      });
-    }, 1000 / 60);
-
-    // Set up interval for checking game over
-    const checkGameOverIntervalId = setInterval(() => {
+    const intervalId = setInterval(() => {
+      this.moveBall(socket);
       this.MapRoomToPlayers.forEach((players, room) => {
         this.GameOver(room);
       });
-    }, 1000);
+    }, 1000 / 60);
+    this.playerInterval.set(playerId, intervalId);
+  }
 
-    this.playerInterval.set(playerId, [
-      moveBallIntervalId,
-      checkGameOverIntervalId,
-    ]);
+  private getRoomByPlayerId(playerId: string): string {
+    let roomName;
+    for (const [room, players] of this.MapRoomToPlayers.entries()) {
+      if (players.some((p: any) => p.id === playerId)) {
+        roomName = room;
+        break;
+      }
+    }
+    return roomName;
   }
 
   async handleDisconnect(socket: Socket): Promise<void> {
@@ -451,29 +446,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
               },
             });
             this.resetBall(roomName);
-            const opponent = await this.prisma.user.findUnique({
-              where: { id: gameRoom.player2Obj.id },
-            });
-            if (opponent) {
-              await this.prisma.user.update({
-                where: { id: gameRoom.player2Obj.id },
-                data: {
-                  wins: { increment: 1 },
-                },
-              });
-              await this.gameService.unlockAchievement(gameRoom.player2Obj.id);
-            }
-            const player = await this.prisma.user.findUnique({
-              where: { id: gameRoom.player1Obj.id },
-            });
-            if (player) {
-              await this.prisma.user.update({
-                where: { id: gameRoom.player1Obj.id },
-                data: {
-                  loses: { increment: 1 },
-                },
-              });
-            }
             this.server
               .to(gameRoom.player2Obj.socket.id)
               .emit('UnexpectedWinner', {
@@ -492,29 +464,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 opponentScore: gameRoom.player2Obj.score,
               },
             });
-            const player = await this.prisma.user.findUnique({
-              where: { id: gameRoom.player1Obj.id },
-            });
-            if (player) {
-              await this.prisma.user.update({
-                where: { id: gameRoom.player1Obj.id },
-                data: {
-                  wins: { increment: 1 },
-                },
-              });
-              await this.gameService.unlockAchievement(gameRoom.player1Obj.id);
-            }
-            const opponent = await this.prisma.user.findUnique({
-              where: { id: gameRoom.player2Obj.id },
-            });
-            if (opponent) {
-              await this.prisma.user.update({
-                where: { id: gameRoom.player2Obj.id },
-                data: {
-                  loses: { increment: 1 },
-                },
-              });
-            }
             this.server
               .to(gameRoom.player1Obj.socket.id)
               .emit('UnexpectedWinner', {

@@ -44,7 +44,7 @@ model User {
 
   sentMessages     Message[]     @relation("Sender")
   receivedMessages Message[]     @relation("Receiver")
-  achivements      Acheivement?
+  achievements      Achievement?
 }
 
 model FriendRequest {
@@ -108,18 +108,19 @@ model Game {
   opponentScore Int      @default(0)
 }
 
-model Acheivement {
-  acheivementId          String   @id @default(uuid())
-  player      User  @relation(fields: [playerId], references: [id])
-  playerId    String   @unique
-  freshman       Boolean  @default(true)
-  snowdedn      Boolean  @default(true)
-  NewHero      Boolean  @default(false)
-  Rak3ajbni      Boolean  @default(false)
-  Sbe3     Boolean  @default(false)
-  a9wedPonger     Boolean  @default(false)
-  GetAlifeBro    Boolean  @default(false)
+model Achievement {
+  achievementId    String    @id @default(uuid())
+  player           User      @relation(fields: [playerId], references: [id])
+  playerId         String    @unique
+  freshman         Boolean   @default(true)
+  snowdedn         Boolean   @default(true)
+  NewHero          Boolean   @default(false)
+  Rak3ajbni        Boolean   @default(false)
+  Sbe3             Boolean   @default(false)
+  a9wedPonger      Boolean   @default(false)
+  GetAlifeBro      Boolean   @default(false)
 }
+
 
 model Notification {
   id         String           @id @default(uuid())

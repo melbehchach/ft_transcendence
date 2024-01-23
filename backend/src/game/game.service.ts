@@ -86,57 +86,77 @@ export class GameService {
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
         select: {
-          achivements: true,
+          username: true,
+          achievements: true,
           wins: true,
         },
       });
-      const achievement = await this.prisma.acheivement.findUnique({
-        where: { playerId: userId },
-      });
-      if (!user || !achievement) {
+      console.log(user.achievements);
+      // console.log(achivements);
+      if (!user) {
         throw new BadRequestException('Invalid user or achievement data.');
       }
-      if (user.wins === 1) {
-        await this.prisma.acheivement.update({
-          where: { playerId: userId },
-          data: { NewHero: true },
-        });
-      }
-      if (user.wins === 3 && achievement.NewHero) {
-        await this.prisma.acheivement.update({
-          where: { playerId: userId },
-          data: { Rak3ajbni: true },
-        });
-      }
-      if (user.wins === 10 && achievement.Rak3ajbni && achievement.NewHero) {
-        await this.prisma.acheivement.update({
-          where: { playerId: userId },
-          data: { Sbe3: true },
-        });
-      }
-      if (
-        user.wins === 50 &&
-        achievement.Rak3ajbni &&
-        achievement.NewHero &&
-        achievement.Sbe3
-      ) {
-        await this.prisma.acheivement.update({
-          where: { playerId: userId },
-          data: { a9wedPonger: true },
-        });
-      }
-      if (
-        user.wins === 100 &&
-        achievement.Rak3ajbni &&
-        achievement.NewHero &&
-        achievement.Sbe3 &&
-        achievement.a9wedPonger
-      ) {
-        await this.prisma.acheivement.update({
-          where: { playerId: userId },
-          data: { GetAlifeBro: true },
-        });
-      }
+      // if (user.wins === 1) {
+      //   console.log('1');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { NewHero: true },
+      //   });
+      //   console.log('heeeeey get in new achivement');
+      // }
+      // if (user.wins === 3) {
+      //   console.log('2');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { Rak3ajbni: true },
+      //   });
+      // }
+      // if (user.wins === 10) {
+      //   console.log('3');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { Sbe3: true },
+      //   });
+      // }
+      // if (user.wins === 50) {
+      //   console.log('4');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { a9wedPonger: true },
+      //   });
+      // }
+      // if (user.wins === 100) {
+      //   console.log('5');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { GetAlifeBro: true },
+      //   });
+      // }
+    } catch (error) {}
+  }
+
+  async getGameId(playeId: string, opponentId: string) {
+    try {
+      const gameId = await this.prisma.game.findFirst({
+        where: {
+          AND: [
+            {
+              Player: {
+                id: playeId,
+              },
+            },
+            {
+              Opponent: {
+                id: opponentId,
+              },
+            },
+          ],
+        },
+        select: {
+          id: true,
+        },
+      });
+      return gameId;
     } catch (error) {}
   }
 
