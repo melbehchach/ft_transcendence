@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 
 const InviteModal = ({ loading }: any) => {
     const [friends, setFriends] = useState([]);
-    const [text, setText] = useState(["Challenge"]);
+    const [text, setText] = useState("Challenge");
     const router = useRouter();
     const initailText: string = "Challenge";
     const [senderId, setSenderId] = useState("");

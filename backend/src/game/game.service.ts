@@ -2,8 +2,7 @@ import { NotificationsGateway } from 'src/notifications/notifications.gateway';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { GameType } from '@prisma/client';
-// import { notificationDto } from 'src/dto/notification.dto';
+import { GameType, userStatus, NotificationType } from '@prisma/client';
 
 @Injectable()
 export class GameService {
@@ -17,24 +16,34 @@ export class GameService {
     try {
       const sender = await this.prisma.user.findUnique({
         where: { id: senderId },
+        select: {
+          username: true,
+        },
       });
 
       const receiver = await this.prisma.user.findUnique({
         where: { id: receiverId },
         select: {
-          friends: {
-            where: {
-              id: senderId,
-            },
-          },
+          status: true,
+          friends: true,
         },
       });
 
-      if (!sender || !receiver || receiver.friends.length !== 0) {
+      if (
+        !sender ||
+        !receiver ||
+        receiver.friends.length === 0 ||
+        receiver.status === userStatus.OFFLINE
+      ) {
         throw new BadRequestException(
           'Internal Server Error: cannotSendGameRequest',
         );
       }
+      this.notificationsGateway.handleNotificationEvent(
+        NotificationType.GameRequest,
+        receiverId,
+        `${sender.username} wants to play a game with you.`,
+      );
     } catch (error) {
       throw new BadRequestException('Invalid sender or receiver data.');
     }
@@ -72,110 +81,83 @@ export class GameService {
     }
   }
 
-  async UnlockAchievements(userId: string, achievementCondition: number) {
+  async unlockAchievement(userId: string) {
     try {
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
-        include: { acheivements: true },
+        select: {
+          username: true,
+          achievements: true,
+          wins: true,
+        },
       });
-
+      console.log(user.achievements);
+      // console.log(achivements);
       if (!user) {
-        throw new BadRequestException('Invalid user data.');
+        throw new BadRequestException('Invalid user or achievement data.');
       }
+      // if (user.wins === 1) {
+      //   console.log('1');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { NewHero: true },
+      //   });
+      //   console.log('heeeeey get in new achivement');
+      // }
+      // if (user.wins === 3) {
+      //   console.log('2');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { Rak3ajbni: true },
+      //   });
+      // }
+      // if (user.wins === 10) {
+      //   console.log('3');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { Sbe3: true },
+      //   });
+      // }
+      // if (user.wins === 50) {
+      //   console.log('4');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { a9wedPonger: true },
+      //   });
+      // }
+      // if (user.wins === 100) {
+      //   console.log('5');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { GetAlifeBro: true },
+      //   });
+      // }
+    } catch (error) {}
+  }
 
-      if (
-        user.acheivements.some(
-          (achievement) => achievement.description === achievementCondition,
-        )
-      ) {
-        throw new BadRequestException('Achievement already unlocked.');
-      }
-
-      if (this.checkAchievement(achievementCondition, userId)) {
-        await this.prisma.user.update({
-          where: { id: userId },
-          data: {
-            acheivements: {
-              create: {
-                description: achievementCondition,
+  async getGameId(playeId: string, opponentId: string) {
+    try {
+      const gameId = await this.prisma.game.findFirst({
+        where: {
+          AND: [
+            {
+              Player: {
+                id: playeId,
               },
             },
-          },
-        });
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  private checkAchievement(
-    achievementCondition: number,
-    user: string,
-  ): Promise<boolean> {
-    switch (achievementCondition) {
-      case 1:
-        return this.checkSingleWin(user);
-      case 3:
-        return this.checkThreeWins(user);
-      case 10:
-        return this.checkTenWins(user);
-      case 50:
-        return this.checkFiftyWins(user);
-      case 100:
-        return this.checkHundredWins(user);
-      default:
-        return Promise.resolve(false);
-    }
-  }
-
-  private async checkSingleWin(userId: string): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!user) {
-      throw new BadRequestException('Invalid user data.');
-    }
-    return user.win === 1;
-  }
-
-  private async checkThreeWins(userId: string): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!user) {
-      throw new BadRequestException('Invalid user data.');
-    }
-    return user.win === 3;
-  }
-
-  private async checkTenWins(userId: any): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!user) {
-      throw new BadRequestException('Invalid user data.');
-    }
-    return user.win === 10;
-  }
-
-  private async checkFiftyWins(userId: any): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!user) {
-      throw new BadRequestException('Invalid user data.');
-    }
-    return user.win === 50;
-  }
-
-  private async checkHundredWins(userId: any): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!user) {
-      throw new BadRequestException('Invalid user data.');
-    }
-    return user.win === 100;
+            {
+              Opponent: {
+                id: opponentId,
+              },
+            },
+          ],
+        },
+        select: {
+          id: true,
+        },
+      });
+      return gameId;
+    } catch (error) {}
   }
 
   async getMatchHistory(userId: string) {
