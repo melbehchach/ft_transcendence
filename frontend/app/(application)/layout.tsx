@@ -1,8 +1,11 @@
 "use client";
-import { Inter } from "next/font/google";
+
+import "swiper/css";
+
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import "swiper/css";
+
+import { Inter } from "next/font/google";
 import SideBar from "../../components/ProfileComponents/SideBar/SideBar";
 import SideBarButton from "../../components/ProfileComponents/SideBar/SideBarButton";
 import { chdir } from "process";
@@ -27,7 +30,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="sm:flex relative">
-      <div className="sm:w-[5rem] h-fit sm:hidden flex bg-background">
+      {/* <div className="sm:w-[5rem] h-fit sm:hidden flex bg-background">
         <button className=" m-[1rem] " onClick={handleClick}>
           <SideBarButton />
         </button>
@@ -36,8 +39,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="w-screen sm:hidden h-screen relative flex justify-center bg-background">
           <SideBar active={active} setSideBar={steOpen} />
         </div>
-      )}
-      <div className="w-[14rem] hidden sm:block h-screen flex justify-center border border-black border-solid border-r-1 bg-background">
+      )} */}
+      <div className="flex flex-col h-screen bg-background border-r border-black w-[14rem]">
         <SideBar active={active} setSideBar={steOpen} />
       </div>
       {children}

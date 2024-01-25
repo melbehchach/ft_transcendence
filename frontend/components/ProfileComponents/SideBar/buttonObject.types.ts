@@ -3,5 +3,4 @@ export interface buttounObject {
   link: string;
   icon: any;
   id: number;
-  TextColor: string;
 }

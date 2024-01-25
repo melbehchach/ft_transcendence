@@ -1,59 +1,63 @@
 "use client";
-import LogoutButton from "./LogoutButton/LogoutButton";
-import SideBarButton from "./SideBarButtons/SideBarButton";
-import ProfileIcon from "./SideBarButtons/icons/ProfileIcon";
+
 import ChatIcon from "./SideBarButtons/icons/ChatIcon";
+import Cookies from "js-cookie";
 import GameIcon from "./SideBarButtons/icons/GameIcon";
-import { buttounObject } from "./buttonObject.types";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import LogoutIcon from "./LogoutButton/LogoutIcon";
+import ProfileIcon from "./SideBarButtons/icons/ProfileIcon";
+import SideBarButton from "./SideBarButtons/SideBarButton";
+import { buttounObject } from "./buttonObject.types";
 
 function SideBar({ active, setSideBar }) {
   const pagesArray: buttounObject[] = [
     {
       id: 1,
-      pageName: "profile",
+      pageName: "Profile",
       link: "/profile",
-      TextColor: active !== "profile" ? "text-white" : "text-orange-300",
       icon: <ProfileIcon fill={active !== "profile" ? "white" : "orange"} />,
     },
     {
       id: 2,
-      pageName: "chat",
+      pageName: "Chat",
       link: "/chat",
-      TextColor: active !== "chat" ? "text-white" : "text-orange-300",
       icon: <ChatIcon fill={active !== "chat" ? "white" : "orange"} />,
     },
     {
       id: 3,
-      pageName: "game",
+      pageName: "Game",
       link: "/game",
-      TextColor: active !== "game" ? "text-white" : "text-orange-300",
       icon: <GameIcon fill={active !== "game" ? "white" : "orange"} />,
     },
   ];
 
+  function handleClick() {
+    Cookies.remove("JWT_TOKEN");
+    Cookies.remove("USER_ID");
+    window.location.replace("/");
+  }
+
   return (
-    <div className="h-11/12 flex flex-col items-center gap-[1rem] ">
-      <div className="h-1/7 mt-[2rem] text-4xl text-white">
-        <Link href={"/profile"}>Pong</Link>
-      </div>
-      <div className=" w-[11rem] h-[15] mt-[2rem] gap-[3rem] gap-[1rem] flex flex-col items-center justify-center">
+    <div className="h-screen flex flex-col items-center bg-background py-[2rem] w-[14rem] max-w-[12rem]">
+      <Link href={"/profile"} className="flex justify-center mb-[2rem]">
+        <span className="text-5xl text-white">Pong</span>
+      </Link>
+      <div className="flex flex-col gap-[1.5rem] w-full flex-auto">
         {pagesArray.map((page) => (
-          <div
+          <SideBarButton
+            page={page}
             key={page.id}
-            className={
-              "w-[9rem] h-[3rem] flex items-center " +
-              (page.id === 1 ? "mt-[2rem]" : "")
-            }
-          >
-            <SideBarButton page={page} />
-          </div>
+            active={active === page.pageName.toLowerCase()}
+          />
         ))}
+        <div
+          className="mt-auto flex justify-center gap-x-3 text-2xl text-white w-full py-3"
+          onClick={handleClick}
+        >
+          <LogoutIcon />
+          <span className="text-xl">Logout</span>
+        </div>
       </div>
-      {/* <div className="absolute bottom-0 flex items-center mb-[2rem] mt-[2rem] ">
-        <LogoutButton />
-      </div> */}
     </div>
   );
 }
