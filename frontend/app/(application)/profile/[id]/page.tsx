@@ -1,14 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
-import SearchBar from "../../../components/ProfileComponents/SearchBar/SearchBar";
-import NotificationBar from "../../../components/ProfileComponents/NotificationBar/NotificationBar";
-import UserProfile from "../../../components/ProfileComponents/UserProfile/UserProfile";
-import OtherProfile from "../../../components/ProfileComponents/OtherProfile/OtherProfile";
+import SearchBar from "../../../../components/ProfileComponents/SearchBar/SearchBar";
+import NotificationBar from "../../../../components/ProfileComponents/NotificationBar/NotificationBar";
+import UserProfile from "../../../../components/ProfileComponents/UserProfile/UserProfile";
+import OtherProfile from "../../../../components/ProfileComponents/OtherProfile/OtherProfile";
+import { useRouter } from "next/router";
+import { useParams, usePathname } from "next/navigation";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { DataFetch } from "../../../components/ProfileComponents/types/Avatar.type";
+import { DataFetch } from "../../../../components/ProfileComponents/types/Avatar.type";
 
 export default function Page() {
+  const params = useParams();
   const [data, setData] = useState<DataFetch>({
     username: "",
     id: "",
@@ -20,7 +23,7 @@ export default function Page() {
   async function fetchData() {
     try {
       if (jwt_token) {
-        const response = await axios.get("http://localhost:3000/user/profile", {
+        const response = await axios.get(`http://localhost:3000/user/${params.id}/profile`, {
           headers: {
             Authorization: `Bearer ${jwt_token}`,
           },
@@ -46,7 +49,7 @@ export default function Page() {
         </div>
       </div>
       <div className="w-full h-full flex sm:justify-start justify-center ">
-        <UserProfile data={data} />
+        <UserProfile data={data}/>
       </div>
     </main>
   );

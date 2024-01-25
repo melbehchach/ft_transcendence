@@ -67,12 +67,16 @@ let net: Net = {
   color: "white",
 };
 
-export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoading }: any) {
+export default function RandomMatch({
+  setOpponentScore,
+  setPlayerScore,
+  setLoading,
+}: any) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
-  const Player : Player = {
+  const Player: Player = {
     x: 10,
     y: canvasHeight / 2 - 50,
     width: 20,
@@ -80,7 +84,7 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
     color: "white",
     // score: 0,
   };
-  const Opponent : Player = {
+  const Opponent: Player = {
     x: canvasWidth - 30,
     y: canvasHeight / 2 - 50,
     width: 20,
@@ -121,12 +125,11 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
     setCountdown(false);
   }, []);
 
-
   useEffect(() => {
     const gameLoop = () => {
-        setPlayerY((preV) => preV + (playerY - preV) * 0.6);
-        setOpenentY((preV) => preV + (openentY - preV) * 0.6);
-        render();
+      setPlayerY((preV) => preV + (playerY - preV) * 0.6);
+      setOpenentY((preV) => preV + (openentY - preV) * 0.6);
+      render();
     };
     gameLoop();
   }, [countdown, playerY, openentY, ballX, ballY]);
@@ -220,18 +223,16 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
       });
       socket.on("UnexpectedWinner", (data: any) => {
         if (data.winner === cookie.get("USER_ID")) {
-          setPlayerScore(data.score)
+          setPlayerScore(data.score);
           console.log("You win");
           // push the player to deashboard game to start a new game
-        } 
+        }
       });
       // socket.on("countdown", (data: any) => {
       //   setCountdown(false);
       // });
     }
   }, [socket]);
-
- 
 
   return (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">

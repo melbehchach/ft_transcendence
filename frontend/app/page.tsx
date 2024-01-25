@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import SearchBar from "../components/SearchBar/SearchBar";
 
 export default function Home() {
   return (
