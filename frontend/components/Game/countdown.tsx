@@ -1,10 +1,7 @@
 import { useEffect, useState} from "react";
 
-interface CountdownProps {
-    onCountdownEnd: () => void;
-}
 
-export default function Countdown({ onCountdownEnd } : CountdownProps) {
+export default function Countdown() {
     const [countdown, setCountdown] = useState(3);
 
     useEffect(() => {
@@ -13,10 +10,8 @@ export default function Countdown({ onCountdownEnd } : CountdownProps) {
                 setCountdown((prevCountdown) => prevCountdown - 1);
             }, 1000);
             return () => clearInterval(intervalId);
-        } else {
-            onCountdownEnd();
         }
-    }, [countdown, onCountdownEnd]);
+    }, []);
 
     return (
         <>

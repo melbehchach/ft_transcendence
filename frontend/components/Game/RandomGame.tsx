@@ -95,13 +95,36 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
        fetchData();
      }, []);
 
+ const upadateTotalWinsAndLoses = async (winnerId: string, loserId: string) => {
+   await axios
+     .post(
+       `http://localhost:3000/game/endGame`,
+       {
+         winnerId: winnerId,
+         loserId: loserId,
+       },
+       {
+         withCredentials: true,
+         headers: {
+           "Content-Type": "application/json; charset=utf-8",
+           Accept: "application/json",
+         },
+       }
+     )
+     .then((res) => {
+       console.log("res", res);
+     })
+     .catch((error) => {
+       console.log("ending game error");
+     });
+ };
+
   const Player : Player = {
     x: 10,
     y: canvasHeight / 2 - 50,
     width: 20,
     height: 150,
     color: "white",
-    // score: 0,
   };
   const Opponent : Player = {
     x: canvasWidth - 30,
@@ -110,10 +133,10 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
     height: 150,
     color: "white",
   };
-  const [countdown, setCountdown] = useState(true);
   const [ballY, setBallY] = useState(canvasHeight / 2);
   const [ballX, setBallX] = useState(canvasWidth / 2);
-
+  const [countdown, setCountdown] = useState(0);
+  const [startCountDown, setStartCountDown] = useState(false);
   let room = "";
 
     const render = () => {
@@ -198,11 +221,6 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
       }
     };
 
-  const onCountdownEnd = useCallback(() => {
-    setCountdown(false);
-  }, []);
-
-
   useEffect(() => {
     const gameLoop = () => {
         setPlayerY((preV) => preV + (playerY - preV) * 0.6);
@@ -211,7 +229,7 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
     };
     gameLoop();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countdown, playerY, openentY, ballX, ballY]);
+  }, [countdown, playerY, openentY, ballX, ballY, startCountDown]);
 
   const keyPress = (e: any) => {
     if (e.keyCode === 38) {
@@ -291,14 +309,15 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
         }
       });
       socket.on("CheckingWinner", (data: any) => {
-        console.log("CheckingWinner", data);
         if (data.player === cookie.get("USER_ID") && data.playerScore === 5) {
-          alert("player win");
+          console.log("Winner");
+          upadateTotalWinsAndLoses(data.player, data.opponent);
         } else if (
           data.opponent === cookie.get("USER_ID") &&
           data.opponentScore === 5
         ) {
-          alert("opponent win");
+          console.log("Winner");
+          upadateTotalWinsAndLoses(data.opponent, data.player);
         }
       });
       socket.on("gameStart", () => {
@@ -307,16 +326,19 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
       socket.on("UnexpectedWinner", (data: any) => {
         if (data.winner === cookie.get("USER_ID")) {
           setPlayerScore(data.score)
-          console.log("You win");
           // push the player to deashboard game to start a new game
         } 
       });
       socket.on("SubmiteScore", (data: any) => {
         socket.emit("GameIsOver", { data });
       });
-      // socket.on("countdown", (data: any) => {
-      //   setCountdown(false);
-      // });
+      socket.on("startCountDown", (data: any) => {
+        setStartCountDown(true);
+        setCountdown(3);
+      });
+      socket.on("updateCountDown", (data: any) => {
+        setCountdown(data);
+      });
     }
   }, [socket]);
 
@@ -324,7 +346,7 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
 
   return (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-      {countdown ? <Countdown onCountdownEnd={onCountdownEnd} /> : false}
+       {countdown > 0 && <Countdown />}
       <canvas
         className="w-full h-full"
         ref={canvasRef}
