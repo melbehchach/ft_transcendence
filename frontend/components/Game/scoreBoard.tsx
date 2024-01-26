@@ -11,24 +11,40 @@ interface ScoreBoardProps {
 }
 
 export default function ScoreBoard({playerScore, opponentScore}: ScoreBoardProps) {
-    const router = useRouter();
-    // const [playerAvatar, setPlayerAvatar] = useState('');
-    // const [opponentAvatar, setOpponentAvatar] = useState('');
-
+  const router = useRouter();
   
-    
+  // const [playerAvatar, setPlayerAvatar] = useState('');
+  // const [opponentAvatar, setOpponentAvatar] = useState('');
+  // const getPlayerAvatar = async () => {
+  //   await axios
+  //     .get(
+  //       `http://localhost:3000/game/getCurrentGame/${Cookies.get("USER_ID")}`
+  //     )
+  //     .then((res) => {
+  //       console.log(res.data);
+  //       // setPlayerAvatar(res.data.Player.avatar);
+  //       // setOpponentAvatar(res.data.Player.avatar);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err.response.data);
+  //     });
+  // };
+  // getPlayerAvatar();
+
   return (
     <>
       <div className="flex justify-between items-center m-5 p-5">
         <div className="flex items-center justify-center gap-1">
           <Image
-            className='rounded-full'
-            src= "/img/avatar.png"
+            className="rounded-full"
+            src="/img/avatar.png"
             width={55}
             height={55}
             alt="Friend's picture"
           />
-          <span className="mx-2 text-text text-center text-5xl font-bold">{playerScore}</span>
+          <span className="mx-2 text-text text-center text-5xl font-bold">
+            {playerScore}
+          </span>
         </div>
         <button className="inline-flex items-center h-12 bg-primary rounded-3xl p-4 px-14 gap-3">
           <i>
@@ -65,12 +81,16 @@ export default function ScoreBoard({playerScore, opponentScore}: ScoreBoardProps
               />
             </svg>
           </i>
-          <span onClick={() => router.push('/game')} className="text-text">Leave game</span>
+          <span onClick={() => router.push("/game")} className="text-text">
+            Leave game
+          </span>
         </button>
         <div className="flex items-center justify-center gap-1">
-          <span className="mx-2 text-text text-center text-5xl font-bold">{opponentScore}</span>
+          <span className="mx-2 text-text text-center text-5xl font-bold">
+            {opponentScore}
+          </span>
           <Image
-            className='rounded-full'
+            className="rounded-full"
             src="/img/avatar.png"
             width={55}
             height={55}

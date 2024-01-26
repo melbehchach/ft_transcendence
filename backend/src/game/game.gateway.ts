@@ -27,7 +27,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   MapRoomToPlayers: Map<string, any> = new Map(); // map of players in a game with their room
   private MapGames = new Map<string, any>(); // map of games
   private playerInterval: Map<string, any> = new Map(); // map of player interval
-  private alreadySubbmited: Set<string> = new Set();
   @WebSocketServer() server: Server;
   constructor(
     private readonly prisma: PrismaService,
@@ -42,17 +41,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  private countdown = () => {
-    let count = 3;
-    const interval = setInterval(() => {
-      count--;
-      if (count < 0) {
-        clearInterval(interval);
-        return count;
-      }
-    }, 1000);
-    return count;
-  };
+  private startCountDown(room: string) {
+    this.server.to(room).emit('startCountDown');
+  }
+
+  private updateCountDown(room: string, count: number) {
+    this.server.to(room).emit('updateCountDown', count);
+  }
 
   @SubscribeMessage('InviteFriend')
   async createInviteMatch(socket: Socket, payload: any): Promise<void> {
@@ -131,6 +126,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('RandomMatch')
   async createRandomMatch(socket: Socket, ...args: any[]): Promise<void> {
     try {
+      let count = 3;
       const playeId: string = socket.handshake.auth.token;
       const ObjectPlayer = {
         id: playeId,
@@ -150,6 +146,14 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const opponent = this.gameQueue.shift(); // player 2
         const room = uuidv4();
         opponent.x = this.canvasWidth - 30;
+        this.startCountDown(room);
+        const intervalId = setInterval(async () => {
+          count--;
+          this.updateCountDown(room, count);
+          if (count === 0) {
+            clearInterval(intervalId);
+          }
+        }, 1000);
         player.socket.join(room);
         opponent.socket.join(room);
         this.server.to(room).emit('gameStart', {});
@@ -172,9 +176,19 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.MapGames.set(room, gameState);
         const playerDb = await this.prisma.user.findUnique({
           where: { id: player.id },
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          },
         });
         const opponentDb = await this.prisma.user.findUnique({
           where: { id: opponent.id },
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          },
         });
         if (playerDb && opponentDb) {
           try {
@@ -323,36 +337,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  async endGame(GameRoom: any): Promise<void> {
-    // console.log('end game');
-    const player = await this.prisma.user.findUnique({
-      where: { id: GameRoom.player1Obj.id },
-    });
-    if (player) {
-      await this.prisma.user.update({
-        where: { id: GameRoom.player1Obj.id },
-        data: {
-          wins: GameRoom.player1Obj.score === 5 ? { increment: 1 } : undefined,
-          loses: GameRoom.player1Obj.score !== 5 ? { increment: 1 } : undefined,
-        },
-      });
-      this.gameService.unlockAchievement(GameRoom.player1Obj.id);
-    }
-    const opponent = await this.prisma.user.findUnique({
-      where: { id: GameRoom.player2Obj.id },
-    });
-    if (opponent) {
-      await this.prisma.user.update({
-        where: { id: GameRoom.player2Obj.id },
-        data: {
-          wins: GameRoom.player2Obj.score === 5 ? { increment: 1 } : undefined,
-          loses: GameRoom.player2Obj.score !== 5 ? { increment: 1 } : undefined,
-        },
-      });
-      this.gameService.unlockAchievement(GameRoom.player2Obj.id);
-    }
-  }
-
   async GameOver(room: string): Promise<void> {
     const gameRoom = this.MapGames.get(room);
     if (gameRoom.player1Obj.score === 5 || gameRoom.player2Obj.score === 5) {
@@ -365,7 +349,16 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           opponentScore: gameRoom.player2Obj.score,
         },
       });
+      const winnerId =
+        gameRoom.player1Obj.score === 5
+          ? gameRoom.player1Obj.id
+          : gameRoom.player2Obj.id;
       this.server.to(room).emit('SubmiteScore', {
+        winner: winnerId,
+        loser:
+          winnerId === gameRoom.player1Obj.id
+            ? gameRoom.player2Obj.id
+            : gameRoom.player1Obj.id,
         room: room,
       });
     }
@@ -381,7 +374,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       opponentScore: gameRoom.player2Obj.score,
       room: gameRoom.roomName,
     });
-    this.endGame(gameRoom);
     gameRoom.player1Obj.socket.leave(payload.data.room);
     gameRoom.player2Obj.socket.leave(payload.data.room);
   }
@@ -398,17 +390,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
     }, 1000 / 60);
     this.playerInterval.set(playerId, intervalId);
-  }
-
-  private getRoomByPlayerId(playerId: string): string {
-    let roomName;
-    for (const [room, players] of this.MapRoomToPlayers.entries()) {
-      if (players.some((p: any) => p.id === playerId)) {
-        roomName = room;
-        break;
-      }
-    }
-    return roomName;
   }
 
   async handleDisconnect(socket: Socket): Promise<void> {

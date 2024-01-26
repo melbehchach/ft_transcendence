@@ -61,4 +61,40 @@ export class GameController {
       throw new BadRequestException('Invalid user data.');
     }
   }
+
+  @Post('endgame')
+  async endGame(@Req() req: any, @Body() body: any) {
+    if (req.userID) {
+      return this.gameService.endGame(body.winnerId, body.loserId);
+    } else {
+      throw new BadRequestException('Invalid user data.');
+    }
+  }
+
+  @Get('getLoses/:id')
+  async getLoses(@Param() param: any) {
+    if (param.id) {
+      return this.gameService.getPlayerLoses(param.id);
+    } else {
+      throw new BadRequestException('Invalid user data.');
+    }
+  }
+
+  @Get('getWins/:id')
+  async getWins(@Param() param: any) {
+    if (param.id) {
+      return this.gameService.getPlayerWins(param.id);
+    } else {
+      throw new BadRequestException('Invalid user data.');
+    }
+  }
+
+  @Get('getCurrentGame/:id')
+  async getCurrentGame(@Param() param: any) {
+    if (param.id) {
+      return this.gameService.getCurrentGame(param.id);
+    } else {
+      throw new BadRequestException('Invalid user data.');
+    }
+  }
 }
