@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Socket, io } from "socket.io-client";
 import cookie from "js-cookie";
@@ -76,7 +76,11 @@ interface Props {
   setLoading: (loading: boolean) => void;
 }
 
-export default function InviteMatch({setPlayerScore, setOpponentScore, setLoading}: Props) {
+export default function InviteMatch({
+  setPlayerScore,
+  setOpponentScore,
+  setLoading,
+}: Props) {
   const { id } = useParams();
   console.log(id);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -261,7 +265,7 @@ export default function InviteMatch({setPlayerScore, setOpponentScore, setLoadin
   useEffect(() => {
     if (!socket) return;
     window?.addEventListener("keydown", keyPress);
-    socket.emit("InviteFriend", { player: cookie.get("USER_ID"), room: id, });
+    socket.emit("InviteFriend", { player: cookie.get("USER_ID"), room: id });
     return () => {
       socket?.disconnect();
     };

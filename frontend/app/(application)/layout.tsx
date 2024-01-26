@@ -1,25 +1,47 @@
 "use client";
+
+import "swiper/css";
+
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import SideBar from "../../components/SideBar/SideBar";
-import "swiper/css";
+
+import { Inter } from "next/font/google";
+import SideBar from "../../components/ProfileComponents/SideBar/SideBar";
+import SideBarButton from "../../components/ProfileComponents/SideBar/SideBarButton";
+import { chdir } from "process";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState<string>("");
+  const [open, steOpen] = useState<boolean>(true);
   const location = usePathname();
   const locations = ["profile", "chat", "game"];
   useEffect(() => {
-    if(locations.includes(location.split('/')[1])) {
-      setActive(location.split('/')[1]);
+    if (locations.includes(location.split("/")[1])) {
+      setActive(location.split("/")[1]);
     } else {
       setActive("404"); // to change
     }
   }, [location]);
 
+  function handleClick() {
+    if (!open) steOpen(true);
+    else steOpen(false);
+  }
+
   return (
-    <div className="flex relative">
-      <div className={"w-[14rem] hidden sm:block h-screen border border-black border-solid border-r-1 bg-background"}>
-        <SideBar active={active} />
+    <div className="sm:flex relative">
+      {/* <div className="sm:w-[5rem] h-fit sm:hidden flex bg-background">
+        <button className=" m-[1rem] " onClick={handleClick}>
+          <SideBarButton />
+        </button>
+      </div>
+      {open && (
+        <div className="w-screen sm:hidden h-screen relative flex justify-center bg-background">
+          <SideBar active={active} setSideBar={steOpen} />
+        </div>
+      )} */}
+      <div className="flex flex-col h-screen bg-background border-r border-black w-[14rem]">
+        <SideBar active={active} setSideBar={steOpen} />
       </div>
       {children}
     </div>
