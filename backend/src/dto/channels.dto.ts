@@ -6,9 +6,8 @@ export class newChannelDto {
   @IsNotEmpty()
   name: string;
 
-  @IsNotEmpty()
-  //   image: Express.Multer.File;
-  image: string;
+  // @IsNotEmpty()
+  // avatar: Express.Multer.File;
 
   @IsNotEmpty()
   @IsEnum(ChannelType)
@@ -20,21 +19,6 @@ export class newChannelDto {
   Members: string[]; // Array of ids
 }
 
-// export class updateChannelDto {
-//   @IsString()
-//   name: string;
-
-//   @IsString()
-//   image: string;
-
-//   type: ChannelType | null;
-
-//   @IsString()
-//   password: string;
-
-//   Members: string[]; // Array of ids
-// }
-
 export class makeAdminDto {
   @IsString()
   @IsNotEmpty()
@@ -44,16 +28,6 @@ export class makeAdminDto {
   @IsNotEmpty()
   makeAdmin: boolean;
 }
-
-// export class BanUserDto {
-//   @IsString()
-//   @IsNotEmpty()
-//   id: string;
-
-//   @IsBoolean()
-//   @IsNotEmpty()
-//   ban: boolean;
-// }
 
 export class editTypeDto {
   @IsNotEmpty()

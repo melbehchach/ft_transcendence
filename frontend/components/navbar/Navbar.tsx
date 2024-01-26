@@ -15,3 +15,6 @@ export default function Navbar() {
     </div>
   );
 }
+
+// sm:w-1/5 xl:w-1/6 2xl:w-[10%]
+// h-screen flex flex-col justify-between sm:w-1/5 xl:w-1/6 2xl:w-[10%]

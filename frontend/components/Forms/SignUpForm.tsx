@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { User } from "../../types";
 import UploadImage from "../uploadImage/UploadImage";
+import React from "react";
 
 async function finishSignup(
   email: string,
@@ -13,35 +14,51 @@ async function finishSignup(
   avatar: File,
   router: AppRouterInstance
 ) {
-  if (avatar) {
-    const formData = new FormData();
-    formData.append("avatar", avatar);
-    const response = await fetch("http://localhost:3000/auth/uploadAvatar", {
+  try {
+    const response = await fetch("http://localhost:3000/auth/finish_signup", {
       credentials: "include",
       method: "POST",
-      body: formData,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        email: email,
+        username: username,
+        password: passwd,
+        passwordConf: passwordConf,
+      }),
     });
-    if (!response.ok) {
-      alert("File upload failed.");
+    if (response.ok) {
+      router.push("/profile");
+    } else {
+      const res = await response.json();
+      alert(`Failed to Finish Signup: ${res.error}`);
+      return;
     }
+  } catch (error) {
+    console.log(error);
+    alert(`finish_signup failed: ${error.message}`);
+    return;
   }
-  const response = await fetch("http://localhost:3000/auth/finish_signup", {
-    credentials: "include",
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
-      email: email,
-      username: username,
-      password: passwd,
-      passwordConf: passwordConf,
-    }),
-  });
-  if (response.ok) {
-    router.push("/profile");
-  } else alert("Failed to Finish Signup");
+  try {
+    if (avatar) {
+      const formData = new FormData();
+      formData.append("avatar", avatar);
+      const response = await fetch("http://localhost:3000/auth/uploadAvatar", {
+        credentials: "include",
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        alert("File upload failed.");
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    alert(`uploadAvatar failed: ${error.message}`);
+    return;
+  }
 }
 
 const SignUpForm: React.FC<User> = ({ email, username, avatar }) => {

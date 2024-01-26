@@ -1,9 +1,8 @@
-import { NotificationsGateway } from "src/notifications/notifications.gateway";
-import { NotificationsService } from "src/notifications/notifications.service";
-import { PrismaService } from "src/prisma/prisma.service";
-import { Inject, Injectable } from "@nestjs/common";
-import { GameType } from "@prisma/client";
-import { Server, Socket } from 'socket.io';
+import { NotificationsGateway } from 'src/notifications/notifications.gateway';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { GameType, userStatus, NotificationType } from '@prisma/client';
 
 @Injectable()
 export class GameService {
@@ -17,16 +16,36 @@ export class GameService {
     try {
       const sender = await this.prisma.user.findUnique({
         where: { id: senderId },
+        select: {
+          username: true,
+        },
       });
+
       const receiver = await this.prisma.user.findUnique({
         where: { id: receiverId },
+        select: {
+          status: true,
+          friends: true,
+        },
       });
-      // we should also check if the sender and receiver are already friends
-      // also if the receiver is not in game or he/she is offline
-      this.notificationsService.createNotification(senderId, receiverId);
-      this.notificationsGateway.handleNotificationEvent(senderId, receiverId);
+
+      if (
+        !sender ||
+        !receiver ||
+        receiver.friends.length === 0 ||
+        receiver.status === userStatus.OFFLINE
+      ) {
+        throw new BadRequestException(
+          'Internal Server Error: cannotSendGameRequest',
+        );
+      }
+      this.notificationsGateway.handleNotificationEvent(
+        NotificationType.GameRequest,
+        receiverId,
+        `${sender.username} wants to play a game with you.`,
+      );
     } catch (error) {
-      console.log(error);
+      throw new BadRequestException('Invalid sender or receiver data.');
     }
   }
 
@@ -43,10 +62,13 @@ export class GameService {
           type: GameType.FriendMatch,
         },
       });
-      this.notificationsGateway.handleAcceptEvent(senderId, receiverId, game.id);
-	  return game;
-    }
-    catch (error) {
+      this.notificationsGateway.handleAcceptEvent(
+        senderId,
+        receiverId,
+        game.id,
+      );
+      return game;
+    } catch (error) {
       console.log(error);
     }
   }
@@ -59,18 +81,84 @@ export class GameService {
     }
   }
 
-  // async Achievements(userId: string) {
-  //   try {
-  //     const Achievements = await this.prisma.acheivement.findUnique({
-  //       where: {
-  //         id: userId,
-  //       },
-  //     });
-  //     Achievements.
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
+  async unlockAchievement(userId: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          username: true,
+          achievements: true,
+          wins: true,
+        },
+      });
+      console.log(user.achievements);
+      // console.log(achivements);
+      if (!user) {
+        throw new BadRequestException('Invalid user or achievement data.');
+      }
+      // if (user.wins === 1) {
+      //   console.log('1');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { NewHero: true },
+      //   });
+      //   console.log('heeeeey get in new achivement');
+      // }
+      // if (user.wins === 3) {
+      //   console.log('2');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { Rak3ajbni: true },
+      //   });
+      // }
+      // if (user.wins === 10) {
+      //   console.log('3');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { Sbe3: true },
+      //   });
+      // }
+      // if (user.wins === 50) {
+      //   console.log('4');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { a9wedPonger: true },
+      //   });
+      // }
+      // if (user.wins === 100) {
+      //   console.log('5');
+      //   await this.prisma.acheivement.update({
+      //     where: { playerId: userId },
+      //     data: { GetAlifeBro: true },
+      //   });
+      // }
+    } catch (error) {}
+  }
+
+  async getGameId(playeId: string, opponentId: string) {
+    try {
+      const gameId = await this.prisma.game.findFirst({
+        where: {
+          AND: [
+            {
+              Player: {
+                id: playeId,
+              },
+            },
+            {
+              Opponent: {
+                id: opponentId,
+              },
+            },
+          ],
+        },
+        select: {
+          id: true,
+        },
+      });
+      return gameId;
+    } catch (error) {}
+  }
 
   async getMatchHistory(userId: string) {
     try {
@@ -89,16 +177,23 @@ export class GameService {
             },
           ],
         },
-        orderBy: {  createdAt: 'desc' },
+        orderBy: { createdAt: 'desc' },
         include: {
-          Player: true,
-          Opponent: true,
+          Player: {
+            select: {
+              username: true,
+            },
+          },
+          Opponent: {
+            select: {
+              username: true,
+            },
+          },
         },
       });
       return MatchHistory;
     } catch (error) {
-      console.log(error);
+      throw new BadRequestException('Invalid user data.');
     }
   }
-
 }
