@@ -162,7 +162,7 @@ export class AuthService {
           id: payload.sub,
         },
         data: {
-          avatar: file.path,
+          avatar: `http://localhost:3000/${file.filename}`,
         },
       });
     } catch (error) {
