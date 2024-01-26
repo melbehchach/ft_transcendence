@@ -68,32 +68,36 @@ let net: Net = {
   color: "white",
 };
 
-export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoading }: any) {
+export default function RandomMatch({
+  setOpponentScore,
+  setPlayerScore,
+  setLoading,
+}: any) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
   const [theme, setTheme] = useState("");
 
-     useEffect(() => {
-       const  fetchData  = async () => {
-         await axios
-           .get(`http://localhost:3000/user/profile`, {
-             withCredentials: true,
-             headers: {
-               "Content-Type": "application/json; charset=utf-8",
-               Accept: "application/json",
-             },
-           })
-           .then((res) => {
-             setTheme(res.data.gameTheme);
-           })
-           .catch((error) => {
-             console.log("Error", error);
-           });
-       };
-       fetchData();
-     }, []);
+  useEffect(() => {
+     const  fetchData  = async () => {
+       await axios
+         .get(`http://localhost:3000/user/profile`, {
+           withCredentials: true,
+           headers: {
+             "Content-Type": "application/json; charset=utf-8",
+             Accept: "application/json",
+           },
+         })
+         .then((res) => {
+           setTheme(res.data.gameTheme);
+         })
+         .catch((error) => {
+           console.log("Error", error);
+         });
+     };
+     fetchData();
+   }, []);
 
  const upadateTotalWinsAndLoses = async (winnerId: string, loserId: string) => {
    await axios
@@ -126,7 +130,7 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
     height: 150,
     color: "white",
   };
-  const Opponent : Player = {
+  const Opponent: Player = {
     x: canvasWidth - 30,
     y: canvasHeight / 2 - 50,
     width: 20,
@@ -223,9 +227,9 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
 
   useEffect(() => {
     const gameLoop = () => {
-        setPlayerY((preV) => preV + (playerY - preV) * 0.6);
-        setOpenentY((preV) => preV + (openentY - preV) * 0.6);
-        render();
+      setPlayerY((preV) => preV + (playerY - preV) * 0.6);
+      setOpenentY((preV) => preV + (openentY - preV) * 0.6);
+      render();
     };
     gameLoop();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -327,7 +331,7 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
         if (data.winner === cookie.get("USER_ID")) {
           setPlayerScore(data.score)
           // push the player to deashboard game to start a new game
-        } 
+        }
       });
       socket.on("SubmiteScore", (data: any) => {
         socket.emit("GameIsOver", { data });
@@ -341,8 +345,6 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
       });
     }
   }, [socket]);
-
- 
 
   return (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
