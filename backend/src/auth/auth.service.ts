@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
@@ -61,15 +62,10 @@ export class AuthService {
         res.redirect('http://localhost:3001/profile');
       }
     } else {
-      const { accessToken } = await this.signToken(
-        req.user.id,
-        // req.user.email,
-      );
-      // const userToken = await this.jwtService.signAsync({
-      //   sub: req.user.id,
-      //   email: req.user.email,
-      // });
-      res.cookie('USER', accessToken);
+      const userToken = await this.jwtService.signAsync({
+        sub: req.user.email,
+      });
+      res.cookie('USER', userToken);
       res.redirect('http://localhost:3001/auth/42-redirect');
     }
   }
@@ -81,7 +77,11 @@ export class AuthService {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.config.get('JWT_SECRET'),
       });
-      const user = await this.findUser(payload.sub);
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email: payload.sub,
+        },
+      });
       return { user };
     } catch {
       throw new UnauthorizedException('Invalid Token');
@@ -122,7 +122,11 @@ export class AuthService {
       const payload = await this.jwtService.verifyAsync(UserToken, {
         secret: this.config.get('JWT_SECRET'),
       });
-      const user = await this.findUser(payload.sub);
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email: payload.sub,
+        },
+      });
       if (!user)
         throw new ForbiddenException('you need to signup with intra first');
       if (user.isAuthenticated)
@@ -143,7 +147,7 @@ export class AuthService {
       return await this.signToken(user.id);
     } catch (error) {
       if (error.code === 'P2002') {
-        throw new UnauthorizedException({
+        throw new BadRequestException({
           error: `username ${dto.username} is already taken`,
         });
       } else {
