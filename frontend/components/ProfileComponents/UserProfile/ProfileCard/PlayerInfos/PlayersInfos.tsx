@@ -13,7 +13,7 @@ function PlayersInfos(data: DataFetch) {
     height: 100,
     userName: data.username,
     imageStyle: "w-[14rem] h-[14rem] rounded-full object-cover",
-    fontSize: "text-2xl",
+    fontSize: "text-2xl font-bold",
     positiosn: true,
   }
   

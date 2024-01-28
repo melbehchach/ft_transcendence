@@ -1,8 +1,8 @@
+import axios from "axios";
+import Cookies from "js-cookie";
 import { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import ProfileCard from "./ProfileCard/ProfileCard";
-import axios from "axios";
-import Cookies from "js-cookie";
 import { DataFetch } from "../types/Avatar.type";
 
 type userProps = {

@@ -19,7 +19,7 @@ function ProfileCard(data: DataFetch) {
   }
 
   return (
-    <div className="h-fit text-white flex flex-col sm:mt-[2.5rem] sm:ml-[2rem] border border-black border-solid border-1 rounded-[15px]">
+    <div className="h-fit text-white flex flex-col border border-black border-solid border-1 rounded-[15px]">
       <div className="mr-[0.5rem] mt-[0.5rem] flex justify-start place-self-end">
         <button type="button" onClick={closeSetting}>
           <div className={(!infos ? "hidden" : "")}>

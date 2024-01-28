@@ -19,6 +19,7 @@ function ProfileSettings({ data, openSettings }: settingsProps) {
     userName: data.username,
     imageStyle: "w-[8rem] h-[8rem] rounded-full object-cover",
     fontSize: "text-2xl",
+    positiosn: true,
   };
 
   function handleSave() {

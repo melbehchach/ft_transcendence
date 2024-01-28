@@ -3,9 +3,9 @@ import NotificationBarIcon from "./NotificationBarIcon";
 
 export default function NotificationBar() {
   return (
-    <div className="flex justift-center">
+    <div className="flex items-center justift-center ml-8">
       <button>
-        <NotificationBarIcon className="w-5 h-5" />
+        <NotificationBarIcon />
       </button>
     </div>
   );
