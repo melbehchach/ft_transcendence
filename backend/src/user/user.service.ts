@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   ChannelType,
@@ -238,7 +243,13 @@ export class UserService {
       }
       return { msg: 'success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      if (error.code === 'P2002') {
+        throw new BadRequestException({
+          error: `username ${username} is already taken`,
+        });
+      } else {
+        throw new UnauthorizedException({ error: error.message });
+      }
     }
   }
 
