@@ -29,7 +29,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="sm:flex relative">
+    <div className="flex">
       {/* <div className="sm:w-[5rem] h-fit sm:hidden flex bg-background">
         <button className=" m-[1rem] " onClick={handleClick}>
           <SideBarButton />

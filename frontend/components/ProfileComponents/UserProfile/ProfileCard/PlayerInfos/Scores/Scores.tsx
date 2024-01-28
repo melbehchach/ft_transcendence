@@ -2,30 +2,15 @@ import { ScoresProps } from "./Scores.types"
 
 const Scores = ({ myScoresArray }: ScoresProps) => {
   return (
-    <div className="">
-      <table className="ml-[10px] mt-[5px] border-separate border-spacing-x-1.5 table-auto">
-        <thead>
-          <tr>
-            {myScoresArray.map((myScoresArray) => (
-              <th className="text-lg font-inter" key={myScoresArray.id}>
-                {myScoresArray.number}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            {myScoresArray.map((myScoresArray) => (
-              <td
-                className="text-sm font-inter text-gray-500"
-                key={myScoresArray.id}
-              >
-                {myScoresArray.type}
-              </td>
-            ))}
-          </tr>
-        </tbody>
-      </table>
+    <div className="w-full h-[4rem] p-5 items-center flex justify-center rounded-[5px] overflow-x-auto overflow-y-hidden border border-black border-solid">
+      <ul className="flex flex-row gap-5">
+        {myScoresArray.map((score) => (
+          <li key={score.id}>
+            <h6 className="flex justify-center">{score.number}</h6>
+            <p>{score.type}</p>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
@@ -33,3 +18,5 @@ const Scores = ({ myScoresArray }: ScoresProps) => {
 export default Scores;
 
 // {...rest} to put it inside the div element  <div {.../div} className="">
+
+// border-separate border-spacing-x-1.5 table-auto

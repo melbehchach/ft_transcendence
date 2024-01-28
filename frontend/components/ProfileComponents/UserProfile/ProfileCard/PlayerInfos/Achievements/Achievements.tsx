@@ -11,17 +11,15 @@ const Achievements = ({ achievementsArray }: AchievementsProps) => {
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div>
-        <h3 className="text-lg font-inter font-bold ml-3 mt-3">Achievements</h3>
-      </div>
+    <div className="w-full h-full flex justify-start flex-col gap-3 rounded-[5px] overflow-auto border border-black border-solid">
+      <h3 className="text-xl font-inter font-bold ml-3 mt-3">Achievements</h3>
       <ul className="flex flex-col ml-4 gap-4">
         {array.map((array) => (
           <li className="flex gap-2" key={array.id}>
             {getIcon(array.Icon)}
             <div className="flex flex-col">
-              <p className="text-sm">{array.type}</p>
-              <p className="text-xs text-gray-500">{array.description}</p>
+              <p className="text-lg">{array.type}</p>
+              <p className="text-sm text-gray-500">{array.description}</p>
             </div>
           </li>
         ))}

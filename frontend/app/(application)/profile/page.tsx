@@ -38,14 +38,12 @@ export default function Page() {
   }, []);
 
   return (
-    <main className="w-screen h-screen bg-background flex flex-col overflow-x-hidden overflow-y-hidden">
-      <div className="h-[5rem] flex garp-8 items-center border-b border-black border-solid p-[2rem]">
+    <main className="w-screen h-screen bg-background flex flex-col overflow-x-hidden overflow-y-hidden ">
+      <div className="h-[5rem] flex garp-8 items-center border-b border-black border-solid p-[1.5rem]">
         <SearchBar />
         <NotificationBar />
       </div>
-      <div className="w-full h-full flex justify-start p-[2rem] ">
-        <UserProfile data={data} />
-      </div>
+      <UserProfile data={data} />
     </main>
   );
 }
