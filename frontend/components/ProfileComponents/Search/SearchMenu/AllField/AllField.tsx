@@ -1,44 +1,42 @@
-import { use, useState } from "react";
-import Avatar from "../../Avatar/Avatar";
-import { AvatarProps } from "../../types/Avatar.type";
-import { ProfileData } from "../../types/Avatar.type";
-import NoImage from "../NoImage.svg";
+import { AvatarProps } from "../../../types/Avatar.type";
+import { ProfileData } from "../../../types/Avatar.type";
 import { useRouter } from "next/navigation";
+import Avatar from "../../../Avatar/Avatar";
+import NoImage from "../../NoImage.svg";
 
 type ModalSearch = {
-  modalState: () => void;
   usersData: () => ProfileData[];
 };
 
-function AllField({ usersData, modalState }: ModalSearch) {
+function AllField({ usersData }: ModalSearch) {
   const router = useRouter();
   const users: ProfileData[] = usersData();
   let avatarObj: AvatarProps = {
     src: "",
     userName: "",
-    imageStyle: "w-full h-full rounded-full",
-    fontSize: "left text-base",
+    imageStyle: "rounded-full",
+    fontSize: "text-base",
     positiosn: false,
   };
 
   function handleClick(id: string) {
-    // changeProfile();
     router.push(`/profile/${id}`);
-    modalState();
   }
 
   // To prevenet errors of testing acounts in DB (bob...)
   function checkForAvatr(avatar: string): string {
-    if (avatar.indexOf("/") === -1) return NoImage;
+    if (avatar.indexOf("/") === -1) {
+      return NoImage;
+    }
     return avatar;
   }
 
   return (
-    <div className="w-full h-full text-white flex flex-col gap-[1rem]">
+    <div className="w-full text-white flex flex-col gap-[1.5rem]">
       {users.length > 0 ? (
         users.map((user) => (
           <div className="relative flex " key={user.id}>
-            <div className="w-[4rem] ml-[1rem] ">
+            <div className="w-[4rem]">
               <Avatar
                 {...avatarObj}
                 src={checkForAvatr(user.avatar)}

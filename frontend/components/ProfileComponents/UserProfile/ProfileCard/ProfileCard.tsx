@@ -7,38 +7,28 @@ import { DataFetch } from "../../types/Avatar.type";
 function ProfileCard(data: DataFetch) {
   const [infos, setInfos] = useState<boolean>(true);
   const [setting, setSetting] = useState<boolean>(false);
-  
+
   function closeSetting() {
     setInfos(false);
     setSetting(true);
   }
-  
+
   function openSettings() {
     setInfos(true);
     setSetting(false);
   }
 
   return (
-    <div className="h-fit text-white flex flex-col sm:mt-[2.5rem] sm:ml-[2rem] border border-black border-solid border-1 rounded-[15px]">
-      <div className="mr-[0.5rem] mt-[0.5rem] flex justify-start place-self-end">
-        <button type="button" onClick={closeSetting}>
-          <div className={(!infos ? "hidden" : "")}>
-            <SettingIcon />
-          </div>
+    <div className="w-[22rem] h-full p-[0.5rem] text-white flex flex-col border border-black border-solid rounded-[15px]">
+      <div className={!infos ? "hidden" : "place-self-end"}>
+        <button onClick={closeSetting}>
+          <SettingIcon />
         </button>
       </div>
-      {infos && (
-        <div>
-          <PlayersInfos {...data} />
-        </div>
-      )}
-      {setting && (
-        <div className="flex flex-col gap-[1rem] mb-[1rem] ">
-          <ProfileSettings data={data} openSettings={openSettings} />
-        </div>
-      )}
+      {infos && <PlayersInfos data={data} />}
+      {setting && <ProfileSettings data={data} openSettings={openSettings} />}
     </div>
   );
-};
+}
 
 export default ProfileCard;

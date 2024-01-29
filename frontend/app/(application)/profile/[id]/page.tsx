@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import SearchBar from "../../../../components/ProfileComponents/SearchBar/SearchBar";
+import SearchBar from "../../../../components/ProfileComponents/Search/SearchBar";
 import NotificationBar from "../../../../components/ProfileComponents/NotificationBar/NotificationBar";
 import UserProfile from "../../../../components/ProfileComponents/UserProfile/UserProfile";
 import OtherProfile from "../../../../components/ProfileComponents/OtherProfile/OtherProfile";
@@ -23,12 +23,15 @@ export default function Page() {
   async function fetchData() {
     try {
       if (jwt_token) {
-        const response = await axios.get(`http://localhost:3000/user/${params.id}/profile`, {
-          headers: {
-            Authorization: `Bearer ${jwt_token}`,
-          },
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          `http://localhost:3000/user/${params.id}/profile`,
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
         setData(response.data);
       } else throw new Error("bad req");
     } catch (error) {
@@ -49,7 +52,7 @@ export default function Page() {
         </div>
       </div>
       <div className="w-full h-full flex sm:justify-start justify-center ">
-        <UserProfile data={data}/>
+        <UserProfile data={data} />
       </div>
     </main>
   );

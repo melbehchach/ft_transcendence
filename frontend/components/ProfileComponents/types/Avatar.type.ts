@@ -27,7 +27,6 @@ export type DataFetch = {
 
 
 // Search data
-
 export type ProfileData = {
     id: string,
     username: string,
