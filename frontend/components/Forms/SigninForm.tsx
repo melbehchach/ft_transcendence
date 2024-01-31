@@ -1,46 +1,22 @@
 "use client";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import React from "react";
-
-async function login(
-  username: string,
-  password: string,
-  router: AppRouterInstance
-) {
-  const response = await fetch("http://localhost:3000/auth/signin", {
-    credentials: "include",
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
-      username,
-      password,
-    }),
-  });
-  if (response.ok) {
-    const res = await response.json();
-    console.log(res);
-    if (res.TFA) {
-      router.push("/auth/TFA");
-    } else {
-      router.push("/profile");
-    }
-  } else {
-    alert("Failed To Signin");
-  }
-}
+import { useAuth } from "../../app/context/AuthContext";
 
 export default function SigninForm() {
   let username: string, passwd: string;
+  const { state, login } = useAuth();
   const router = useRouter();
   function handleClick(e: any) {
     e.preventDefault();
-    login(username, passwd, router);
+    login(username, passwd);
   }
+  React.useEffect(() => {
+    if (state.tfa !== "idle") {
+      if (state?.tfa) router.push("/auth/TFA");
+      else router.push("/profile");
+    }
+  }, [state]);
 
   return (
     <>
