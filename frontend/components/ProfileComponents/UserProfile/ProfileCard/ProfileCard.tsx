@@ -1,10 +1,9 @@
+import { useState } from "react";
 import PlayersInfos from "./PlayerInfos/PlayersInfos";
 import ProfileSettings from "./ProfileSettings/ProfileSettings";
 import SettingIcon from "./SettingIcon";
-import { useState } from "react";
-import { DataFetch } from "../../types/Avatar.type";
 
-function ProfileCard(data: DataFetch) {
+function ProfileCard() {
   const [infos, setInfos] = useState<boolean>(true);
   const [setting, setSetting] = useState<boolean>(false);
 
@@ -25,8 +24,8 @@ function ProfileCard(data: DataFetch) {
           <SettingIcon />
         </button>
       </div>
-      {infos && <PlayersInfos data={data} />}
-      {setting && <ProfileSettings data={data} openSettings={openSettings} />}
+      {infos && <PlayersInfos />}
+      {setting && <ProfileSettings openSettings={openSettings} />}
     </div>
   );
 }

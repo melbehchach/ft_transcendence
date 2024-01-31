@@ -1,15 +1,13 @@
-import axios from "axios";
-import Cookies from "js-cookie";
-import { useState, useEffect } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import ProfileCard from "./ProfileCard/ProfileCard";
+import { useState } from "react";
+import { Swiper } from "swiper/react";
 import { DataFetch } from "../types/Avatar.type";
+import ProfileCard from "./ProfileCard/ProfileCard";
 
 type userProps = {
   data: DataFetch;
 };
 
-function UserProfile({ data }: userProps) {
+function UserProfile() {
   const [friends, setFriends] = useState<boolean>(true);
   const [friendsRq, setFriendsRq] = useState<boolean>(false);
 
@@ -24,7 +22,7 @@ function UserProfile({ data }: userProps) {
   let color: string = "border-gray-500";
   return (
     <div className="w-screen h-screen flex gap-[1.5rem] p-[1rem]">
-      <ProfileCard {...data} />
+      <ProfileCard />
       <div className="w-screen h-full">
         <div className="w-full h-[14rem] flex flex-col gap-[1rem]">
           <h1 className="w-screen h-fit border-b border-gray-500 text-white font-semibold text-3xl">

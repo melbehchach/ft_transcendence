@@ -1,21 +1,27 @@
-import Achievements from "./Achievements/Achievements";
-import Scores from "./Scores/Scores";
+import { useAuth } from "../../../../../app/context/AuthContext";
 import Avatar from "../../../Avatar/Avatar";
+import { AvatarProps, DataFetch } from "../../../types/Avatar.type";
+import Achievements from "./Achievements/Achievements";
 import achievementsData from "./Achievements/AchievementsData";
 import fakeData from "./Scores/RecordsData";
-import { AvatarProps, SearchDataFetch } from "../../../types/Avatar.type";
-import { DataFetch } from "../../../types/Avatar.type";
+import Scores from "./Scores/Scores";
 
 type profileCardProps = {
-  data: DataFetch,
-}
+  data: DataFetch;
+};
 
-function PlayersInfos({data}: profileCardProps) {
+function PlayersInfos() {
+  const {
+    state: {
+      user: { avatar, username },
+    },
+  } = useAuth();
+
   const avatarObj: AvatarProps = {
-    src: data.avatar,
+    src: avatar,
     width: 100,
     height: 100,
-    userName: data.username,
+    userName: username,
     imageStyle: "w-[13rem] h-[13rem] rounded-full object-cover",
     fontSize: "text-2xl font-bold",
     positiosn: true,

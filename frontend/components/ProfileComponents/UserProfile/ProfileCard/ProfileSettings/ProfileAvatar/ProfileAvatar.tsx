@@ -1,15 +1,16 @@
-import React from "react";
+import { useAuth } from "../../../../../../app/context/AuthContext";
 import Avatar from "../../../../Avatar/Avatar";
-import { AvatarProps, DataFetch } from "../../../../types/Avatar.type";
+import { AvatarProps } from "../../../../types/Avatar.type";
 import AddAvatarButton from "./AddAvatarButton";
 
-type profileAvatarProps = {
-  data: DataFetch;
-};
-
-function ProfileAvatar({ data }: profileAvatarProps) {
+function ProfileAvatar() {
+  const {
+    state: {
+      user: { avatar },
+    },
+  } = useAuth();
   const avatarObj: AvatarProps = {
-    src: data.avatar,
+    src: avatar,
     width: 100,
     height: 100,
     userName: "",
