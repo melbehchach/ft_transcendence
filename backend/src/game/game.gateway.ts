@@ -217,8 +217,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           playerY: gameRoom.player1Obj.y,
           opponentY: gameRoom.player2Obj.y,
           room: gameRoom.roomName,
-          playerScore: gameRoom.player1Obj.score,
-          opponentScore: gameRoom.player2Obj.score,
+          playerAvatr: playerDb?.avatar,
+          opponentAvatar: opponentDb?.avatar,
         });
       }
     } catch (error) {
@@ -367,6 +367,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('GameIsOver')
   submiteScore(client: Socket, payload: any): void {
     const gameRoom = this.MapGames.get(payload.data.room);
+    if (!gameRoom) return;
     this.server.to(payload.data.room).emit('CheckingWinner', {
       player: gameRoom.player1Obj.id,
       opponent: gameRoom.player2Obj.id,

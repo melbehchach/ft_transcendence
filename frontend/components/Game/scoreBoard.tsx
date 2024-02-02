@@ -1,43 +1,30 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
 
 interface ScoreBoardProps {
   playerScore: number;
   opponentScore: number;
+  playerAvatar: string;
+  OpponentAvatar: string;
 }
 
-export default function ScoreBoard({playerScore, opponentScore}: ScoreBoardProps) {
+export default function ScoreBoard({
+  playerScore,
+  opponentScore,
+  playerAvatar,
+  OpponentAvatar,
+}: ScoreBoardProps) {
   const router = useRouter();
-  
-  // const [playerAvatar, setPlayerAvatar] = useState('');
-  // const [opponentAvatar, setOpponentAvatar] = useState('');
-  // const getPlayerAvatar = async () => {
-  //   await axios
-  //     .get(
-  //       `http://localhost:3000/game/getCurrentGame/${Cookies.get("USER_ID")}`
-  //     )
-  //     .then((res) => {
-  //       console.log(res.data);
-  //       // setPlayerAvatar(res.data.Player.avatar);
-  //       // setOpponentAvatar(res.data.Player.avatar);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err.response.data);
-  //     });
-  // };
-  // getPlayerAvatar();
+
 
   return (
     <>
-      <div className="flex justify-between items-center m-5 p-5">
-        <div className="flex items-center justify-center gap-1">
+      <div className="flex justify-between items-center p-5 ml-0 my-5  mr-40">
+        <div className="flex items-center justify-center gap-1 ">
           <Image
             className="rounded-full"
-            src="/img/avatar.png"
+            src={playerAvatar}
             width={55}
             height={55}
             alt="Friend's picture"
@@ -91,7 +78,7 @@ export default function ScoreBoard({playerScore, opponentScore}: ScoreBoardProps
           </span>
           <Image
             className="rounded-full"
-            src="/img/avatar.png"
+            src={OpponentAvatar}
             width={55}
             height={55}
             alt="Friend's picture"
