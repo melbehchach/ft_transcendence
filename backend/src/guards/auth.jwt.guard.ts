@@ -22,6 +22,9 @@ export class AuthGuard implements CanActivate {
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
       });
+      if (!user) {
+        throw new Error();
+      }
       delete user?.password;
       req['user'] = user;
     } catch {

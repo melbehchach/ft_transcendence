@@ -12,7 +12,8 @@ async function finishSignup(
   passwd: string,
   passwordConf: string,
   avatar: File,
-  router: AppRouterInstance
+  router: AppRouterInstance,
+  setSignupFail: any
 ) {
   try {
     const response = await fetch("http://localhost:3000/auth/finish_signup", {
@@ -33,7 +34,8 @@ async function finishSignup(
       router.push("/profile");
     } else {
       const res = await response.json();
-      alert(`Failed to Finish Signup: ${res.error}`);
+      // console.log(`Failed to Finish Signup: ${res.error}`);
+      setSignupFail({ fail: true, errorMessage: res.error });
       return;
     }
   } catch (error) {
@@ -66,12 +68,17 @@ const SignUpForm: React.FC<User> = ({ email, username, avatar }) => {
   const [avatarFile, setAvatar] = useState<any>(null);
   const [previewUrl, setPreviewUrl] = useState<string>(avatar);
   const [newUsername, setUsername] = useState<string>(username);
+  // const [usernameTaken, setUsernameTaken] = useState<boolean>(false);
   const [passwd, setPasswd] = useState<string>("");
   const [confPasswd, setConfPasswd] = useState<string>("");
   const [passwdCheck, setPasswdCheck] = useState<{
     isValid: boolean;
     errorMessage: string;
   }>({ isValid: false, errorMessage: "" });
+  const [signupFail, setSignupFail] = useState<{
+    fail: boolean;
+    errorMessage: string;
+  }>({ fail: false, errorMessage: "" });
 
   function handleSubmit(e: any) {
     e.preventDefault();
@@ -79,7 +86,15 @@ const SignUpForm: React.FC<User> = ({ email, username, avatar }) => {
       alert("Please enter a valid password");
       return;
     }
-    finishSignup(email, newUsername, passwd, confPasswd, avatarFile, router);
+    finishSignup(
+      email,
+      newUsername,
+      passwd,
+      confPasswd,
+      avatarFile,
+      router,
+      setSignupFail
+    );
   }
 
   const checkUpperCaseChar = new RegExp("(?=.*[A-Z])");
@@ -167,6 +182,13 @@ const SignUpForm: React.FC<User> = ({ email, username, avatar }) => {
                   }
                 }}
               />
+              <span
+                className={
+                  signupFail.fail ? "block" + " text-xs text-red-500" : "hidden"
+                }
+              >
+                {signupFail.errorMessage}
+              </span>
               <input
                 required
                 className="placeholder:text-text placeholder:text-opacity-20 text-small text-text w-full block border border-accent px-4 py-[1.0625rem] rounded-lg bg-transparent"

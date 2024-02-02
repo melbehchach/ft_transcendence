@@ -28,6 +28,9 @@ export class ChatGuard implements CanActivate {
           id: true,
         },
       });
+      if (!user) {
+        throw new Error();
+      }
       req['userID'] = user?.id;
       return true;
     } catch (error) {

@@ -2,19 +2,19 @@
 
 import "swiper/css";
 
-import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
-import { Inter } from "next/font/google";
 import SideBar from "../../components/ProfileComponents/SideBar/SideBar";
-import SideBarButton from "../../components/ProfileComponents/SideBar/SideBarButton";
-import { chdir } from "process";
+import ProtectedRoute from "../../components/ProtectedRoute";
+import { useAuth } from "../context/AuthContext";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState<string>("");
   const [open, steOpen] = useState<boolean>(true);
   const location = usePathname();
   const locations = ["profile", "chat", "game"];
+  const { fetchData } = useAuth();
   useEffect(() => {
     if (locations.includes(location.split("/")[1])) {
       setActive(location.split("/")[1]);
@@ -27,24 +27,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (!open) steOpen(true);
     else steOpen(false);
   }
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
-    <div className="sm:flex relative">
-      {/* <div className="sm:w-[5rem] h-fit sm:hidden flex bg-background">
+    <ProtectedRoute>
+      <div className="flex">
+        {/* <div className="sm:w-[5rem] h-fit sm:hidden flex bg-background">
         <button className=" m-[1rem] " onClick={handleClick}>
-          <SideBarButton />
+        <SideBarButton />
         </button>
-      </div>
-      {open && (
-        <div className="w-screen sm:hidden h-screen relative flex justify-center bg-background">
+        </div>
+        {open && (
+          <div className="w-screen sm:hidden h-screen relative flex justify-center bg-background">
+          <SideBar active={active} setSideBar={steOpen} />
+          </div>
+        )} */}
+        <div className="flex flex-col h-screen bg-background border-r border-black w-[14rem]">
           <SideBar active={active} setSideBar={steOpen} />
         </div>
-      )} */}
-      <div className="flex flex-col h-screen bg-background border-r border-black w-[14rem]">
-        <SideBar active={active} setSideBar={steOpen} />
+        {children}
       </div>
-      {children}
-    </div>
+    </ProtectedRoute>
   );
 }
 

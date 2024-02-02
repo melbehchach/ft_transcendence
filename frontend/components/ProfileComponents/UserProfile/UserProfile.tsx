@@ -1,16 +1,13 @@
-import { useState, useEffect } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import ProfileCard from "./ProfileCard/ProfileCard";
-import axios from "axios";
-import Cookies from "js-cookie";
+import { useState } from "react";
+import { Swiper } from "swiper/react";
 import { DataFetch } from "../types/Avatar.type";
+import ProfileCard from "./ProfileCard/ProfileCard";
 
 type userProps = {
   data: DataFetch;
-}
+};
 
-function UserProfile({data}: userProps) {
-
+function UserProfile() {
   const [friends, setFriends] = useState<boolean>(true);
   const [friendsRq, setFriendsRq] = useState<boolean>(false);
 
@@ -22,18 +19,16 @@ function UserProfile({data}: userProps) {
     setFriendsRq(true);
     setFriends(false);
   }
-
+  let color: string = "border-gray-500";
   return (
-    <div className="flex sm:flex-row flex-col gap-[1rem]">
-      <div className="sm:w-[20rem] sm:h-[53rem] h-fit ">
-        <ProfileCard {...data} />
-      </div>
-      <div className="w-[20rem] sm:w-full sm:w-screen h-fit ">
-        <div className="w-full h-[14rem] mt-[2rem] flex flex-col gap-[1rem]  ">
-          <div className="w-full h-fit sm:border-b border-gray-500 mt-[0.5rem] text-white font-semibold text-3xl">
-            <h1>Recent Games</h1>
-          </div>
-          <div className="w-full ">
+    <div className="w-screen h-screen flex gap-[1.5rem] p-[1rem]">
+      <ProfileCard />
+      <div className="w-screen h-full">
+        <div className="w-full h-[14rem] flex flex-col gap-[1rem]">
+          <h1 className="w-screen h-fit border-b border-gray-500 text-white font-semibold text-3xl">
+            Recent Games
+          </h1>
+          <div className="w-full">
             <Swiper spaceBetween={10} slidesPerView={3}>
               {/* {db.map((item, index) => (
                 <SwiperSlide className="!w-fit" key={index}>
@@ -44,42 +39,38 @@ function UserProfile({data}: userProps) {
           </div>
         </div>
         <div className="w-full h-[25rem] flex flex-col gap-[1rem]">
-          <div className="flex gap-[2rem] mt-[1rem] text-white font-semibold text-3xl sm:border-b border-gray-500  ">
-            <div className="w-fit h-fit">
-              <button type="button" onClick={handleFriendsClick}>
-                Friends
-              </button>
-            </div>
-            <div className="w-fit h-fit">
-              <button type="button" onClick={handleFriendsrR}>
-                Friends Requets
-              </button>
-            </div>
+          <div
+            className={
+              "w-screen h-fit flex gap-[2rem] text-white font-semibold text-3xl border-b border-gray-500"
+            }
+          >
+            <button onClick={handleFriendsClick}>Friends</button>
+            <button onClick={handleFriendsrR}>Friends Requets</button>
           </div>
-          <div className="w-full h-full">
-            {friends && (
-              <div className="h-full gap-[1rem]">
-                <Swiper spaceBetween={10} slidesPerView={3}>
-                  {/* {db.map((item, index) => (
+          {/* <div className="w-full h-full"> */}
+          {friends && (
+            <div className="h-full gap-[1rem]">
+              <Swiper spaceBetween={10} slidesPerView={3}>
+                {/* {db.map((item, index) => (
                     <SwiperSlide className="!w-fit" key={index}>
                       <Friends />
                     </SwiperSlide>
                   ))} */}
-                </Swiper>
-              </div>
-            )}
-            {friendsRq && (
-              <div className="h-full">
-                <Swiper spaceBetween={10} slidesPerView={4}>
-                  {/* {db.map((item, index) => (
+              </Swiper>
+            </div>
+          )}
+          {friendsRq && (
+            <div className="h-full">
+              <Swiper spaceBetween={10} slidesPerView={4}>
+                {/* {db.map((item, index) => (
                     <SwiperSlide className="!w-fit" key={index}>
                       <FriendsRequest />
                     </SwiperSlide>
                   ))} */}
-                </Swiper>
-              </div>
-            )}
-          </div>
+              </Swiper>
+            </div>
+          )}
+          {/* </div> */}
         </div>
       </div>
     </div>
