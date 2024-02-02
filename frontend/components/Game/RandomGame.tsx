@@ -72,6 +72,8 @@ export default function RandomMatch({
   setOpponentScore,
   setPlayerScore,
   setLoading,
+  setPlayerAvatar,
+  setOpponnetAvatr,
 }: any) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socket, setSocket] = useState<Socket>();
@@ -80,50 +82,53 @@ export default function RandomMatch({
   const [theme, setTheme] = useState("");
 
   useEffect(() => {
-     const  fetchData  = async () => {
-       await axios
-         .get(`http://localhost:3000/user/profile`, {
-           withCredentials: true,
-           headers: {
-             "Content-Type": "application/json; charset=utf-8",
-             Accept: "application/json",
-           },
-         })
-         .then((res) => {
-           setTheme(res.data.gameTheme);
-         })
-         .catch((error) => {
-           console.log("Error", error);
-         });
-     };
-     fetchData();
-   }, []);
+    const fetchData = async () => {
+      await axios
+        .get(`http://localhost:3000/user/profile`, {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            Accept: "application/json",
+          },
+        })
+        .then((res) => {
+          setTheme(res.data.gameTheme);
+        })
+        .catch((error) => {
+          console.log("Error", error);
+        });
+    };
+    fetchData();
+  }, []);
 
- const upadateTotalWinsAndLoses = async (winnerId: string, loserId: string) => {
-   await axios
-     .post(
-       `http://localhost:3000/game/endGame`,
-       {
-         winnerId: winnerId,
-         loserId: loserId,
-       },
-       {
-         withCredentials: true,
-         headers: {
-           "Content-Type": "application/json; charset=utf-8",
-           Accept: "application/json",
-         },
-       }
-     )
-     .then((res) => {
-       console.log("res", res);
-     })
-     .catch((error) => {
-       console.log("ending game error");
-     });
- };
+  const upadateTotalWinsAndLoses = async (
+    winnerId: string,
+    loserId: string
+  ) => {
+    await axios
+      .post(
+        `http://localhost:3000/game/endGame`,
+        {
+          winnerId: winnerId,
+          loserId: loserId,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            Accept: "application/json",
+          },
+        }
+      )
+      .then((res) => {
+        console.log("res", res);
+      })
+      .catch((error) => {
+        console.log("ending game error");
+      });
+  };
 
-  const Player : Player = {
+  const Player: Player = {
     x: 10,
     y: canvasHeight / 2 - 50,
     width: 20,
@@ -143,87 +148,70 @@ export default function RandomMatch({
   const [startCountDown, setStartCountDown] = useState(false);
   let room = "";
 
-    const render = () => {
-      const canvas = canvasRef.current;
-      const context = canvas?.getContext("2d");
-      if (theme === "Retro") {
-        drawTable(context, canvas, canvasHeight, canvasWidth, "#000");
-        drawRect(
-          context,
-          Player.x,
-          playerY,
-          Player.width,
-          Player.height,
-          Player.color
-        );
-        drawRect(
-          context,
-          Opponent.x,
-          openentY,
-          Opponent.width,
-          Opponent.height,
-          Opponent.color
-        );
-        drawNet(
-          context,
-          canvas,
-          net.x,
-          net.y,
-          net.width,
-          net.height,
-          net.color
-        );
-        drawBall(context, ballX, ballY, "white");
-      } else if (theme === "Blue") {
-        drawTable(context, canvas, canvasHeight, canvasWidth, "#056CF2");
-        drawRect(
-          context,
-          Player.x,
-          playerY,
-          Player.width,
-          Player.height,
-          Player.color
-        );
-        drawRect(
-          context,
-          Opponent.x,
-          openentY,
-          Opponent.width,
-          Opponent.height,
-          Opponent.color
-        );
-        drawNet(
-          context,
-          canvas,
-          net.x,
-          net.y,
-          net.width,
-          net.height,
-          net.color
-        );
-        drawBall(context, ballX, ballY, "white");
-      } else if (theme === "Gray") {
-        drawTable(context, canvas, canvasHeight, canvasWidth, "#4D5960");
-        drawRect(
-          context,
-          Player.x,
-          playerY,
-          Player.width,
-          Player.height,
-          Player.color
-        );
-        drawRect(
-          context,
-          Opponent.x,
-          openentY,
-          Opponent.width,
-          Opponent.height,
-          Opponent.color
-        );
-        drawBall(context, ballX, ballY, "white");
-        
-      }
-    };
+  const render = () => {
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
+    if (theme === "Retro") {
+      drawTable(context, canvas, canvasHeight, canvasWidth, "#000");
+      drawRect(
+        context,
+        Player.x,
+        playerY,
+        Player.width,
+        Player.height,
+        Player.color
+      );
+      drawRect(
+        context,
+        Opponent.x,
+        openentY,
+        Opponent.width,
+        Opponent.height,
+        Opponent.color
+      );
+      drawNet(context, canvas, net.x, net.y, net.width, net.height, net.color);
+      drawBall(context, ballX, ballY, "white");
+    } else if (theme === "Blue") {
+      drawTable(context, canvas, canvasHeight, canvasWidth, "#056CF2");
+      drawRect(
+        context,
+        Player.x,
+        playerY,
+        Player.width,
+        Player.height,
+        Player.color
+      );
+      drawRect(
+        context,
+        Opponent.x,
+        openentY,
+        Opponent.width,
+        Opponent.height,
+        Opponent.color
+      );
+      drawNet(context, canvas, net.x, net.y, net.width, net.height, net.color);
+      drawBall(context, ballX, ballY, "white");
+    } else if (theme === "Gray") {
+      drawTable(context, canvas, canvasHeight, canvasWidth, "#4D5960");
+      drawRect(
+        context,
+        Player.x,
+        playerY,
+        Player.width,
+        Player.height,
+        Player.color
+      );
+      drawRect(
+        context,
+        Opponent.x,
+        openentY,
+        Opponent.width,
+        Opponent.height,
+        Opponent.color
+      );
+      drawBall(context, ballX, ballY, "white");
+    }
+  };
 
   useEffect(() => {
     const gameLoop = () => {
@@ -232,7 +220,7 @@ export default function RandomMatch({
       render();
     };
     gameLoop();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countdown, playerY, openentY, ballX, ballY, startCountDown]);
 
   const keyPress = (e: any) => {
@@ -277,10 +265,14 @@ export default function RandomMatch({
     if (socket) {
       socket.on("RandomMatch", (data: any) => {
         if (data.player === cookie.get("USER_ID")) {
+          setPlayerAvatar(data.playerAvatr);
+          setOpponnetAvatr(data.opponentAvatar);
           setPlayerY(data.playerY);
           setOpenentY(data.opponentY);
           room = data.room;
         } else {
+          setPlayerAvatar(data.opponentAvatar);
+          setOpponnetAvatr(data.playerAvatr);
           setPlayerY(data.opponentY);
           setOpenentY(data.playerY);
           room = data.room;
@@ -329,7 +321,7 @@ export default function RandomMatch({
       });
       socket.on("UnexpectedWinner", (data: any) => {
         if (data.winner === cookie.get("USER_ID")) {
-          setPlayerScore(data.score)
+          setPlayerScore(data.score);
           // push the player to deashboard game to start a new game
         }
       });
@@ -348,7 +340,7 @@ export default function RandomMatch({
 
   return (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-       {countdown > 0 && <Countdown />}
+      {countdown > 0 && <Countdown />}
       <canvas
         className="w-full h-full"
         ref={canvasRef}
