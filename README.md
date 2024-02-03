@@ -1,5 +1,22 @@
 # PONG CLUB
 
+## Overview
+
+# What and How
+
+This project encompasses a web-based multiplayer pong game, complete with user profiles, achievements, direct messaging, and channels. It also allows for one-on-one pong matches with friends or randomly selected opponents. The frontend is crafted using Next.js and Tailwind CSS, while the backend utilizes Nest.js with Socket.IO. PostgreSQL, in conjunction with Prisma, serves as the database. The entire project is containerized within a Docker environment.
+
+# Shots
+
+![LandingPage](screenshots/landingPage.gif)
+![LoginPage](screenshots/Login.png)
+![Profile](screenshots/Profile.png)
+![Chat](screenshots/Chat.png)
+![Game](screenshots/Game.png)
+![GamePlay](screenshots/Gameplay.png)
+
+[Check the whole project in Figma](https://www.figma.com/file/CeajoodIjiEF7qjO5pwEfO/PongClub-Dark?type=design&node-id=0%3A1&mode=design&t=x78hSalmhxwsMQEm-1)
+
 ## How To Run The Application
 
 first you need a `.env` file in `/backend` with the following variables:
