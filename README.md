@@ -1,14 +1,12 @@
 # PONG CLUB
 
-## Overview
-
-# What and How
+## What and How
+![LandingPage](screenshots/landingPage.gif)
 
 This project encompasses a web-based multiplayer pong game, complete with user profiles, achievements, direct messaging, and channels. It also allows for one-on-one pong matches with friends or randomly selected opponents. The frontend is crafted using Next.js and Tailwind CSS, while the backend utilizes Nest.js with Socket.IO. PostgreSQL, in conjunction with Prisma, serves as the database. The entire project is containerized within a Docker environment.
 
-# Shots
+## Shots
 
-![LandingPage](screenshots/landingPage.gif)
 ![LoginPage](screenshots/Login.png)
 ![Profile](screenshots/Profile.png)
 ![Chat](screenshots/Chat.png)
