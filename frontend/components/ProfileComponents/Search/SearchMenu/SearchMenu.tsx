@@ -1,21 +1,25 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { use } from "react";
+import { useState, useEffect, useReducer } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
-import { DataFetch } from "../../types/Avatar.type";
-import { SearchDataFetch } from "../../types/Avatar.type";
-import { ProfileData } from "../../types/Avatar.type";
 import AllField from "./AllField/AllField";
 import UsersField from "./UsersField/UsersField";
 import ChannelsField from "./ChannlesField/ChannelsField";
 import SearchIcon from "../SearchIcon";
+import { SearchDataFetch } from "../../types/Avatar.type";
+import { ProfileData } from "../../types/Avatar.type";
 
 type searchMenuProps = {
   modal: boolean;
   closeModal: () => void;
 };
 
+function reducer(state, action) {
+  switch (action) 
+}
+
 function SearchMenu({ modal, closeModal }: searchMenuProps) {
+  const [state, dispatch] = useReducer<any>(reducer, {searchFieldd: true});
   const [all, setAll] = useState<boolean>(true);
   const [users, setUsers] = useState<boolean>(false);
   const [channels, setChannels] = useState<boolean>(false);
@@ -88,6 +92,27 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
     setRequestType("CHANNELS");
   }
 
+  const fields = [
+    {
+      field: "All",
+      action: allClick,
+      state: all,
+      id: 1,
+    },
+    {
+      field: "Users",
+      action: usersClick,
+      state: users,
+      id: 2,
+    },
+    {
+      field: "Channels",
+      action: channelsClick,
+      state: channels,
+      id: 3,
+    },
+  ];
+
   function usesrData(): ProfileData[] {
     let usersArray: ProfileData[];
     if (requestType === "ALL") {
@@ -115,8 +140,8 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
       id="modalClose"
       onClick={handleModalClose}
     >
-      <div className="w-[55rem] h-[50rem] rounded-[10px] flex flex-col bg-background p-[1rem] pt-0">
-        <div className="w-full h-[5rem] flex items-center gap-[1rem]">
+      <div className="w-[55rem] h-[50rem] rounded-[10px] flex flex-col bg-background ">
+        <div className="w-full h-[5rem] flex items-center gap-[1rem] p-[1rem]">
           <SearchIcon />
           <form className="w-full h-[1rem]">
             <input
@@ -127,36 +152,21 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
             />
           </form>
         </div>
-        <div className="w-full h-[3rem] flex items-center gap-[1rem] border-b border-black">
-          <div className="w-fit h-fit flex items-center text-white text-basic">
+        <div className="w-full flex items-center gap-[1rem] pl-[1rem] pt-[0.5rem] border-b border-black">
+          {fields.map((field) => (
             <button
-              type="button"
-              onClick={allClick}
-              className={all ? "border-gray-500 border-b-2" : ""}
+              key={field.id}
+              onClick={field.action}
+              className={
+                (field.state ? "border-b border-white" : "") +
+                "w-fit h-full flex items-center text-white text-basic"
+              }
             >
-              All
+              {field.field}
             </button>
-          </div>
-          <div className="w-fit h-fit flex items-center text-white text-basic">
-            <button
-              type="button"
-              onClick={usersClick}
-              className={users ? "border-gray-500 border-b-2" : ""}
-            >
-              Users
-            </button>
-          </div>
-          <div className="w-fit h-fit flex items-center text-white text-basic">
-            <button
-              type="button"
-              onClick={channelsClick}
-              className={channels ? "border-gray-500 border-b-2" : ""}
-            >
-              Channels
-            </button>
-          </div>
+          ))}
         </div>
-        <div className="w-full h-full mt-[1rem]">
+        <div className="w-full h-full p-[1rem]">
           {all && <AllField usersData={usesrData} />}
           {users && <UsersField usersData={usesrData} />}
           {channels && <ChannelsField />}

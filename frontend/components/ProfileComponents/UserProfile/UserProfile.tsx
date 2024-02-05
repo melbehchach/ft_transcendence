@@ -1,11 +1,6 @@
 import { useState } from "react";
 import { Swiper } from "swiper/react";
-import { DataFetch } from "../types/Avatar.type";
 import ProfileCard from "./ProfileCard/ProfileCard";
-
-type userProps = {
-  data: DataFetch;
-};
 
 function UserProfile() {
   const [friends, setFriends] = useState<boolean>(true);
@@ -19,7 +14,7 @@ function UserProfile() {
     setFriendsRq(true);
     setFriends(false);
   }
-  let color: string = "border-gray-500";
+
   return (
     <div className="w-screen h-screen flex gap-[1.5rem] p-[1rem]">
       <ProfileCard />

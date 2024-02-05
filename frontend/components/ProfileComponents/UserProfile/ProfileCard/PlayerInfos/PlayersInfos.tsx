@@ -6,10 +6,6 @@ import achievementsData from "./Achievements/AchievementsData";
 import fakeData from "./Scores/RecordsData";
 import Scores from "./Scores/Scores";
 
-type profileCardProps = {
-  data: DataFetch;
-};
-
 function PlayersInfos() {
   const {
     state: {
@@ -28,7 +24,7 @@ function PlayersInfos() {
   };
 
   return (
-    <div className="w-full flex flex-col justify-center items-center gap-[1rem]">
+    <div className="w-full h-full flex flex-col justify-center items-center gap-[1rem]">
       <div className="w-full flex justify-center items-center">
         <Avatar {...avatarObj} />
       </div>
