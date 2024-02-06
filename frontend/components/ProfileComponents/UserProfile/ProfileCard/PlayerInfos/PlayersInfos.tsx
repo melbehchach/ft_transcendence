@@ -26,14 +26,14 @@ function PlayersInfos({ avatar, username }) {
       <div className="w-full flex justify-center items-center">
         <Avatar {...avatarObj} />
       </div>
-      <div className="w-fit h-fit flex justify-center ">
+      {/* <div className="w-fit h-fit flex justify-center ">
         <button
           className="border border-black rounded-[15px] text-white"
           onClick={addFriedn}
         >
           Add friend
         </button>
-      </div>
+      </div> */}
       <Scores myScoresArray={fakeData} />
       <Achievements achievementsArray={achievementsData} />
     </div>

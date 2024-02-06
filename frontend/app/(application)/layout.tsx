@@ -1,20 +1,20 @@
 "use client";
-
-import "swiper/css";
-
-import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
-
+import { usePathname } from "next/navigation";
+import { useAuth } from "../context/AuthContext";
+import "swiper/css";
 import SideBar from "../../components/ProfileComponents/SideBar/SideBar";
 import ProtectedRoute from "../../components/ProtectedRoute";
-import { useAuth } from "../context/AuthContext";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState<string>("");
   const [open, steOpen] = useState<boolean>(true);
   const location = usePathname();
   const locations = ["profile", "chat", "game"];
-  const { fetchData, state: {profile} } = useAuth();
+  const {
+    fetchData,
+    state: { profile },
+  } = useAuth();
 
   useEffect(() => {
     if (locations.includes(location.split("/")[1])) {

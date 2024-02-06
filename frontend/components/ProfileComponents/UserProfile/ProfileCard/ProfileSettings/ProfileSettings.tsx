@@ -15,14 +15,16 @@ function ProfileSettings({ openSettings }: settingsProps) {
   }
 
   return (
-    <div className="w-[21rem] h-full flex flex-col gap-[1.3rem] ">
+    <div className="w-[21rem] h-full flex flex-col ">
       <h1 className="w-full font-semibold text-3xl">Settings</h1>
-      <ProfileAvatar />
-      <Username />
-      <Password />
-      <GameTheme />
-      <Auth />
-      <SaveDiscard handleSave={handleSave} />
+      <div className="w-full h-full flex justify-center flex-col gap-[2rem] ">
+        <ProfileAvatar />
+        <Username />
+        <Password />
+        <GameTheme />
+        <Auth />
+        <SaveDiscard handleSave={handleSave} />
+      </div>
     </div>
   );
 }

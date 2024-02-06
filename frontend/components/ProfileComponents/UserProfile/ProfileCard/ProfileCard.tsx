@@ -9,8 +9,9 @@ function ProfileCard() {
   const [setting, setSetting] = useState<boolean>(false);
   const params = useParams();
   const {
-    state: { profile, user },
+    state: { user, profile },
   } = useAuth();
+
   function closeSettings() {
     setSetting(false);
   }
@@ -20,6 +21,7 @@ function ProfileCard() {
   ) : (
     <PlayersInfos avatar={user.avatar} username={user.userName} />
   );
+
   return (
     <div className="w-[22rem] h-full p-[0.5rem] text-white flex flex-col border border-black border-solid rounded-[15px]">
       <div className={!setting ? "place-self-end" : "hidden"}>

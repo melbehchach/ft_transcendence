@@ -2,7 +2,7 @@ import { AvatarProps } from "../../../types/Avatar.type";
 import { ProfileData } from "../../../types/Avatar.type";
 import { useRouter } from "next/navigation";
 import Avatar from "../../../Avatar/Avatar";
-// import NoImage from "../NoImage.svg"
+// import NoImage from "../NoImage.svg";
 
 type ModalSearch = {
   usersData: () => ProfileData[];
@@ -26,7 +26,7 @@ function AllField({ usersData }: ModalSearch) {
   // To prevenet errors of testing acounts in DB (bob...)
   function checkForAvatr(avatar: string): string {
     if (avatar.indexOf("/") === -1) {
-      return NoImage;
+      return null;
     }
     return avatar;
   }

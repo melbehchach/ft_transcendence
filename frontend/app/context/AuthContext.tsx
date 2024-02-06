@@ -64,13 +64,12 @@ const Auth = createContext<any>(null);
 
 const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(authReducer, initialeState);
-
   const jwt_token = Cookies.get("JWT_TOKEN");
 
-  async function fetchData(id) {
+  async function fetchData(id: string) {
     try {
       if (jwt_token) {
-        let url = !id
+        let url: string = !id
           ? "http://localhost:3000/user"
           : "http://localhost:3000/user/" + id;
         const response = await axios.get(url + "/profile", {
@@ -94,6 +93,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("an error occured");
     }
   }
+
   async function login(username: string, password: string) {
     const response = await fetch("http://localhost:3000/auth/signin", {
       credentials: "include",
@@ -132,11 +132,9 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(Auth);
-
   if (!context) {
     throw new Error("");
   }
-
   return context;
 };
 
