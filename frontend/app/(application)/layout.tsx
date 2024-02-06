@@ -14,7 +14,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [open, steOpen] = useState<boolean>(true);
   const location = usePathname();
   const locations = ["profile", "chat", "game"];
-  const { fetchData } = useAuth();
+  const { fetchData, state: {profile} } = useAuth();
+
   useEffect(() => {
     if (locations.includes(location.split("/")[1])) {
       setActive(location.split("/")[1]);
@@ -47,7 +48,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex flex-col h-screen bg-background border-r border-black w-[14rem]">
           <SideBar active={active} setSideBar={steOpen} />
         </div>
-        {children}
+        {profile && children}
       </div>
     </ProtectedRoute>
   );

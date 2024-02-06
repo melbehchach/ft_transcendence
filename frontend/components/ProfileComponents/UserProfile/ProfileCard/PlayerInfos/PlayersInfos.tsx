@@ -6,13 +6,7 @@ import achievementsData from "./Achievements/AchievementsData";
 import fakeData from "./Scores/RecordsData";
 import Scores from "./Scores/Scores";
 
-function PlayersInfos() {
-  const {
-    state: {
-      user: { avatar, username },
-    },
-  } = useAuth();
-
+function PlayersInfos({ avatar, username }) {
   const avatarObj: AvatarProps = {
     src: avatar,
     width: 100,
@@ -23,10 +17,22 @@ function PlayersInfos() {
     positiosn: true,
   };
 
+  function addFriedn() {
+    
+  }
+
   return (
     <div className="w-full h-full flex flex-col justify-center items-center gap-[1rem]">
       <div className="w-full flex justify-center items-center">
         <Avatar {...avatarObj} />
+      </div>
+      <div className="w-fit h-fit flex justify-center ">
+        <button
+          className="border border-black rounded-[15px] text-white"
+          onClick={addFriedn}
+        >
+          Add friend
+        </button>
       </div>
       <Scores myScoresArray={fakeData} />
       <Achievements achievementsArray={achievementsData} />

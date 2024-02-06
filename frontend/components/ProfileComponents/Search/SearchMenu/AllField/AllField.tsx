@@ -2,7 +2,7 @@ import { AvatarProps } from "../../../types/Avatar.type";
 import { ProfileData } from "../../../types/Avatar.type";
 import { useRouter } from "next/navigation";
 import Avatar from "../../../Avatar/Avatar";
-import NoImage from "../NoImage.svg"
+// import NoImage from "../NoImage.svg"
 
 type ModalSearch = {
   usersData: () => ProfileData[];

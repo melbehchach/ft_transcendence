@@ -1,18 +1,40 @@
-import { useState } from "react";
-import { Swiper } from "swiper/react";
+import { useReducer, useState } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
 import ProfileCard from "./ProfileCard/ProfileCard";
+import FriendsRequest from "./FriendsRequest/FriendsRequest";
+import db from "../../../Dummydata/db.json";
+import Friends from "./Friends/Friends";
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "oldFriends":
+      return {
+        ...state,
+        friends: (state.friends = true),
+        friendsRq: (state.friendsRq = false),
+      };
+    case "newFriendsRq":
+      return {
+        ...state,
+        friends: (state.friends = false),
+        friendsRq: (state.friendsRq = true),
+      };
+    default:
+      throw new Error();
+  }
+}
 
 function UserProfile() {
-  const [friends, setFriends] = useState<boolean>(true);
-  const [friendsRq, setFriendsRq] = useState<boolean>(false);
+  const [state, dispatch] = useReducer(reducer, {
+    friends: true,
+    friendsRq: false,
+  });
 
   function handleFriendsClick() {
-    setFriends(true);
-    setFriendsRq(false);
+    dispatch({ type: "oldFriends" });
   }
   function handleFriendsrR() {
-    setFriendsRq(true);
-    setFriends(false);
+    dispatch({ type: "newFriendsRq" });
   }
 
   return (
@@ -43,26 +65,26 @@ function UserProfile() {
             <button onClick={handleFriendsrR}>Friends Requets</button>
           </div>
           {/* <div className="w-full h-full"> */}
-          {friends && (
+          {state.friends && (
             <div className="h-full gap-[1rem]">
-              <Swiper spaceBetween={10} slidesPerView={3}>
-                {/* {db.map((item, index) => (
-                    <SwiperSlide className="!w-fit" key={index}>
-                      <Friends />
-                    </SwiperSlide>
-                  ))} */}
-              </Swiper>
+              {/* <Swiper spaceBetween={10} slidesPerView={3}>
+                {db.map((item, index) => (
+                  <SwiperSlide className="!w-fit" key={index}>
+                    <Friends />
+                  </SwiperSlide>
+                ))}
+              </Swiper> */}
             </div>
           )}
-          {friendsRq && (
+          {state.friendsRq && (
             <div className="h-full">
-              <Swiper spaceBetween={10} slidesPerView={4}>
-                {/* {db.map((item, index) => (
-                    <SwiperSlide className="!w-fit" key={index}>
-                      <FriendsRequest />
-                    </SwiperSlide>
-                  ))} */}
-              </Swiper>
+              {/* <Swiper spaceBetween={10} slidesPerView={4}>
+                {db.map((item, index) => (
+                  <SwiperSlide className="!w-fit" key={index}>
+                    <FriendsRequest />
+                  </SwiperSlide>
+                ))}
+              </Swiper> */}
             </div>
           )}
           {/* </div> */}
