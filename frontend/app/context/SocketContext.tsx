@@ -9,8 +9,9 @@ const SocketContextProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket: Socket = io("http://localhost:3000/game", {
+    const newSocket: Socket = io("http://localhost:3000/notifications", {
       auth: {
+        jwt_token: Cookies.get("JWT_TOKEN"),
         token: Cookies.get("USER_ID"),
       },
     });
@@ -38,6 +39,15 @@ const SocketContextProvider = ({ children }) => {
       socket.emit("leave room", roomName);
     }
   };
+
+  useEffect(() => {
+    console.log(socket);
+    if (socket) {
+      socket.on("FriendRequest", (data) => {
+        console.log({ data });
+      });
+    }
+  }, [socket]);
 
   return (
     <SocketContext.Provider

@@ -1,7 +1,11 @@
 import React from "react";
 
-type Props = {};
+type Props = {
+    url: string;
+};
 
-function getData({}: Props) {}
+function getData({}: Props) {
+
+}
 
 export default getData;

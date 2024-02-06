@@ -38,9 +38,11 @@ function AllField({ usersData }: ModalSearch) {
           <div className="relative flex " key={user.id}>
             <div className="w-[4rem]">
               <Avatar
-                {...avatarObj}
-                src={checkForAvatr(user.avatar)}
-                userName={user.username}
+                avatarObj={{
+                  ...avatarObj,
+                  src: checkForAvatr(user.avatar),
+                  userName: user.username,
+                }}
               />
             </div>
             <button

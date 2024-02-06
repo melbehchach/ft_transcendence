@@ -17,7 +17,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
   return (
     <div className="w-[21rem] h-full flex flex-col ">
       <h1 className="w-full font-semibold text-3xl">Settings</h1>
-      <div className="w-full h-full flex justify-center flex-col gap-[2rem] ">
+      <div className="w-full h-full flex justify-center flex-col gap-[1.5rem] ">
         <ProfileAvatar />
         <Username />
         <Password />

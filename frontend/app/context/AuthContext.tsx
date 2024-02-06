@@ -64,9 +64,9 @@ const Auth = createContext<any>(null);
 
 const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(authReducer, initialeState);
-  const jwt_token = Cookies.get("JWT_TOKEN");
 
-  async function fetchData(id: string) {
+  const jwt_token = Cookies.get("JWT_TOKEN");
+  async function fetchData(id: string, isFriendReq?: boolean) {
     try {
       if (jwt_token) {
         let url: string = !id
@@ -78,6 +78,9 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           },
           withCredentials: true,
         });
+        if (isFriendReq) {
+          return response.data;
+        }
         if (!id) {
           dispatch({
             type: actionTypes.UPDATE_USER,
@@ -89,6 +92,35 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           payload: { profile: { ...response.data, id } },
         });
       } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+
+  async function manageFreindReq(id: string, type: string) {
+    let reqPath: string;
+    if (type === "cancel") {
+      reqPath = "cancelRequest";
+    } else if (type === "decline") {
+      reqPath = "declineRequest";
+    } else if (type === "accept") {
+      reqPath = "acceptRequest";
+    }
+    try {
+      if (jwt_token) {
+        const response = await axios.patch(
+          "http://localhost:3000/user/" + reqPath,
+          {
+            friendRequestId: id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+      }
     } catch (error) {
       console.log("an error occured");
     }
@@ -124,7 +156,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <Auth.Provider value={{ state, login, logout, fetchData }}>
+    <Auth.Provider value={{ state, login, logout, fetchData, manageFreindReq }}>
       {children}
     </Auth.Provider>
   );

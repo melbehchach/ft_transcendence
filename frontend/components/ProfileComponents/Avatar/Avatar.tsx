@@ -2,25 +2,25 @@
 import Image from "next/image";
 import { AvatarProps } from "../types/Avatar.type";
 
-export default function Avatar(avatrObj: AvatarProps) {
-  if (!avatrObj.src) return null;
+export default function Avatar({avatarObj}) {
+  if (!avatarObj.src) return null;
   
   return (
     <div
       className={
-        (avatrObj.positiosn ? "flex flex-col" : "flex flex-row") +
+        (avatarObj.positiosn ? "flex flex-col" : "flex flex-row") +
         " items-center gap-[0.5rem]"
       }
     >
       <Image
-        src={avatrObj.src}
+        src={avatarObj.src}
         width={100}
         height={100}
-        alt={avatrObj.userName}
-        className={`${avatrObj.imageStyle}`}
+        alt={avatarObj.userName}
+        className={`${avatarObj.imageStyle}`}
         priority={true}
       />
-      <span className={`${avatrObj.fontSize}`}>{avatrObj.userName}</span>
+      <span className={`${avatarObj.fontSize}`}>{avatarObj.userName}</span>
     </div>
   );
 }

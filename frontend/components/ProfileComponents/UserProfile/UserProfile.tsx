@@ -1,9 +1,10 @@
-import { useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import ProfileCard from "./ProfileCard/ProfileCard";
 import FriendsRequest from "./FriendsRequest/FriendsRequest";
 import db from "../../../Dummydata/db.json";
 import Friends from "./Friends/Friends";
+import { useAuth } from "../../../app/context/AuthContext";
 
 function reducer(state, action) {
   switch (action.type) {
@@ -36,6 +37,17 @@ function UserProfile() {
   function handleFriendsrR() {
     dispatch({ type: "newFriendsRq" });
   }
+
+  const {
+    state: { user },
+  } = useAuth();
+
+  useEffect(() => {
+    console.log({user})
+    // if (user) {
+    //   console.log({ ...user.sentRequests });
+    // }
+  }, [user]);
 
   return (
     <div className="w-screen h-screen flex gap-[1.5rem] p-[1rem]">
@@ -78,13 +90,16 @@ function UserProfile() {
           )}
           {state.friendsRq && (
             <div className="h-full">
-              {/* <Swiper spaceBetween={10} slidesPerView={4}>
-                {db.map((item, index) => (
-                  <SwiperSlide className="!w-fit" key={index}>
-                    <FriendsRequest />
-                  </SwiperSlide>
-                ))}
-              </Swiper> */}
+              <Swiper spaceBetween={10} slidesPerView={4}>
+                {user.receivedRequests.map((item, index) => {
+                  if (item.status === "PENDING")
+                    return (
+                      <SwiperSlide className="!w-fit" key={index}>
+                        <FriendsRequest item={item} />
+                      </SwiperSlide>
+                    );
+                })}
+              </Swiper>
             </div>
           )}
           {/* </div> */}
