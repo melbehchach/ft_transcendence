@@ -18,12 +18,11 @@ import { NotificationType } from '@prisma/client';
   namespace: 'notifications',
 })
 export class NotificationsGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
-  ) {}
+  ) { }
 
   @WebSocketServer() server: Server;
   private user: any;
@@ -74,6 +73,7 @@ export class NotificationsGateway
         if (!payload || !this.user) {
           throw new WsException('Unauthorized: User Not Found');
         }
+        console.log('>>>', this.user);
         next();
       } catch (error) {
         console.log(`Auth error: ${error.message}`);

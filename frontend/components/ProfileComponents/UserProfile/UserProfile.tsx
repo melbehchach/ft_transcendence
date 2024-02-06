@@ -1,25 +1,54 @@
-import { useState } from "react";
-import { Swiper } from "swiper/react";
-import { DataFetch } from "../types/Avatar.type";
+import { useEffect, useReducer, useState } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
 import ProfileCard from "./ProfileCard/ProfileCard";
+import FriendsRequest from "./FriendsRequest/FriendsRequest";
+import db from "../../../Dummydata/db.json";
+import Friends from "./Friends/Friends";
+import { useAuth } from "../../../app/context/AuthContext";
 
-type userProps = {
-  data: DataFetch;
-};
+function reducer(state, action) {
+  switch (action.type) {
+    case "oldFriends":
+      return {
+        ...state,
+        friends: (state.friends = true),
+        friendsRq: (state.friendsRq = false),
+      };
+    case "newFriendsRq":
+      return {
+        ...state,
+        friends: (state.friends = false),
+        friendsRq: (state.friendsRq = true),
+      };
+    default:
+      throw new Error();
+  }
+}
 
 function UserProfile() {
-  const [friends, setFriends] = useState<boolean>(true);
-  const [friendsRq, setFriendsRq] = useState<boolean>(false);
+  const [state, dispatch] = useReducer(reducer, {
+    friends: true,
+    friendsRq: false,
+  });
 
   function handleFriendsClick() {
-    setFriends(true);
-    setFriendsRq(false);
+    dispatch({ type: "oldFriends" });
   }
   function handleFriendsrR() {
-    setFriendsRq(true);
-    setFriends(false);
+    dispatch({ type: "newFriendsRq" });
   }
-  let color: string = "border-gray-500";
+
+  const {
+    state: { user },
+  } = useAuth();
+
+  useEffect(() => {
+    console.log({user})
+    // if (user) {
+    //   console.log({ ...user.sentRequests });
+    // }
+  }, [user]);
+
   return (
     <div className="w-screen h-screen flex gap-[1.5rem] p-[1rem]">
       <ProfileCard />
@@ -48,25 +77,28 @@ function UserProfile() {
             <button onClick={handleFriendsrR}>Friends Requets</button>
           </div>
           {/* <div className="w-full h-full"> */}
-          {friends && (
+          {state.friends && (
             <div className="h-full gap-[1rem]">
-              <Swiper spaceBetween={10} slidesPerView={3}>
-                {/* {db.map((item, index) => (
-                    <SwiperSlide className="!w-fit" key={index}>
-                      <Friends />
-                    </SwiperSlide>
-                  ))} */}
-              </Swiper>
+              {/* <Swiper spaceBetween={10} slidesPerView={3}>
+                {db.map((item, index) => (
+                  <SwiperSlide className="!w-fit" key={index}>
+                    <Friends />
+                  </SwiperSlide>
+                ))}
+              </Swiper> */}
             </div>
           )}
-          {friendsRq && (
+          {state.friendsRq && (
             <div className="h-full">
               <Swiper spaceBetween={10} slidesPerView={4}>
-                {/* {db.map((item, index) => (
-                    <SwiperSlide className="!w-fit" key={index}>
-                      <FriendsRequest />
-                    </SwiperSlide>
-                  ))} */}
+                {user.receivedRequests.map((item, index) => {
+                  if (item.status === "PENDING")
+                    return (
+                      <SwiperSlide className="!w-fit" key={index}>
+                        <FriendsRequest item={item} />
+                      </SwiperSlide>
+                    );
+                })}
               </Swiper>
             </div>
           )}

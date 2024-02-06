@@ -9,38 +9,39 @@ import { useParams, usePathname } from "next/navigation";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { DataFetch } from "../../../../components/ProfileComponents/types/Avatar.type";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function Page() {
   const params = useParams();
-  const [data, setData] = useState<DataFetch>({
-    username: "",
-    id: "",
-    avatar: "",
-  });
+  // const [data, setData] = useState<DataFetch>({
+  //   username: "",
+  //   id: "",
+  //   avatar: "",
+  // });
 
-  const jwt_token = Cookies.get("JWT_TOKEN");
+  // const jwt_token = Cookies.get("JWT_TOKEN");
 
-  async function fetchData() {
-    try {
-      if (jwt_token) {
-        const response = await axios.get(
-          `http://localhost:3000/user/${params.id}/profile`,
-          {
-            headers: {
-              Authorization: `Bearer ${jwt_token}`,
-            },
-            withCredentials: true,
-          }
-        );
-        setData(response.data);
-      } else throw new Error("bad req");
-    } catch (error) {
-      console.log("an error occured");
-    }
-  }
-
+  // async function fetchData() {
+  //   try {
+  //     if (jwt_token) {
+  //       const response = await axios.get(
+  //         `http://localhost:3000/user/${params.id}/profile`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${jwt_token}`,
+  //           },
+  //           withCredentials: true,
+  //         }
+  //       );
+  //       setData(response.data);
+  //     } else throw new Error("bad req");
+  //   } catch (error) {
+  //     console.log("an error occured");
+  //   }
+  // }
+  const { fetchData } = useAuth();
   useEffect(() => {
-    fetchData();
+    fetchData(params.id);
   }, []);
 
   return (
@@ -51,9 +52,7 @@ export default function Page() {
           <NotificationBar />
         </div>
       </div>
-      <div className="w-full h-full flex sm:justify-start justify-center ">
-        <UserProfile data={data} />
-      </div>
+      <UserProfile />
     </main>
   );
 }

@@ -1,8 +1,7 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
-import { DataFetch } from "../../types/Avatar.type";
 import { SearchDataFetch } from "../../types/Avatar.type";
 import { ProfileData } from "../../types/Avatar.type";
 import AllField from "./AllField/AllField";
@@ -15,24 +14,56 @@ type searchMenuProps = {
   closeModal: () => void;
 };
 
+function reducer(state: any, action: any) {
+  switch (action.type) {
+    case "accessAll":
+      return {
+        ...state,
+        all: (state.all = true),
+        users: (state.users = false),
+        channels: (state.channels = false),
+      };
+    case "accessUsers":
+      return {
+        ...state,
+        all: (state.all = false),
+        users: (state.users = true),
+        channels: (state.channels = false),
+      };
+    case "accessChannels":
+      return {
+        ...state,
+        all: (state.all = false),
+        users: (state.users = false),
+        channels: (state.channels = true),
+      };
+    case "updateRequestType":
+      return { ...state, requestType: (state.requestType = action.payload) };
+    default:
+      throw new Error();
+  }
+}
+
 function SearchMenu({ modal, closeModal }: searchMenuProps) {
-  const [all, setAll] = useState<boolean>(true);
-  const [users, setUsers] = useState<boolean>(false);
-  const [channels, setChannels] = useState<boolean>(false);
-  const [requestType, setRequestType] = useState<string>("ALL");
+  const [state, dispatch] = useReducer(reducer, {
+    all: true,
+    users: false,
+    channels: false,
+    requestType: "ALL",
+  });
   const [searchValue, setSearchValue] = useState<string>("");
+  const [searchUsersData, setSearchUsersData] = useState<ProfileData[]>([]);
   const [searchALLData, setSearchALLData] = useState<SearchDataFetch>({
     users: [],
     channels: [],
   });
-  const [searchUsersData, setSearchUsersData] = useState<ProfileData[]>([]);
   const jwt_token = Cookies.get("JWT_TOKEN");
 
   async function fetchData() {
     try {
       if (jwt_token && searchValue) {
         const response = await axios.get(
-          `http://localhost:3000/user/search?type=${requestType}&query=${searchValue}`,
+          `http://localhost:3000/user/search?type=${state.requestType}&query=${searchValue}`,
           {
             headers: {
               Authorization: `Bearer ${jwt_token}`,
@@ -41,9 +72,9 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
           }
         );
         if (response.status <= 299) {
-          if (requestType === "ALL") {
+          if (state.requestType === "ALL") {
             setSearchALLData(response.data);
-          } else if (requestType === "USERS") {
+          } else if (state.requestType === "USERS") {
             setSearchUsersData(response.data);
           }
         }
@@ -56,43 +87,37 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
   useEffect(() => {
     fetchData();
     if (searchValue.length === 0) {
-      if (requestType === "ALL") {
+      if (state.requestType === "ALL") {
         setSearchALLData({
           users: [],
           channels: [],
         });
-      } else if (requestType === "USERS") {
+      } else if (state.requestType === "USERS") {
         setSearchUsersData([]);
       }
     }
   }, [searchValue]);
 
   function allClick() {
-    setAll(true);
-    setUsers(false);
-    setChannels(false);
-    setRequestType("ALL");
+    dispatch({ type: "accessAll" });
+    dispatch({ type: "updateRequestType", payload: "ALL" });
   }
 
   function usersClick() {
-    setAll(false);
-    setUsers(true);
-    setChannels(false);
-    setRequestType("USERS");
+    dispatch({ type: "accessUsers" });
+    dispatch({ type: "updateRequestType", payload: "USERS" });
   }
 
   function channelsClick() {
-    setAll(false);
-    setUsers(false);
-    setChannels(true);
-    setRequestType("CHANNELS");
+    dispatch({ type: "accessChannels" });
+    dispatch({ type: "updateRequestType", payload: "CHANNELS" });
   }
 
   function usesrData(): ProfileData[] {
     let usersArray: ProfileData[];
-    if (requestType === "ALL") {
+    if (state.requestType === "ALL") {
       usersArray = searchALLData.users;
-    } else if (requestType === "USERS") {
+    } else if (state.requestType === "USERS") {
       usersArray = searchUsersData;
     }
 
@@ -132,7 +157,7 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
             <button
               type="button"
               onClick={allClick}
-              className={all ? "border-gray-500 border-b-2" : ""}
+              className={state.all ? "border-gray-500 border-b-2" : ""}
             >
               All
             </button>
@@ -141,7 +166,7 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
             <button
               type="button"
               onClick={usersClick}
-              className={users ? "border-gray-500 border-b-2" : ""}
+              className={state.users ? "border-gray-500 border-b-2" : ""}
             >
               Users
             </button>
@@ -150,16 +175,16 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
             <button
               type="button"
               onClick={channelsClick}
-              className={channels ? "border-gray-500 border-b-2" : ""}
+              className={state.channels ? "border-gray-500 border-b-2" : ""}
             >
               Channels
             </button>
           </div>
         </div>
         <div className="w-full h-full mt-[1rem]">
-          {all && <AllField usersData={usesrData} />}
-          {users && <UsersField usersData={usesrData} />}
-          {channels && <ChannelsField />}
+          {state.all && <AllField usersData={usesrData} />}
+          {state.users && <UsersField usersData={usesrData} />}
+          {state.channels && <ChannelsField />}
         </div>
       </div>
     </div>
