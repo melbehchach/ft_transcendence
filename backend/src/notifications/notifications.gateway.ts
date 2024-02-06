@@ -18,11 +18,12 @@ import { NotificationType } from '@prisma/client';
   namespace: 'notifications',
 })
 export class NotificationsGateway
-  implements OnGatewayConnection, OnGatewayDisconnect {
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
-  ) { }
+  ) {}
 
   @WebSocketServer() server: Server;
   private user: any;
