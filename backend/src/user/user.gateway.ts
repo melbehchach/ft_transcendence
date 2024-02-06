@@ -108,7 +108,7 @@ export class userGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async afterInit(client: Socket) {
     client.use(async (req: any, next) => {
       try {
-        const token = req.handshake.headers.jwt_token;
+        const token = req.handshake.auth.jwt_token;
         if (!token) {
           throw new WsException('Unauthorized: Token Not Provided');
         }
