@@ -20,7 +20,7 @@ function ProfileAvatar() {
   };
   return (
     <div className="relative w-fit flex flex-row">
-      <Avatar {...avatarObj} />
+      <Avatar avatarObj={avatarObj} />
       <button className="absolute bottom-0 right-0 mb-[1rem]">
         <AddAvatarButton />
       </button>

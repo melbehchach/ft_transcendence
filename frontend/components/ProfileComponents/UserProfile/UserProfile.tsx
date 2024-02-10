@@ -1,10 +1,10 @@
-import { useEffect, useReducer, useState } from "react";
+import { useReducer } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import ProfileCard from "./ProfileCard/ProfileCard";
-import FriendsRequest from "./FriendsRequest/FriendsRequest";
-import db from "../../../Dummydata/db.json";
-import Friends from "./Friends/Friends";
 import { useAuth } from "../../../app/context/AuthContext";
+import UserCard from "./Card/UserCard";
+import FriendsRequest from "./FriendsRequest/FriendsRequest";
+import Friends from "./Friends/Friends";
+import ProfileCard from "./Card/ProfileCard";
 
 function reducer(state, action) {
   switch (action.type) {
@@ -25,7 +25,11 @@ function reducer(state, action) {
   }
 }
 
-function UserProfile() {
+type props = {
+  isProfile: boolean;
+};
+
+function UserProfile({ isProfile }: props) {
   const [state, dispatch] = useReducer(reducer, {
     friends: true,
     friendsRq: false,
@@ -39,19 +43,12 @@ function UserProfile() {
   }
 
   const {
-    state: { user },
+    state: { user, profile },
   } = useAuth();
-
-  useEffect(() => {
-    console.log({user})
-    // if (user) {
-    //   console.log({ ...user.sentRequests });
-    // }
-  }, [user]);
 
   return (
     <div className="w-screen h-screen flex gap-[1.5rem] p-[1rem]">
-      <ProfileCard />
+      {isProfile ? <ProfileCard /> : <UserCard />}
       <div className="w-screen h-full">
         <div className="w-full h-[14rem] flex flex-col gap-[1rem]">
           <h1 className="w-screen h-fit border-b border-gray-500 text-white font-semibold text-3xl">
