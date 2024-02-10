@@ -57,7 +57,6 @@ export class AuthController {
     );
     res.cookie('JWT_TOKEN', accessToken);
     res.cookie('USER_ID', id);
-    res.cookie('USER', '', { expires: new Date() });
     return { msg: 'Success' };
   }
 
