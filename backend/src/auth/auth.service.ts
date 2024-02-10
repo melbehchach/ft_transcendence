@@ -161,9 +161,9 @@ export class AuthService {
       const payload = await this.jwtService.verifyAsync(userToken, {
         secret: this.config.get('JWT_SECRET'),
       });
-      await this.prisma.user.updateMany({
+      await this.prisma.user.update({
         where: {
-          id: payload.sub,
+          email: payload.sub,
         },
         data: {
           avatar: `http://localhost:3000/${file.filename}`,
