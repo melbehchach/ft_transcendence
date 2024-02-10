@@ -29,19 +29,16 @@ export class DirectMessagesService {
           },
         }));
       if (!chat) {
+        if (friendId === userID) {
+          throw new Error('Invalid operation: duplicated user');
+        }
         const user = await this.prisma.user.findUnique({
           where: { id: friendId },
           include: { friends: true },
         });
-        if (friendId === userID) {
-          throw new Error('Invalid operation: duplicated user');
-        }
         if (!user) {
           throw new Error('User Not Found');
         }
-        console.log(user.friends.map((friend) => friend.id).indexOf(userID));
-        // console.log(user.friends);
-        // console.log(user.friends);
         if (user.friends.map((friend) => friend.id).indexOf(userID) === -1) {
           throw new Error('Invalid operation: users are not friends');
         }
@@ -81,8 +78,16 @@ export class DirectMessagesService {
       const user = await this.prisma.user.findUnique({
         where: { id: userID },
         include: {
-          startedChats: true,
-          invitedChats: true,
+          startedChats: {
+            include: {
+              messages: true,
+            },
+          },
+          invitedChats: {
+            include: {
+              messages: true,
+            },
+          },
         },
       });
       if (!user) {
@@ -99,16 +104,24 @@ export class DirectMessagesService {
       const chat = await this.prisma.chat.findUnique({
         where: { id: chatId },
         include: {
-          myfriend: true,
-          myself: true,
+          myfriend: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+          myself: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
           messages: true,
         },
       });
       if (!chat) {
         throw new Error('Chat not found');
       }
-      delete chat?.myfriend.password;
-      delete chat?.myself.password;
       return chat;
     } catch (error) {
       console.log(error.message);

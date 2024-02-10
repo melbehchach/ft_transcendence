@@ -27,7 +27,6 @@ export class UserService {
   ) {}
 
   async search(params: searchDto) {
-    console.log(params);
     const findUsers = async (query) => {
       return await this.prisma.user.findMany({
         where: {
@@ -109,6 +108,18 @@ export class UserService {
           },
           sentRequests: {},
           receivedRequests: {},
+          blockedUsers: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+          blockedByUsers: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
           receivedNotifications: true,
           gameTheme: true,
           status: true,
@@ -578,6 +589,163 @@ export class UserService {
       throw new InternalServerErrorException(
         'Internal Server Error: CannotUnfriendUser',
       );
+    }
+  }
+
+  async blockUser(friendId: string, userId: string) {
+    try {
+      const transactionPromises = [];
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          blockedUsers: {
+            where: {
+              id: friendId,
+            },
+          },
+          blockedByUsers: {
+            where: {
+              id: friendId,
+            },
+          },
+        },
+      });
+      if (user.blockedUsers.length !== 0 || user.blockedByUsers.length !== 0) {
+        return { msg: 'Successd' };
+      }
+      const userToBlock = await this.prisma.user.findUnique({
+        where: { id: friendId },
+      });
+      if (!userToBlock) {
+        throw new Error('User Not Found');
+      }
+      const updatedUser = this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          blockedUsers: {
+            connect: {
+              id: userToBlock.id,
+            },
+          },
+          friends: {
+            disconnect: {
+              id: userToBlock.id,
+            },
+          },
+        },
+      });
+      transactionPromises.push(updatedUser);
+      const updatedUserToBlock = this.prisma.user.update({
+        where: { id: userToBlock.id },
+        data: {
+          blockedByUsers: {
+            connect: {
+              id: user.id,
+            },
+          },
+          friends: {
+            disconnect: {
+              id: user.id,
+            },
+          },
+        },
+      });
+      transactionPromises.push(updatedUserToBlock);
+      const chat =
+        (await this.prisma.chat.findFirst({
+          where: {
+            user1Id: user.id,
+            user2Id: userToBlock.id,
+          },
+        })) ||
+        (await this.prisma.chat.findFirst({
+          where: {
+            user1Id: userToBlock.id,
+            user2Id: user.id,
+          },
+        }));
+      if (chat) {
+        const blockChat = this.prisma.chat.update({
+          where: { id: chat.id },
+          data: { isBlocked: true },
+        });
+        transactionPromises.push(blockChat);
+      }
+      await this.prisma.$transaction(transactionPromises);
+      return { msg: 'Success' };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async unblockUser(friendId: string, userId: string) {
+    try {
+      const transactionPromises = [];
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          blockedUsers: {
+            where: {
+              id: friendId,
+            },
+          },
+        },
+      });
+      if (user.blockedUsers.length === 0) {
+        return { msg: 'Success' };
+      }
+      const blockedUser = await this.prisma.user.findUnique({
+        where: { id: friendId },
+      });
+      if (!blockedUser) {
+        throw new Error('User Not Found');
+      }
+      const updatedUser = this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          blockedUsers: {
+            disconnect: {
+              id: blockedUser.id,
+            },
+          },
+        },
+      });
+      transactionPromises.push(updatedUser);
+      const updatedBlockedUser = this.prisma.user.update({
+        where: { id: blockedUser.id },
+        data: {
+          blockedByUsers: {
+            disconnect: {
+              id: user.id,
+            },
+          },
+        },
+      });
+      transactionPromises.push(updatedBlockedUser);
+      const chat =
+        (await this.prisma.chat.findFirst({
+          where: {
+            user1Id: user.id,
+            user2Id: blockedUser.id,
+          },
+        })) ||
+        (await this.prisma.chat.findFirst({
+          where: {
+            user1Id: blockedUser.id,
+            user2Id: user.id,
+          },
+        }));
+      if (chat) {
+        const blockChat = this.prisma.chat.update({
+          where: { id: chat.id },
+          data: { isBlocked: false },
+        });
+        transactionPromises.push(blockChat);
+      }
+      await this.prisma.$transaction(transactionPromises);
+      return { msg: 'Success' };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
     }
   }
 }

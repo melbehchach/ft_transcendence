@@ -8,9 +8,10 @@ import { MessageController } from './message/message.controller';
 import { directMessagesController } from './direct-messages/direct-messages.controller';
 import { DirectMessagesGateway } from './direct-messages/direct-messages.gateway';
 import { DirectMessagesService } from './direct-messages/direct-messages.service';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, NotificationsModule],
   controllers: [
     directMessagesController,
     ChannelsController,
