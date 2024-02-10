@@ -108,7 +108,8 @@ export class userGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async afterInit(client: Socket) {
     client.use(async (req: any, next) => {
       try {
-        const token = req.handshake.auth.jwt_token;
+        const token =
+          req.handshake.auth.jwt_token ?? req.handshake.headers.jwt_token;
         if (!token) {
           throw new WsException('Unauthorized: Token Not Provided');
         }
@@ -125,7 +126,6 @@ export class userGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
         next();
       } catch (error) {
-        console.log(`Auth error: ${error.message}`);
         next(error);
       }
     });

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   InternalServerErrorException,
+  Param,
   Post,
   Req,
   UseGuards,
@@ -37,11 +38,11 @@ export class directMessagesController {
   }
 
   @Get(':id')
-  async getChatById(@Req() req) {
+  async getChatById(@Req() req, @Param('id') chatId) {
     if (!req.userID) {
       throw new InternalServerErrorException('BadRequest');
     }
-    return this.DMsService.getChatById(req.userID);
+    return this.DMsService.getChatById(chatId);
   }
 
   @Delete('all')

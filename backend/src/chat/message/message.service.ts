@@ -3,6 +3,9 @@ import { ChannelMessageDto, DirectMessageDto } from 'src/dto/message.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ChannelsGateway } from '../channels/channels.gateway';
 import { DirectMessagesGateway } from '../direct-messages/direct-messages.gateway';
+import { DirectMessagesService } from '../direct-messages/direct-messages.service';
+import { NotificationType } from '@prisma/client';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class MessageService {
@@ -10,6 +13,8 @@ export class MessageService {
     private readonly prisma: PrismaService,
     private readonly channelsGateway: ChannelsGateway,
     private readonly DMsGateway: DirectMessagesGateway,
+    private readonly DMsService: DirectMessagesService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async newChannelMessage(data: ChannelMessageDto, userId: string) {
@@ -43,6 +48,13 @@ export class MessageService {
         throw new Error('Failed to save record');
       }
       this.channelsGateway.sendMessage({ ...data, senderId: userId });
+      channel.Members.forEach((member) => {
+        this.notifications.createNotification(userId, {
+          receiverId: member.id,
+          type: NotificationType.Message,
+          message: `New message from ${channel.name}`,
+        });
+      });
       return message;
     } catch (error) {
       console.log(error);
@@ -52,19 +64,31 @@ export class MessageService {
 
   async newDirectMessage(data: DirectMessageDto, userId: string) {
     try {
-      const user = await this.prisma.user.findUnique({
+      const chat = await this.DMsService.newChat(data.receiverId, userId);
+      if (chat.isBlocked) {
+        throw new Error('This chat is blocked. You cannot send messages');
+      }
+      const sender = await this.prisma.user.findUnique({
+        where: { id: userId },
+      });
+      const receiver = await this.prisma.user.findUnique({
         where: { id: data.receiverId },
         include: {
-          friends: true,
+          friends: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
         },
       });
-      if (!user) {
+      if (!receiver) {
         throw new Error('User Not Found');
       }
       if (data.receiverId === userId) {
         throw new Error('Invalid operation: sender and receiver are the same');
       }
-      if (user.friends.map((friend) => friend.id).indexOf(userId) === -1) {
+      if (receiver.friends.map((friend) => friend.id).indexOf(userId) === -1) {
         throw new Error(
           'Invalid operation: sender and receiver are not friends',
         );
@@ -82,16 +106,25 @@ export class MessageService {
               id: data.receiverId,
             },
           },
+          Chat: {
+            connect: {
+              id: chat.id,
+            },
+          },
         },
       });
       if (!message) {
         throw new Error('Failed to create record');
       }
       this.DMsGateway.sendMessage({ ...data, senderId: userId });
+      this.notifications.createNotification(userId, {
+        receiverId: receiver.id,
+        type: NotificationType.Message,
+        message: `New message from ${sender.username}`,
+      });
       return message;
     } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 
