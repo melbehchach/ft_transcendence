@@ -192,4 +192,18 @@ export class UserController {
     }
     throw new InternalServerErrorException('BadRequest');
   }
+
+  @Patch('block')
+  async blockUser(@Req() req) {
+    if (req.user && req.body.friendId) {
+      return this.userService.blockUser(req.body.friendId, req.user.id);
+    }
+  }
+
+  @Patch('unblock')
+  async unblockUser(@Req() req) {
+    if (req.user && req.body.friendId) {
+      return this.userService.unblockUser(req.body.friendId, req.user.id);
+    }
+  }
 }

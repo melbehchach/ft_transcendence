@@ -44,6 +44,7 @@ export class ChannelsService {
                   username: true,
                 },
               },
+              Messages: true,
             },
           },
         },
