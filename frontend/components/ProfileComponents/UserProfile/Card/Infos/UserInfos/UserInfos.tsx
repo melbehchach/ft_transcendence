@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react";
+import { useAuth } from "../../../../../../app/context/AuthContext";
 import Avatar from "../../../../Avatar/Avatar";
 import { AvatarProps } from "../../../../types/Avatar.type";
-import Challenge from "../../../Friends/Challenge/Challenge";
 import Achievements from "../Achievements/Achievements";
 import achievementsData from "../Achievements/AchievementsData";
 import fakeData from "../Scores/RecordsData";
@@ -9,12 +10,16 @@ import AddFriend from "./AddFriend/AddFriend";
 import BlockUser from "./BlockUser/BlockUser";
 import CancelRequest from "./CancelReq/CancelRequest";
 
-function UserInfos({ avatar, username }) {
+function UserInfos() {
+  const {
+    state: { user, profile },
+  } = useAuth();
+
   const avatarObj: AvatarProps = {
-    src: avatar,
+    src: profile.avatar,
     width: 100,
     height: 100,
-    userName: username,
+    userName: profile.username,
     imageStyle: "w-[13rem] h-[13rem] rounded-full object-cover",
     fontSize: "text-2xl font-bold",
     positiosn: true,
@@ -26,11 +31,8 @@ function UserInfos({ avatar, username }) {
         <Avatar avatarObj={avatarObj} />
       </div>
       <div className="w-full relative flex flex-row gap-1">
-        {/* <AddFriend /> */}
-        {/* <CancelRequest /> */}
-        {/* <BlockUser isFriend={true} /> */}
-        <Challenge isFriendCard={false} />
-        <BlockUser isFriend={false} />
+        <AddFriend />
+        <BlockUser isFriend={true} />
       </div>
       <Scores myScoresArray={fakeData} />
       <Achievements achievementsArray={achievementsData} />

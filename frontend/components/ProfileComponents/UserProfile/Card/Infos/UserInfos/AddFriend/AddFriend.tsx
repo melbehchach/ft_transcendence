@@ -29,14 +29,10 @@ function AddFriend() {
     postData();
   }
 
-  function acceptClick() {
-    console.log("clicked");
-  }
-
   return (
     <button
       className="w-[10rem] h-[3rem] bg-[#D9923B] flex justify-center items-center rounded-[25px] text-sm "
-      onClick={acceptClick}
+      onClick={addFriend}
     >
       Add Friend
     </button>

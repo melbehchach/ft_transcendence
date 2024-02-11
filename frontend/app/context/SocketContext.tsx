@@ -44,7 +44,7 @@ const SocketContextProvider = ({ children }) => {
     // console.log(socket);
     if (socket) {
       socket.on("FriendRequest", (data) => {
-        // console.log({ data });
+        console.log({ data });
       });
     }
   }, [socket]);
