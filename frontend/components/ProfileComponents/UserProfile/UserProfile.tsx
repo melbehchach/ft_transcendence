@@ -43,7 +43,7 @@ function UserProfile({ isProfile }: props) {
   }
 
   const {
-    state: { user, profile },
+    state: { user },
   } = useAuth();
 
   return (

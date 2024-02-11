@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useAuth } from "../../../../../../app/context/AuthContext";
 import Avatar from "../../../../Avatar/Avatar";
 import { AvatarProps } from "../../../../types/Avatar.type";
@@ -6,9 +5,12 @@ import Achievements from "../Achievements/Achievements";
 import achievementsData from "../Achievements/AchievementsData";
 import fakeData from "../Scores/RecordsData";
 import Scores from "../Scores/Scores";
-import AddFriend from "./AddFriend/AddFriend";
-import BlockUser from "./BlockUser/BlockUser";
-import CancelRequest from "./CancelReq/CancelRequest";
+import FriendshipState from "./FriendshipSatate/FriendshipState";
+
+type infosProps = {
+  isSenderReq: boolean;
+  isReceivedReq: boolean;
+};
 
 function UserInfos() {
   const {
@@ -30,10 +32,7 @@ function UserInfos() {
       <div className="w-full flex justify-center items-center">
         <Avatar avatarObj={avatarObj} />
       </div>
-      <div className="w-full relative flex flex-row gap-1">
-        <AddFriend />
-        <BlockUser isFriend={true} />
-      </div>
+      <FriendshipState />
       <Scores myScoresArray={fakeData} />
       <Achievements achievementsArray={achievementsData} />
     </div>
