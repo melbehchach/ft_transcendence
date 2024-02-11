@@ -9,13 +9,13 @@ This project encompasses a web-based multiplayer pong game, complete with user p
 
 ## Shots
 
+[Check the whole project in Figma](https://www.figma.com/file/CeajoodIjiEF7qjO5pwEfO/PongClub-Dark?type=design&node-id=0%3A1&mode=design&t=x78hSalmhxwsMQEm-1) Designed By [ilahyani](https://github.com/ilahyani)
+
 ![LoginPage](screenshots/Login.png)
 ![Profile](screenshots/Profile.png)
 ![Chat](screenshots/Chat.png)
 ![Game](screenshots/Game.png)
 ![GamePlay](screenshots/Gameplay.png)
-
-[Check the whole project in Figma](https://www.figma.com/file/CeajoodIjiEF7qjO5pwEfO/PongClub-Dark?type=design&node-id=0%3A1&mode=design&t=x78hSalmhxwsMQEm-1)
 
 ## How To Run The Application
 
@@ -91,3 +91,11 @@ Here are the available commands:
 * `make clean`: Stops the Docker containers and removes the Docker images and volumes.
 * `make re`: Runs make clean and then make up.
 * `make fclean`: Runs make clean and then removes all Docker objects and cache.
+
+If you want to try the application without using Intra for login, run this command in `/backend` to create a test account
+
+```bash
+npm run db:populate
+```
+
+Then login with these credentials: `username: Mugiwara | password: aBcd!123 `
