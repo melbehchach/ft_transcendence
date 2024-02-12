@@ -64,8 +64,9 @@ const Auth = createContext<any>(null);
 
 const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(authReducer, initialeState);
-
+  
   const jwt_token = Cookies.get("JWT_TOKEN");
+  
   async function fetchData(id: string, isFriendReq?: boolean) {
     try {
       if (jwt_token) {

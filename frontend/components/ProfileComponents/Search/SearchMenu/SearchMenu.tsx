@@ -80,7 +80,7 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
         }
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      console.log("Tap to search");
     }
   }
 

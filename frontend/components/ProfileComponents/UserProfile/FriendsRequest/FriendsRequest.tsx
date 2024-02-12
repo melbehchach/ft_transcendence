@@ -14,13 +14,16 @@ const FriendsRequest = ({ item }) => {
     fontSize: "text-base text-white",
     positiosn: true,
   };
+
   const [user, setUser] = useState({
     name: "",
     avatar: "",
   });
+
   const { fetchData, manageFreindReq } = useAuth();
 
   useEffect(() => {
+    console.log("friend request");
     fetchData(item.senderId, true).then((result) => {
       setUser({
         name: result.username,
@@ -45,7 +48,7 @@ const FriendsRequest = ({ item }) => {
           <Accept />
         </div>
         <div className="w-full h-full">
-          <Delete manageFriends={() => manageFreindReq(item.id, "decline")}/>
+          <Delete manageFriends={() => manageFreindReq(item.id, "decline")} />
         </div>
       </div>
     </div>

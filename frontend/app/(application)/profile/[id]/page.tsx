@@ -1,45 +1,15 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import SearchBar from "../../../../components/ProfileComponents/Search/SearchBar";
 import NotificationBar from "../../../../components/ProfileComponents/NotificationBar/NotificationBar";
 import UserProfile from "../../../../components/ProfileComponents/UserProfile/UserProfile";
-import OtherProfile from "../../../../components/ProfileComponents/OtherProfile/OtherProfile";
-import { useRouter } from "next/router";
 import { useParams, usePathname } from "next/navigation";
-import axios from "axios";
-import Cookies from "js-cookie";
-import { DataFetch } from "../../../../components/ProfileComponents/types/Avatar.type";
 import { useAuth } from "../../../context/AuthContext";
 
 export default function Page() {
   const params = useParams();
-  // const [data, setData] = useState<DataFetch>({
-  //   username: "",
-  //   id: "",
-  //   avatar: "",
-  // });
-
-  // const jwt_token = Cookies.get("JWT_TOKEN");
-
-  // async function fetchData() {
-  //   try {
-  //     if (jwt_token) {
-  //       const response = await axios.get(
-  //         `http://localhost:3000/user/${params.id}/profile`,
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${jwt_token}`,
-  //           },
-  //           withCredentials: true,
-  //         }
-  //       );
-  //       setData(response.data);
-  //     } else throw new Error("bad req");
-  //   } catch (error) {
-  //     console.log("an error occured");
-  //   }
-  // }
   const { fetchData } = useAuth();
+
   useEffect(() => {
     fetchData(params.id);
   }, []);
@@ -52,7 +22,7 @@ export default function Page() {
           <NotificationBar />
         </div>
       </div>
-      <UserProfile />
+      <UserProfile isProfile={false}/>
     </main>
   );
 }

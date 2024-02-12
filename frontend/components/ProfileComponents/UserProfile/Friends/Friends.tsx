@@ -21,14 +21,14 @@ const Friends = () => {
   return (
     <div className="w-[16rem] h-full flex flex-col gap-3 border border-black border-solid border-b-1 rounded-[15px]">
       <div className="w-full flex justify-center items-center">
-        <Avatar {...avatarObj} />
+        {/* <Avatar {...avatarObj} /> */}
       </div>
       <div className="w-full h-full flex flex-col items-center gap-3 mb-[0.5rem]">
         <div className="w-full h-full">
-          <Challenge />
+          {/* <Challenge /> */}
         </div>
         <div className="w-full h-full">
-          <Message />
+          {/* <Message /> */}
         </div>
       </div>
     </div>

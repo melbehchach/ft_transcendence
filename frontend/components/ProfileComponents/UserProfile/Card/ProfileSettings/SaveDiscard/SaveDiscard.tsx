@@ -5,7 +5,6 @@ type buttonsProps = {
 }
 
 function SaveDiscard({handleSave}: buttonsProps) {
-    
   return (
     <div className="w-full relative flex flex-row">
       <button

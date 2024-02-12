@@ -10,7 +10,7 @@ export default function Page() {
         <SearchBar />
         <NotificationBar />
       </div>
-      <UserProfile />
+      <UserProfile isProfile={true}/>
     </main>
   );
 }
