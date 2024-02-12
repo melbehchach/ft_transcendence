@@ -1,23 +1,34 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useParams } from "next/navigation";
-import { send } from "process";
 import React from "react";
+import { useAuth } from "../../../../../../../app/context/AuthContext";
 
 type cancelFriendProps = {
   cancelFriend: () => void;
 };
 
-function CancelRequest({ cancelFriend }: cancelFriendProps) {
-  const params = useParams();
-  console.log(params.id);
+function CancelRequest() {
+  const param = useParams();
+  const {
+    fetchFriendsReqData,
+    state: { friendRequests },
+  } = useAuth();
+
+  function getId() {
+    return friendRequests?.sentRequests.find(
+      (elem) => elem.receiverId === param.id && elem.status === "PENDING"
+    ).id;
+  }
+
   async function postData() {
     const jwt_token = Cookies.get("JWT_TOKEN");
+    console.log("cancel player");
     try {
       if (jwt_token) {
         const response = await axios.patch(
           "http://localhost:3000/user/cancelRequest",
-          { friendRequestId: params.id },
+          { friendRequestId: getId() },
           {
             headers: {
               Authorization: `Bearer ${jwt_token}`,
@@ -25,21 +36,23 @@ function CancelRequest({ cancelFriend }: cancelFriendProps) {
             withCredentials: true,
           }
         );
-        cancelFriend();
+        fetchFriendsReqData();
       } else throw new Error("bad req");
     } catch (error) {
       console.log("an error occured");
     }
   }
 
-  function handleClick() {
-    postData();
-  }
+  // function handleClick() {
+  //   postData();
+  // }
 
   return (
     <button
       className="w-[10rem] h-[3rem] bg-background flex justify-center items-center border border-gray-500 border-solid rounded-[25px] text-sm"
-      onClick={handleClick}
+      onClick={() => {
+        postData();
+      }}
     >
       Cancel Request
     </button>

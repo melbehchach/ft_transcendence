@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useAuth } from "../../../../../../app/context/AuthContext";
 import Avatar from "../../../../Avatar/Avatar";
 import { AvatarProps } from "../../../../types/Avatar.type";
@@ -14,7 +15,7 @@ type infosProps = {
 
 function UserInfos() {
   const {
-    state: { user, profile },
+    state: { profile },
   } = useAuth();
 
   const avatarObj: AvatarProps = {

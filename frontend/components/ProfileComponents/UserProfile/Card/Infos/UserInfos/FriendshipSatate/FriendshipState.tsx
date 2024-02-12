@@ -1,62 +1,58 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import AddFriend from "../AddFriend/AddFriend";
 import CancelRequest from "../CancelReq/CancelRequest";
 import BlockUser from "../BlockUser/BlockUser";
 import AcceptFriend from "../AcceptFriend/AcceptFriend";
 import { useAuth } from "../../../../../../../app/context/AuthContext";
+import ChallengeFriend from "../Challenge/ChallengeFriend";
+
+// case 1: send friend request => add friend
+// case 2: cancel the request => cancel request
+// case 3: Accept received request => accept request
 
 function FriendshipState() {
   const {
-    fetchData,
-    state: { user, profile },
+    fetchFriendsReqData,
+    fetchFriendsData,
+    state: { friendRequests, friends, profile },
   } = useAuth();
 
-  let isSenderReq = false;
-  let isReceivedReq = false;
-
-  function friendshipChecker() {
-    user.sentRequests.forEach((item) => {
-      if (item.receiverId === profile.id) {
-        isSenderReq = true;
-      }
-    });
-    if (isSenderReq) return;
-    user.receivedRequests.forEach((item) => {
-      if (item.senderId === profile.id) {
-        isReceivedReq = true;
-      }
-    });
-  }
-
-  const [added, setAdded] = useState(true);
-  const [canceled, steCanceled] = useState(false);
-
-  function addFriend() {
-    setAdded(false);
-    steCanceled(true);
-  }
-
-  function cancelFriend() {
-    setAdded(true);
-    steCanceled(false);
-  }
+  const buttonType = useMemo(() => {
+    console.log({ friendRequests });
+    if (
+      friendRequests?.sentRequests.find(
+        (elem) => elem.receiverId === profile.id && elem.status === "PENDING"
+      )
+    ) {
+      return "cancel";
+    } else if (
+      friendRequests?.receivedRequests.find(
+        (elem) => elem.senderId === profile.id && elem.status === "PENDING"
+      )
+    ) {
+      return "accept";
+    } else if (friends?.friends.find((elem) => elem.id === profile.id)) {
+      return "challenge";
+    } else {
+      return "add";
+    }
+  }, [friendRequests, friends]);
 
   useEffect(() => {
-    fetchData(user.id);
+    fetchFriendsReqData();
+    fetchFriendsData();
   }, []);
 
-  friendshipChecker();
+  useEffect(() => {
+    console.log(friends);
+  }, [friends]);
 
   return (
     <div className="w-full flex flex-row gap-1">
-      {!isSenderReq && !isReceivedReq && added && !canceled && (
-        <AddFriend addFriend={addFriend} />
-      )}
-      {(isSenderReq || (!added && canceled)) && (
-        <CancelRequest cancelFriend={cancelFriend} />
-      )}
-      {isReceivedReq && <AcceptFriend />}
-      <BlockUser isFriend={true} />
+      {buttonType === "add" && <AddFriend />}
+      {buttonType === "cancel" && <CancelRequest />}
+      {buttonType === "accept" && <AcceptFriend />}
+      {buttonType === "challenge" && <ChallengeFriend />}
     </div>
   );
 }
