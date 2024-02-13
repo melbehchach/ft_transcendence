@@ -4,14 +4,11 @@ import { useParams } from "next/navigation";
 import React from "react";
 import { useAuth } from "../../../../../../../app/context/AuthContext";
 
-type cancelFriendProps = {
-  cancelFriend: () => void;
-};
 
 function CancelRequest() {
   const param = useParams();
   const {
-    fetchFriendsReqData,
+    fetchFriendsReqData, manageFreindReq,
     state: { friendRequests },
   } = useAuth();
 
@@ -43,16 +40,10 @@ function CancelRequest() {
     }
   }
 
-  // function handleClick() {
-  //   postData();
-  // }
-
   return (
     <button
       className="w-[10rem] h-[3rem] bg-background flex justify-center items-center border border-gray-500 border-solid rounded-[25px] text-sm"
-      onClick={() => {
-        postData();
-      }}
+      onClick={postData}
     >
       Cancel Request
     </button>

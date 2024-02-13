@@ -2,6 +2,8 @@ import { AvatarProps } from "../../../types/Avatar.type";
 import { ProfileData } from "../../../types/Avatar.type";
 import { useRouter } from "next/navigation";
 import Avatar from "../../../Avatar/Avatar";
+import { useAmp } from "next/amp";
+import { useAuth } from "../../../../../app/context/AuthContext";
 // import NoImage from "../NoImage.svg";
 
 type ModalSearch = {
@@ -11,6 +13,11 @@ type ModalSearch = {
 function AllField({ usersData }: ModalSearch) {
   const router = useRouter();
   const users: ProfileData[] = usersData();
+
+  const {
+    state: {user}
+  } = useAuth();
+
   let avatarObj: AvatarProps = {
     src: "",
     userName: "",
@@ -20,7 +27,8 @@ function AllField({ usersData }: ModalSearch) {
   };
 
   function handleClick(id: string) {
-    router.push(`/profile/${id}`);
+    if (user.id != id)
+      router.push(`/profile/${id}`);
   }
 
   // To prevenet errors of testing acounts in DB (bob...)
@@ -46,7 +54,6 @@ function AllField({ usersData }: ModalSearch) {
               />
             </div>
             <button
-              type="button"
               className="absolute right-0 w-[12rem] h-[2.5rem] rounded-[25px] flex justify-center items-center bg-[#D9923B] text-sm ml-[2rem] mt-[1rem]"
               onClick={() => handleClick(user.id)}
             >

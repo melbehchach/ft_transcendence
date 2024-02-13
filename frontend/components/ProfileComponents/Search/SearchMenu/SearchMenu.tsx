@@ -136,11 +136,11 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-100"
       id="modalClose"
       onClick={handleModalClose}
     >
-      <div className="w-[55rem] h-[50rem] rounded-[10px] flex flex-col bg-background p-[1rem] pt-0">
+      <div className="w-[55rem] h-[50rem] rounded-[10px] flex flex-col bg-background p-[1rem]">
         <div className="w-full h-[5rem] flex items-center gap-[1rem]">
           <SearchIcon />
           <form className="w-full h-[1rem]">

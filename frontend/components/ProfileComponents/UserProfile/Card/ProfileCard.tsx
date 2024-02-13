@@ -5,7 +5,7 @@ import Avatar from "../../Avatar/Avatar";
 import Scores from "./Infos/Scores/Scores";
 import Achievements from "./Infos/Achievements/Achievements";
 import ProfileSettings from "./ProfileSettings/ProfileSettings";
-import SettingIcon from "./SettingIcon";
+import SettingIcon from "./ProfileSettings/SettingIcon";
 import fakeData from "./Infos/Scores/RecordsData";
 import achievementsData from "./Infos/Achievements/AchievementsData";
 

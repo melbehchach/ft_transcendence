@@ -1,13 +1,11 @@
 import Avatar from "../../Avatar/Avatar";
-import Accept from "./Accept/Accept";
 import Delete from "./Delete/Delete";
-import { AvatarProps } from "../../types/Avatar.type";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../../app/context/AuthContext";
-import { useParams } from "next/navigation";
+import AcceptFriend from "../Card/Infos/UserInfos/AcceptFriend/AcceptFriend";
 
 const FriendsRequest = ({ item }) => {
-  const [user, setUser] = useState({
+  const [profile, setProfile] = useState({
     name: "",
     avatar: "",
   });
@@ -16,7 +14,7 @@ const FriendsRequest = ({ item }) => {
 
   useEffect(() => {
     fetchData(item.senderId, true).then((result) => {
-      setUser({
+      setProfile({
         name: result.username,
         avatar: result.avatar,
       });
@@ -24,8 +22,8 @@ const FriendsRequest = ({ item }) => {
   }, []);
 
   const avatarObj = {
-    src: user.avatar,
-    userName: user.name,
+    src: profile.avatar,
+    userName: profile.name,
     width: 100,
     height: 100,
     imageStyle: "rounded-t-[15px] w-[15.9rem] h-[11rem] object-cover",
@@ -38,13 +36,9 @@ const FriendsRequest = ({ item }) => {
       <div className="w-full flex justify-center items-center">
         <Avatar avatarObj={avatarObj} />
       </div>
-      <div className="w-full h-full flex flex-col items-center gap-3 mb-[0.5rem]">
-        <div className="w-full h-full">
-          <Accept />
-        </div>
-        <div className="w-full h-full">
-          <Delete manageFriends={() => manageFreindReq(item.id, "decline")} />
-        </div>
+      <div className="w-full h-full flex flex-col items-center gap-3 p-[0.5rem]">
+        <AcceptFriend isCard={false} />
+        <Delete manageFriends={() => manageFreindReq(item.id, "decline")} />
       </div>
     </div>
   );

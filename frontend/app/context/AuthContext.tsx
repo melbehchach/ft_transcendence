@@ -173,6 +173,8 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
             withCredentials: true,
           }
         );
+        fetchFriendsReqData();
+        fetchFriendsData();
       }
     } catch (error) {
       console.log("an error occured");
