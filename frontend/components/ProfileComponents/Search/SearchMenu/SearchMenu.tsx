@@ -140,7 +140,7 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
       id="modalClose"
       onClick={handleModalClose}
     >
-      <div className="w-[55rem] h-[50rem] rounded-[10px] flex flex-col bg-background p-[1rem]">
+      <div className="w-[55rem] h-[50rem] rounded-[10px] flex flex-col bg-background p-[1rem] ">
         <div className="w-full h-[5rem] flex items-center gap-[1rem]">
           <SearchIcon />
           <form className="w-full h-[1rem]">
@@ -152,36 +152,29 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
             />
           </form>
         </div>
-        <div className="w-full h-[3rem] flex items-center gap-[1rem] border-b border-black">
-          <div className="w-fit h-fit flex items-center text-white text-basic">
-            <button
-              type="button"
-              onClick={allClick}
-              className={state.all ? "border-gray-500 border-b-2" : ""}
-            >
-              All
-            </button>
-          </div>
-          <div className="w-fit h-fit flex items-center text-white text-basic">
-            <button
-              type="button"
-              onClick={usersClick}
-              className={state.users ? "border-gray-500 border-b-2" : ""}
-            >
-              Users
-            </button>
-          </div>
-          <div className="w-fit h-fit flex items-center text-white text-basic">
-            <button
-              type="button"
-              onClick={channelsClick}
-              className={state.channels ? "border-gray-500 border-b-2" : ""}
-            >
-              Channels
-            </button>
-          </div>
+        <div className="w-full h-[3rem] flex items-center text-white text-basic gap-[1rem] border-b border-black">
+          <button
+            onClick={allClick}
+            className={state.all ? "h-full border-gray-500 border-b-2" : ""}
+          >
+            All
+          </button>
+          <button
+            onClick={usersClick}
+            className={state.users ? "h-full border-gray-500 border-b-2" : ""}
+          >
+            Users
+          </button>
+          <button
+            onClick={channelsClick}
+            className={
+              state.channels ? "h-full border-gray-500 border-b-2" : ""
+            }
+          >
+            Channels
+          </button>
         </div>
-        <div className="w-full h-full mt-[1rem]">
+        <div className="w-full h-full p-[1rem] pl-0">
           {state.all && <AllField usersData={usesrData} />}
           {state.users && <UsersField usersData={usesrData} />}
           {state.channels && <ChannelsField />}

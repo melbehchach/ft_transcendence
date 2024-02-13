@@ -6,9 +6,9 @@ export default function SearchBar({}) {
   const [modal, setModal] = useState<boolean>(false);
 
   function closeModal() {
-    setModal(false); 
+    setModal(false);
   }
-  
+
   return (
     <div className="w-full h-[3rem] p-[1rem] border border-black border-b-1 rounded-[10px]">
       <button

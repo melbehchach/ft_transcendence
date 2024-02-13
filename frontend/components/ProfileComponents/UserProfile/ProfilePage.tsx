@@ -5,6 +5,7 @@ import ProfileCard from "./Card/ProfileCard";
 import RecentGames from "./RecentGames/RecentGames";
 import Friends from "./Friends/Friends";
 import FriendsRequest from "./FriendsRequest/FriendsRequest";
+import { stat } from "fs";
 
 function reducer(state, action) {
   switch (action.type) {
@@ -61,11 +62,7 @@ function ProfilePage() {
           </div>
         </div>
         <div className="w-full h-[25rem] flex flex-col gap-[1rem]">
-          <div
-            className={
-              "w-screen h-fit flex gap-[2rem] text-white font-semibold text-3xl border-b border-gray-500"
-            }
-          >
+          <div className=" flex gap-[2rem] text-white font-semibold text-3xl border-gray-500 border-b">
             <button onClick={handleFriendsClick}>Friends</button>
             <button onClick={handleFriendsrR}>Friends Requets</button>
           </div>
