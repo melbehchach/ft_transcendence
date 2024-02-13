@@ -13,6 +13,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const locations = ["profile", "chat", "game"];
   const {
     fetchData,
+    fetchFriendsReqData,
+    fetchFriendsData,
     state: { profile },
   } = useAuth();
 
@@ -30,6 +32,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
   useEffect(() => {
     fetchData();
+    fetchFriendsReqData();
+    fetchFriendsData();
   }, []);
 
   return (

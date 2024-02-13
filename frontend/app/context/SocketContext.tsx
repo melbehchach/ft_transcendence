@@ -2,12 +2,13 @@
 import Cookies from "js-cookie";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
+import { useAuth } from "./AuthContext";
 
 const SocketContext = createContext(null);
 
 const SocketContextProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
-
+  const { fetchFriendsReqData } = useAuth();
   useEffect(() => {
     const newSocket: Socket = io("http://localhost:3000/notifications", {
       auth: {
@@ -45,6 +46,7 @@ const SocketContextProvider = ({ children }) => {
     if (socket) {
       socket.on("FriendRequest", (data) => {
         console.log({ data });
+        fetchFriendsReqData();
       });
     }
   }, [socket]);

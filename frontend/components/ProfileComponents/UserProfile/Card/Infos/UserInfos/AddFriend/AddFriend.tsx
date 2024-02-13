@@ -1,14 +1,17 @@
+
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useParams } from "next/navigation";
 import React from "react";
+import { useAuth } from "../../../../../../../app/context/AuthContext";
 
-type addFriendProps = {
-  addFriend: () => void;
-}
+type Props = {
+  cancel: any;
+};
 
-function AddFriend({addFriend}: addFriendProps) {
+function AddFriend() {
   const params = useParams();
+  const { fetchFriendsReqData } = useAuth();
   async function postData() {
     const jwt_token = Cookies.get("JWT_TOKEN");
     try {
@@ -23,7 +26,7 @@ function AddFriend({addFriend}: addFriendProps) {
             withCredentials: true,
           }
         );
-        addFriend();
+        fetchFriendsReqData();
       } else throw new Error("bad req");
     } catch (error) {
       console.log("an error occured");

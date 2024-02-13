@@ -43,7 +43,7 @@ function UserProfile({ isProfile }: props) {
   }
 
   const {
-    state: { user },
+    state: { user, friendRequests },
   } = useAuth();
 
   return (
@@ -88,7 +88,7 @@ function UserProfile({ isProfile }: props) {
           {state.friendsRq && (
             <div className="h-full">
               <Swiper spaceBetween={10} slidesPerView={4}>
-                {user.receivedRequests.map((item, index) => {
+                {friendRequests.receivedRequests.map((item, index) => {
                   if (item.status === "PENDING")
                     return (
                       <SwiperSlide className="!w-fit" key={index}>
