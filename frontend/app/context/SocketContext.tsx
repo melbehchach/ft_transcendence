@@ -8,7 +8,7 @@ const SocketContext = createContext(null);
 
 const SocketContextProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
-  const { fetchFriendsReqData } = useAuth();
+  const { fetchFriendsReqData, fetchFriendsData } = useAuth();
   useEffect(() => {
     const newSocket: Socket = io("http://localhost:3000/notifications", {
       auth: {
@@ -42,10 +42,8 @@ const SocketContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // console.log(socket);
     if (socket) {
       socket.on("FriendRequest", (data) => {
-        console.log({ data });
         fetchFriendsReqData();
       });
     }

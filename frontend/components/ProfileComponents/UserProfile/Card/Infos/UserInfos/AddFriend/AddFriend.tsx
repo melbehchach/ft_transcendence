@@ -12,6 +12,7 @@ type Props = {
 function AddFriend() {
   const params = useParams();
   const { fetchFriendsReqData } = useAuth();
+  
   async function postData() {
     const jwt_token = Cookies.get("JWT_TOKEN");
     try {

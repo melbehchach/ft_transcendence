@@ -5,6 +5,7 @@ import BlockUser from "../BlockUser/BlockUser";
 import AcceptFriend from "../AcceptFriend/AcceptFriend";
 import { useAuth } from "../../../../../../../app/context/AuthContext";
 import ChallengeFriend from "../Challenge/ChallengeFriend";
+import MessageFriend from "../Message/MessageFriend";
 
 // case 1: send friend request => add friend
 // case 2: cancel the request => cancel request
@@ -48,11 +49,29 @@ function FriendshipState() {
   }, [friends]);
 
   return (
-    <div className="w-full flex flex-row gap-1">
-      {buttonType === "add" && <AddFriend />}
-      {buttonType === "cancel" && <CancelRequest />}
-      {buttonType === "accept" && <AcceptFriend />}
-      {buttonType === "challenge" && <ChallengeFriend />}
+    <div className="w-full">
+      {buttonType === "add" && (
+        <div className="flex justify-center flex-row gap-3">
+          <AddFriend /> <BlockUser isFriend={true} />
+        </div>
+      )}
+      {buttonType === "cancel" && (
+        <div className="flex justify-center flex-row gap-3">
+          <CancelRequest /> <BlockUser isFriend={true} />
+        </div>
+      )}
+      {buttonType === "accept" && (
+        <div className="flex justify-center flex-row gap-3">
+          <AcceptFriend isCard={true} /> <BlockUser isFriend={true} />
+        </div>
+      )}
+      {buttonType === "challenge" && (
+        <div className="flex justify-center flex-row gap-2">
+          <ChallengeFriend isFriendCard={false} />
+          <MessageFriend isFriendCard={false} />
+          <BlockUser isFriend={false} />
+        </div>
+      )}
     </div>
   );
 }
