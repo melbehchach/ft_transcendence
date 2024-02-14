@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Avatar from "../../../Avatar/Avatar";
 import { useAmp } from "next/amp";
 import { useAuth } from "../../../../../app/context/AuthContext";
-// import NoImage from "../NoImage.svg";
+import NoImage from "../../NoImage.svg";
 
 type ModalSearch = {
   usersData: () => ProfileData[];
@@ -34,7 +34,7 @@ function AllField({ usersData }: ModalSearch) {
   // To prevenet errors of testing acounts in DB (bob...)
   function checkForAvatr(avatar: string): string {
     if (avatar.indexOf("/") === -1) {
-      return null;
+      return NoImage;
     }
     return avatar;
   }

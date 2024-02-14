@@ -19,6 +19,7 @@ const Friends = ({ item }: props) => {
     fontSize: "text-base text-white",
     positiosn: true,
   };
+  
   return (
     <div className="w-[16rem] h-full flex flex-col gap-3 border border-black border-solid border-b-1 rounded-[15px]">
       <div className="w-full flex justify-center items-center">

@@ -3,13 +3,14 @@ import Delete from "./Delete/Delete";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../../app/context/AuthContext";
 import AcceptFriend from "../Card/Infos/UserInfos/AcceptFriend/AcceptFriend";
+import { AvatarProps } from "../../types/Avatar.type";
+import NoImage from "../../Search/NoImage.svg";
 
 const FriendsRequest = ({ item }) => {
   const [profile, setProfile] = useState({
     name: "",
-    avatar: "",
+    avatar: NoImage,
   });
-
   const { fetchData, manageFreindReq } = useAuth();
 
   useEffect(() => {
@@ -21,11 +22,11 @@ const FriendsRequest = ({ item }) => {
     });
   }, []);
 
-  const avatarObj = {
+  const avatarObj: AvatarProps = {
     src: profile.avatar,
-    userName: profile.name,
     width: 100,
     height: 100,
+    userName: profile.name,
     imageStyle: "rounded-t-[15px] w-[15.9rem] h-[11rem] object-cover",
     fontSize: "text-base text-white",
     positiosn: true,
