@@ -672,6 +672,11 @@ export class UserService {
         transactionPromises.push(blockChat);
       }
       await this.prisma.$transaction(transactionPromises);
+      this.notifications.createNotification(userId, {
+        receiverId: userToBlock.id,
+        type: NotificationType.Block,
+        message: ``,
+      });
       return { msg: 'Success' };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -743,6 +748,11 @@ export class UserService {
         transactionPromises.push(blockChat);
       }
       await this.prisma.$transaction(transactionPromises);
+      this.notifications.createNotification(userId, {
+        receiverId: blockedUser.id,
+        type: NotificationType.unBlock,
+        message: ``,
+      });
       return { msg: 'Success' };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
