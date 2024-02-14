@@ -168,6 +168,8 @@ enum NotificationType {
   GameRequest
   Acheivement
   Message
+  Block
+  unBlock
 }
 
 enum ChannelType {
