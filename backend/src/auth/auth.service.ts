@@ -308,4 +308,19 @@ export class AuthService {
       throw new InternalServerErrorException(error.message);
     }
   }
+
+  async TFAisEnabled(id: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+        select: { TFAenabled: true },
+      });
+      if (!user) {
+        throw new Error('User Not Found');
+      }
+      return { FTAenabled: user.TFAenabled };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
 }
