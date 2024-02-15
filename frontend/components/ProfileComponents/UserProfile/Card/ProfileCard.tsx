@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../../../app/context/AuthContext";
 import { AvatarProps } from "../../types/Avatar.type";
 import Avatar from "../../Avatar/Avatar";
@@ -12,6 +12,7 @@ import achievementsData from "./Infos/Achievements/AchievementsData";
 function ProfileCard() {
   const [setting, setSetting] = useState<boolean>(false);
   const {
+    fetchData,
     state: { user },
   } = useAuth();
 

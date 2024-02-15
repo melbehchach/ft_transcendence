@@ -44,6 +44,7 @@ const SocketContextProvider = ({ children }) => {
   useEffect(() => {
     if (socket) {
       socket.on("FriendRequest", (data) => {
+        console.log(data);
         fetchFriendsReqData();
       });
     }

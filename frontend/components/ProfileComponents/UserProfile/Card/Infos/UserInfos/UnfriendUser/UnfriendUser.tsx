@@ -3,13 +3,9 @@ import React from "react";
 import { useAuth } from "../../../../../../../app/context/AuthContext";
 import Cookies from "js-cookie";
 import axios from "axios";
-import BlockIcon from "../UnfriendUser/BlockIcon";
+import BlockIcon from "./BlockIcon";
 
-type props = {
-  isFriend: boolean;
-};
-
-function BlockUser({ isFriend }: props) {
+function UnfriendUser() {
   const param = useParams();
   const {
     fetchFriendsReqData,
@@ -18,6 +14,7 @@ function BlockUser({ isFriend }: props) {
   } = useAuth();
 
   function getId() {
+    console.log(friends?.friends.find((elem) => elem.id === param.id).id);
     return friends?.friends.find((elem) => elem.id === param.id).id;
   }
 
@@ -26,7 +23,7 @@ function BlockUser({ isFriend }: props) {
     try {
       if (jwt_token) {
         const response = await axios.patch(
-          "http://localhost:3000/user/block",
+          "http://localhost:3000/user/unfriendUser",
           { friendId: getId() },
           {
             headers: {
@@ -43,12 +40,12 @@ function BlockUser({ isFriend }: props) {
 
   return (
     <button
-      className="w-[10rem] h-[3rem]  flex justify-center items-center border border-gray-500 border-solid rounded-[25px] text-sm "
+      className="w-[5rem] h-[3rem] bg-[#D9923B] flex justify-center items-center  rounded-[25px] text-sm "
       onClick={postData}
     >
-      Block User
+      <BlockIcon />
     </button>
   );
 }
 
-export default BlockUser;
+export default UnfriendUser;
