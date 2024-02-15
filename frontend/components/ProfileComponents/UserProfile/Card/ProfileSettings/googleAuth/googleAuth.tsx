@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from "react";
-
 import Cookies from "js-cookie";
 import axios from "axios";
-import QRCode from "qrcode.react";
-import Image from "next/image";
+import { QRCodeSVG } from "qrcode.react";
 
-type props = {};
+type props = {
+  code: string;
+  setCode: any;
+}
 
-function GoogleAuth() {
-  const base32 = require("base32-encode");
-  const qrcode = require("qrcode");
-  const [googleScret, setGoogleSecret] = useState("");
-  let src = "";
+function GoogleAuth({code, setCode}) {
+  const [secret, steSecret] = useState("");
+  // const [code, setCode] = useState("");
 
   async function goolgleTFA() {
     const jwt_token = Cookies.get("JWT_TOKEN");
@@ -26,15 +25,7 @@ function GoogleAuth() {
             withCredentials: true,
           }
         );
-        // setGoogleSecret(response.data.secret);
-        const decodedSecret = base32.decode(response.data.secret, "utf8");
-        qrcode.toDataURL(decodedSecret, (err, src) => {
-          if (err) {
-            console.error("Error generating QR code:", err);
-            return;
-          }
-          console.log("QR code generated successfully:", src);
-        });
+        steSecret(response.data.secret);
       } else throw new Error("bad req");
     } catch (error) {
       console.log(error);
@@ -53,13 +44,15 @@ function GoogleAuth() {
         order to activate 2FA
       </p>
       <div className="w-fit h-fit border border-black border-2">
-        <QRCode value={src} />
+        {secret != "" ? < QRCodeSVG value={`otpauth://totp/Example:?secret=${secret}&issuer=Example`} /> : <></>}
       </div>
       <form className="w-full h-[2rem] flex flex-col gap-[0.5rem] ">
         <input
           type="number"
           className="w-full h-[2rem] pl-[1rem] bg-background border border-gray-500 border-solid border-b-1 rounded-[10px] text-base font-light outline-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
           placeholder="6-digit code"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}   
         />
       </form>
       <p className="text-xs font-light text-gray-500">

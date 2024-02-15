@@ -18,6 +18,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
   const [oldPass, setOldPass] = useState("");
   const [newPass, setNewPass] = useState("");
   const [theme, setTheme] = useState("");
+  const [code, setCode] = useState("");
 
   async function updateUsername() {
     const jwt_token = Cookies.get("JWT_TOKEN");
@@ -89,6 +90,29 @@ function ProfileSettings({ openSettings }: settingsProps) {
     }
   }
 
+  async function postCode() {
+    const jwt_token = Cookies.get("JWT_TOKEN");
+    try {
+      if (jwt_token) {
+        const response = await axios.post(
+          "http://localhost:3000/auth/tfa/enable",
+          {
+            token: `${code}`,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        console.log(response.data);
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   function handleClick() {
     if (name != "") {
       updateUsername();
@@ -98,6 +122,9 @@ function ProfileSettings({ openSettings }: settingsProps) {
     }
     if (theme != "") {
       updateTheme();
+    }
+    if(code != ""){
+      postCode();
     }
     openSettings();
   }
@@ -115,7 +142,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
           setNewPass={setNewPass}
         />
         <GameTheme them={theme} setTheme={setTheme} />
-        <GoogleAuth />
+        <GoogleAuth code={code} setCode={setCode} />
         <div className="w-full relative flex flex-row">
           <button
             type="button"
