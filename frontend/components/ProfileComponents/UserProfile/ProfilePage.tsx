@@ -44,7 +44,7 @@ function ProfilePage() {
   } = useAuth();
 
   return (
-    <div className="w-screen h-fit flex gap-[1.5rem] p-[1rem] pt-[1.5rem]">
+    <div className="w-screen h-full flex gap-[1.5rem] p-[1rem] pt-[1.5rem]">
       <ProfileCard />
       <div className="w-screen h-full">
         <div className="w-full h-[14rem] flex flex-col gap-[1rem]">
