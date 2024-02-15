@@ -7,7 +7,7 @@ type props = {
 
 function UserProfile({ isProfile }: props) {
   return (
-    <div className="w-screen h-fit flex">
+    <div className="w-screen h-full flex">
       {isProfile ? <ProfilePage /> : <UserPage />}
     </div>
   );

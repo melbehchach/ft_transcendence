@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { useAuth } from "../../../../../app/context/AuthContext";
@@ -7,6 +7,7 @@ import Password from "./Password/Password";
 import ProfileAvatar from "./ProfileAvatar/ProfileAvatar";
 import Username from "./Username/Username";
 import GoogleAuth from "./googleAuth/googleAuth";
+import RemoveGoogleAuth from "./RemoveGoogleAuth/RemoveGoogleAuth";
 
 type settingsProps = {
   openSettings: () => void;
@@ -18,7 +19,49 @@ function ProfileSettings({ openSettings }: settingsProps) {
   const [oldPass, setOldPass] = useState("");
   const [newPass, setNewPass] = useState("");
   const [theme, setTheme] = useState("");
-  const [code, setCode] = useState("");
+  const [tfaCheck, setTfaCheck] = useState(false);
+  const [codeChecker, setCodeChecker] = useState(true);
+  const [secret, steSecret] = useState("");
+
+  async function tfaChecker() {
+    const jwt_token = Cookies.get("JWT_TOKEN");
+    try {
+      if (jwt_token) {
+        const response = await axios.get(
+          "http://localhost:3000/auth/tfa/check",
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        setTfaCheck(response.data.FTAenabled);
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("error kbiiiir");
+    }
+  }
+
+  async function goolgleTFA() {
+    const jwt_token = Cookies.get("JWT_TOKEN");
+    try {
+      if (jwt_token) {
+        const response = await axios.get(
+          "http://localhost:3000/auth/tfa/secret",
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        steSecret(response.data.secret);
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   async function updateUsername() {
     const jwt_token = Cookies.get("JWT_TOKEN");
@@ -90,29 +133,6 @@ function ProfileSettings({ openSettings }: settingsProps) {
     }
   }
 
-  async function postCode() {
-    const jwt_token = Cookies.get("JWT_TOKEN");
-    try {
-      if (jwt_token) {
-        const response = await axios.post(
-          "http://localhost:3000/auth/tfa/enable",
-          {
-            token: `${code}`,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${jwt_token}`,
-            },
-            withCredentials: true,
-          }
-        );
-        console.log(response.data);
-      } else throw new Error("bad req");
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   function handleClick() {
     if (name != "") {
       updateUsername();
@@ -123,11 +143,13 @@ function ProfileSettings({ openSettings }: settingsProps) {
     if (theme != "") {
       updateTheme();
     }
-    if(code != ""){
-      postCode();
-    }
     openSettings();
   }
+
+  useEffect(() => {
+    goolgleTFA();
+    tfaChecker();
+  }, []);
 
   return (
     <div className="w-[21rem] h-full flex flex-col ">
@@ -142,7 +164,18 @@ function ProfileSettings({ openSettings }: settingsProps) {
           setNewPass={setNewPass}
         />
         <GameTheme them={theme} setTheme={setTheme} />
-        <GoogleAuth code={code} setCode={setCode} />
+        {!tfaCheck ? (
+          <GoogleAuth
+            secret={secret}
+            codeChecker={codeChecker}
+            setCodeChecker={setCodeChecker}
+            tfaChecker={tfaCheck}
+            setTfaCheck={setTfaCheck}
+            
+          />
+        ) : (
+          <RemoveGoogleAuth setTfaCheck={setTfaCheck} />
+        )}
         <div className="w-full relative flex flex-row">
           <button
             type="button"

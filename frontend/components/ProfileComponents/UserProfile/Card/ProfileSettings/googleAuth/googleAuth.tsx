@@ -4,20 +4,31 @@ import axios from "axios";
 import { QRCodeSVG } from "qrcode.react";
 
 type props = {
-  code: string;
-  setCode: any;
-}
+  secret: string;
+  codeChecker: boolean;
+  setCodeChecker: any;
+  tfaChecker: boolean;
+  setTfaCheck: any;
+};
 
-function GoogleAuth({code, setCode}) {
-  const [secret, steSecret] = useState("");
-  // const [code, setCode] = useState("");
+function GoogleAuth({
+  secret,
+  codeChecker,
+  setCodeChecker,
+  tfaChecker,
+  setTfaCheck,
+}) {
+  const [code, setCode] = useState("");
 
-  async function goolgleTFA() {
+  async function sendCode() {
     const jwt_token = Cookies.get("JWT_TOKEN");
     try {
       if (jwt_token) {
-        const response = await axios.get(
-          "http://localhost:3000/auth/tfa/secret",
+        const response = await axios.post(
+          "http://localhost:3000/auth/tfa/enable",
+          {
+            token: `${code}`,
+          },
           {
             headers: {
               Authorization: `Bearer ${jwt_token}`,
@@ -25,16 +36,24 @@ function GoogleAuth({code, setCode}) {
             withCredentials: true,
           }
         );
-        steSecret(response.data.secret);
+        setCodeChecker(response.data.enabled);
       } else throw new Error("bad req");
     } catch (error) {
       console.log(error);
     }
   }
 
-  useEffect(() => {
-    goolgleTFA();
-  }, []);
+  function handleKeyDown(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      sendCode();
+      setCode("");
+      if (!codeChecker) {
+        console.log("hamiiiiiid");
+        setTfaCheck(true);
+      }
+    }
+  }
 
   return (
     <div className="w-full flex flex-col gap-[1rem]">
@@ -44,15 +63,27 @@ function GoogleAuth({code, setCode}) {
         order to activate 2FA
       </p>
       <div className="w-fit h-fit border border-black border-2">
-        {secret != "" ? < QRCodeSVG value={`otpauth://totp/Example:?secret=${secret}&issuer=Example`} /> : <></>}
+        {secret != "" ? (
+          <QRCodeSVG
+            value={`otpauth://totp/Example:?secret=${secret}&issuer=Example`}
+          />
+        ) : (
+          <></>
+        )}
       </div>
       <form className="w-full h-[2rem] flex flex-col gap-[0.5rem] ">
         <input
           type="number"
-          className="w-full h-[2rem] pl-[1rem] bg-background border border-gray-500 border-solid border-b-1 rounded-[10px] text-base font-light outline-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+          className={
+            !codeChecker
+              ? "w-full h-[2rem] pl-[1rem] bg-background border border-red-700 border-solid border-b-1 rounded-[10px] text-base text-red-700 font-light outline-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+              : "" +
+                "w-full h-[2rem] pl-[1rem] bg-background border border-gray-500 border-solid border-b-1 rounded-[10px] text-base font-light outline-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+          }
           placeholder="6-digit code"
           value={code}
-          onChange={(e) => setCode(e.target.value)}   
+          onChange={(e) => setCode(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
       </form>
       <p className="text-xs font-light text-gray-500">
