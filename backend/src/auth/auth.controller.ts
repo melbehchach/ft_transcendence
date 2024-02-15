@@ -106,6 +106,12 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('tfa/check')
+  async checkTFA(@Req() req) {
+    return this.authService.TFAisEnabled(req.user.id);
+  }
+
+  @UseGuards(AuthGuard)
   @Get('tfa/secret')
   async getSecret(@Req() req) {
     return this.authService.TFAgetSecret(req.user.id);
