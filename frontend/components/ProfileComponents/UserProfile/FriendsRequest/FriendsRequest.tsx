@@ -10,14 +10,19 @@ const FriendsRequest = ({ item }) => {
   const [profile, setProfile] = useState({
     name: "",
     avatar: NoImage,
+    id: ""
   });
-  const { fetchData, manageFreindReq } = useAuth();
+  const {
+    fetchData,
+    manageFreindReq,
+  } = useAuth();
 
   useEffect(() => {
     fetchData(item.senderId, true).then((result) => {
       setProfile({
         name: result.username,
         avatar: result.avatar,
+        id: result.id,
       });
     });
   }, []);
@@ -38,7 +43,7 @@ const FriendsRequest = ({ item }) => {
         <Avatar avatarObj={avatarObj} />
       </div>
       <div className="w-full h-full flex flex-col items-center gap-3 p-[0.5rem]">
-        <AcceptFriend isCard={false} />
+        <AcceptFriend isCard={false} profileId={profile.id} />
         <Delete manageFriends={() => manageFreindReq(item.id, "decline")} />
       </div>
     </div>

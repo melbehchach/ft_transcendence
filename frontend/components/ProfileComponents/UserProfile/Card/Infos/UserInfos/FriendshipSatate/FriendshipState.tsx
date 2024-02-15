@@ -6,6 +6,7 @@ import AcceptFriend from "../AcceptFriend/AcceptFriend";
 import { useAuth } from "../../../../../../../app/context/AuthContext";
 import ChallengeFriend from "../Challenge/ChallengeFriend";
 import MessageFriend from "../Message/MessageFriend";
+import UnfriendUser from "../UnfriendUser/UnfriendUser";
 
 // case 1: send friend request => add friend
 // case 2: cancel the request => cancel request
@@ -19,7 +20,6 @@ function FriendshipState() {
   } = useAuth();
 
   const buttonType = useMemo(() => {
-    console.log({ friendRequests });
     if (
       friendRequests?.sentRequests.find(
         (elem) => elem.receiverId === profile.id && elem.status === "PENDING"
@@ -44,10 +44,6 @@ function FriendshipState() {
     fetchFriendsData();
   }, []);
 
-  useEffect(() => {
-    console.log(friends);
-  }, [friends]);
-
   return (
     <div className="w-full">
       {buttonType === "add" && (
@@ -62,14 +58,15 @@ function FriendshipState() {
       )}
       {buttonType === "accept" && (
         <div className="flex justify-center flex-row gap-3">
-          <AcceptFriend isCard={true} /> <BlockUser isFriend={true} />
+          <AcceptFriend isCard={true} profileId={""} />{" "}
+          <BlockUser isFriend={true} />
         </div>
       )}
       {buttonType === "challenge" && (
         <div className="flex justify-center flex-row gap-2">
           <ChallengeFriend isFriendCard={false} />
           <MessageFriend isFriendCard={false} />
-          <BlockUser isFriend={false} />
+          <UnfriendUser />
         </div>
       )}
     </div>

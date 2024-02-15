@@ -2,29 +2,12 @@ import React, { useState } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 
-function Username() {
-  const [name, setName] = useState<string>("");
-  async function updateUsername() {
-    const jwt_token = Cookies.get("JWT_TOKEN");
-    try {
-      if (jwt_token) {
-        const response = await axios.patch(
-          "localhost:3000/user/settings/username",
-          {
-            username: `${name}`,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${jwt_token}`,
-            },
-            withCredentials: true,
-          }
-        );
-      } else throw new Error("bad req");
-    } catch (error) {
-      console.log("an error occured");
-    }
-  }
+type props = {
+  name: string;
+  setName: any;
+};
+
+function Username({ name, setName }: props) {
 
   return (
     <div className="flex flex-col justify-strat">

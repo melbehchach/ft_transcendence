@@ -6,7 +6,11 @@ type props = {
 };
 
 function UserProfile({ isProfile }: props) {
-  return <div>{isProfile ? <ProfilePage /> : <UserPage />}</div>;
+  return (
+    <div className="w-screen h-fit flex">
+      {isProfile ? <ProfilePage /> : <UserPage />}
+    </div>
+  );
 }
 
 export default UserProfile;

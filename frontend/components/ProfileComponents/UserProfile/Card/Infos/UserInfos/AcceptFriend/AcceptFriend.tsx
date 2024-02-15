@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "../../../../../../../app/context/AuthContext";
 import Cookies from "js-cookie";
@@ -7,10 +7,12 @@ import AcceptIcon from "./AcceptIcon";
 
 type props = {
   isCard: boolean;
+  profileId: string;
 };
 
-function AcceptFriend({ isCard }: props) {
+function AcceptFriend({ isCard, profileId }: props) {
   const param = useParams();
+
   const {
     fetchFriendsReqData,
     fetchFriendsData,
@@ -18,9 +20,16 @@ function AcceptFriend({ isCard }: props) {
   } = useAuth();
 
   function getId() {
-    return friendRequests?.receivedRequests.find(
-      (elem) => elem.senderId === param.id && elem.status === "PENDING"
-    ).id;
+    if (profileId.length > 0) {
+      return friendRequests.receivedRequests.find(
+        (elem) => elem.senderId === profileId && elem.status === "PENDING"
+      ).id;
+    }
+    else {
+      return friendRequests.receivedRequests.find(
+        (elem) => elem.senderId === param.id && elem.status === "PENDING"
+      ).id;
+    }
   }
 
   async function postData() {
@@ -41,7 +50,7 @@ function AcceptFriend({ isCard }: props) {
         fetchFriendsData();
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      console.log(error);
     }
   }
 
