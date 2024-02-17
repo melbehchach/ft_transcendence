@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -69,7 +69,7 @@ export class DirectMessagesService {
       return chat;
     } catch (error) {
       console.log(error.message);
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -95,7 +95,7 @@ export class DirectMessagesService {
       }
       return [...user.startedChats, ...user.invitedChats];
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -125,7 +125,7 @@ export class DirectMessagesService {
       return chat;
     } catch (error) {
       console.log(error.message);
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 }

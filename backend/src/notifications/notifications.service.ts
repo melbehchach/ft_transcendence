@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { NotificationsGateway } from './notifications.gateway';
 import { notificationDto } from 'src/dto/notification.dto';
@@ -44,7 +44,7 @@ export class NotificationsService {
       );
       return notification;
     } catch (error) {
-      throw new InternalServerErrorException({ error: error.message });
+      throw new BadRequestException({ error: error.message });
     }
   }
 
@@ -73,7 +73,7 @@ export class NotificationsService {
       }
       return notification;
     } catch (error) {
-      throw new InternalServerErrorException({ error: error.message });
+      throw new BadRequestException({ error: error.message });
     }
   }
 
@@ -89,7 +89,7 @@ export class NotificationsService {
       }
       return { notifications };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -108,7 +108,7 @@ export class NotificationsService {
       }
       return { msg: 'success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -127,7 +127,7 @@ export class NotificationsService {
       }
       return { msg: 'success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 }

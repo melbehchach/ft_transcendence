@@ -3,11 +3,10 @@ import {
   Controller,
   Delete,
   Get,
-  InternalServerErrorException,
+  BadRequestException,
   Param,
   Patch,
   Post,
-  // Put,
   Req,
   UploadedFile,
   UseGuards,
@@ -15,7 +14,6 @@ import {
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
 import { editTypeDto, makeAdminDto, newChannelDto } from 'src/dto/channels.dto';
-// import { updateChannelDto } from 'src/dto/channels.dto';
 import { ChatGuard } from 'src/guards/chat.jwt.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -32,7 +30,7 @@ export class ChannelsController {
   @Get('all')
   async getUserChannels(@Req() req) {
     if (!req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     const channels = await this.channelsService.getUserChannels(req.userID);
     return channels;
@@ -41,7 +39,7 @@ export class ChannelsController {
   @Get('explore')
   async exploreChannels(@Req() req) {
     if (!req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.channelsService.exploreChannels(req.userID);
   }
@@ -49,7 +47,7 @@ export class ChannelsController {
   @Get(':id')
   async getChannelById(@Req() req, @Param('id') channelId: string) {
     if (!channelId || !req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     const channel = await this.channelsService.getChannelById(
       channelId,
@@ -61,27 +59,15 @@ export class ChannelsController {
   @Post('new')
   async createChannel(@Req() req, @Body() data: newChannelDto) {
     if (!req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.channelsService.createChannel(data, req.userID);
   }
 
-  // @Put(':id')
-  // async updateChannel(
-  //   @Param('id') channelId: string,
-  //   @Body() data: updateChannelDto,
-  //   @Req() req,
-  // ) {
-  //   if (!req.userID) {
-  //     throw new InternalServerErrorException('BadRequest');
-  //   }
-  //   return this.channelsService.updateChannel(req.userID, channelId, data);
-  // }
-
   @Post(':id/join')
   async joinChannel(@Param('id') channelId: string, @Req() req) {
     if (!channelId || !req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.channelsService.joinChannel(channelId, req.body, req.userID);
   }
@@ -89,7 +75,7 @@ export class ChannelsController {
   @Post(':id/leave')
   async leaveChannel(@Param('id') channelId: string, @Req() req) {
     if (!channelId || !req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.channelsService.leaveChannel(channelId, req.userID);
   }
@@ -97,7 +83,7 @@ export class ChannelsController {
   @Patch(':id/editName')
   async editChannelName(@Param('id') channelId: string, @Req() req) {
     if (!channelId || !req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.channelsService.editChannelName(
       req.userID,
@@ -124,7 +110,7 @@ export class ChannelsController {
     @UploadedFile() file,
   ) {
     if (!channelId || !req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.channelsService.editChannelAvatar(req.userID, channelId, file);
   }
@@ -136,7 +122,7 @@ export class ChannelsController {
     @Body() body: editTypeDto,
   ) {
     if (!channelId || !req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.channelsService.editChannelType(req.userID, channelId, body);
   }
@@ -144,7 +130,7 @@ export class ChannelsController {
   @Patch(':id/addMembers')
   async editChannelMembers(@Param('id') channelId: string, @Req() req) {
     if (!channelId || !req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.channelsService.addMembers(req.userID, channelId, req.body);
   }
@@ -152,7 +138,7 @@ export class ChannelsController {
   @Patch(':id/kickMembers')
   async kickMembers(@Param('id') channelId: string, @Req() req, @Body() body) {
     if (!req.userID || !channelId) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.channelsService.kickMembers(req.userID, channelId, body);
   }
@@ -160,7 +146,7 @@ export class ChannelsController {
   @Patch(':id/ban')
   async banUser(@Param('id') channelId: string, @Req() req, @Body() body) {
     if (!req.userID || !channelId || !body.id) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.channelsService.banUser(req.userID, channelId, body);
   }
@@ -168,7 +154,7 @@ export class ChannelsController {
   @Patch(':id/unban')
   async unbanUser(@Param('id') channelId: string, @Req() req, @Body() body) {
     if (!req.userID || !channelId || !body.id) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.channelsService.unbanUser(req.userID, channelId, body);
   }
@@ -180,7 +166,7 @@ export class ChannelsController {
     @Body() body: makeAdminDto,
   ) {
     if (!req.userID || !channelId) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.channelsService.makeAdmin(req.userID, channelId, body);
   }
@@ -188,7 +174,7 @@ export class ChannelsController {
   @Delete(':id')
   async deleteChannel(@Param('id') channelId: string, @Req() req) {
     if (!channelId || !req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.channelsService.deleteChannel(channelId, req.userID);
   }

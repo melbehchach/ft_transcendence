@@ -3,7 +3,7 @@ import {
   Controller,
   Delete,
   Get,
-  InternalServerErrorException,
+  BadRequestException,
   Param,
   Post,
   Req,
@@ -24,7 +24,7 @@ export class directMessagesController {
   @Post('/new')
   async newChat(@Body() body, @Req() req) {
     if (!req.userID || !body.friendId || !body.friendId.length) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.DMsService.newChat(body.friendId, req.userID);
   }
@@ -32,7 +32,7 @@ export class directMessagesController {
   @Get('/all')
   async getUsersChats(@Req() req) {
     if (!req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.DMsService.getUserChats(req.userID);
   }
@@ -40,7 +40,7 @@ export class directMessagesController {
   @Get(':id')
   async getChatById(@Req() req, @Param('id') chatId) {
     if (!req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.DMsService.getChatById(chatId);
   }

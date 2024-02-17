@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
-  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { authDTO, signinDTO, signupDTO } from '../dto';
@@ -12,8 +11,6 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as speakeasy from 'speakeasy';
-// import { userStatus } from '@prisma/client';
-import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +18,6 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private config: ConfigService,
-    private userService: UserService,
   ) {}
 
   async signup(dto: authDTO) {
@@ -109,7 +105,7 @@ export class AuthService {
       // }
       return user.TFAenabled;
     } catch (error) {
-      throw new InternalServerErrorException({ error: error.message });
+      throw new BadRequestException({ error: error.message });
     }
   }
 
@@ -170,7 +166,7 @@ export class AuthService {
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException({
+      throw new BadRequestException({
         error: 'Failed to upload avatar',
       });
     }
@@ -223,7 +219,7 @@ export class AuthService {
         return {};
       }
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -261,7 +257,7 @@ export class AuthService {
         return {};
       }
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -285,7 +281,7 @@ export class AuthService {
         return {};
       }
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -305,7 +301,7 @@ export class AuthService {
       }
       return { success: true };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -320,7 +316,7 @@ export class AuthService {
       }
       return { FTAenabled: user.TFAenabled };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 }

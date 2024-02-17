@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -85,7 +84,7 @@ export class UserService {
       }
     } catch (error) {
       console.log(error);
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -127,7 +126,7 @@ export class UserService {
       });
       return user;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -144,7 +143,7 @@ export class UserService {
       }
       return user.status;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -174,7 +173,7 @@ export class UserService {
       this.gateway.updateStatusEvent(user.id, user.status, friends);
       return 'success';
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -192,7 +191,7 @@ export class UserService {
       });
       return user;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -215,7 +214,7 @@ export class UserService {
       });
       return user;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -235,7 +234,7 @@ export class UserService {
       }
       return { msg: 'success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -295,7 +294,7 @@ export class UserService {
       }
       return { msg: 'success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -314,7 +313,7 @@ export class UserService {
       }
       return { msg: 'success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -342,7 +341,7 @@ export class UserService {
       // console.log(user);
       return user;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -412,7 +411,7 @@ export class UserService {
       });
       return { msg: 'Success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -448,7 +447,7 @@ export class UserService {
       });
       return { msg: 'Success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -485,7 +484,7 @@ export class UserService {
       });
       return { msg: 'Success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -538,7 +537,7 @@ export class UserService {
       });
       return { msg: 'Success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -586,7 +585,7 @@ export class UserService {
       await this.prisma.$transaction([removeUserA, removeUserB]);
       return { msg: 'Success' };
     } catch {
-      throw new InternalServerErrorException(
+      throw new BadRequestException(
         'Internal Server Error: CannotUnfriendUser',
       );
     }
@@ -679,7 +678,7 @@ export class UserService {
       });
       return { msg: 'Success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -755,7 +754,7 @@ export class UserService {
       });
       return { msg: 'Success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 }
