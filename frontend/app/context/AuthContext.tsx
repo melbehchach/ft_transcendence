@@ -1,6 +1,5 @@
 "use client";
 import axios from "axios";
-import { url } from "inspector";
 import Cookies from "js-cookie";
 import React, { createContext, useContext, useReducer } from "react";
 
@@ -205,6 +204,12 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       alert("Failed To Signin");
     }
   }
+  const getUserInfo = (id) => {
+    if (id === state.user.id) return state.user;
+    else {
+      return state.friends?.friends.find((friend) => friend.id === id);
+    }
+  };
 
   const logout = () => {
     dispatch({ type: actionTypes.LOGOUT });
@@ -220,6 +225,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         manageFreindReq,
         fetchFriendsReqData,
         fetchFriendsData,
+        getUserInfo,
       }}
     >
       {children}

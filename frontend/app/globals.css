@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+#file-input {
+    display: none;
+  }
+
+#file-upload-button {
+    display: none;
+}
+
+.main-height {
+  overflow: scroll;
+  height : calc(100vh - 142px);
+  margin-top: 81px;
+}
