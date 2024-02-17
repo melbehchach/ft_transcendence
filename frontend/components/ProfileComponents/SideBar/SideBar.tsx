@@ -34,7 +34,7 @@ function SideBar({ active, setSideBar }) {
   function handleClick() {
     Cookies.remove("JWT_TOKEN");
     Cookies.remove("USER_ID");
-    window.location.replace("/");
+    window.location.replace("/auth/login");
   }
 
   return (

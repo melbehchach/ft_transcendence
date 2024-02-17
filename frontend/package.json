@@ -48,7 +48,7 @@
   "devDependencies": {
     "@types/js-cookie": "^3.0.5",
     "@types/node": "^20.11.16",
-    "daisyui": "^4.6.1",
+    "daisyui": "^4.7.2",
     "dotenv": "^16.3.1",
     "prisma": "^5.3.1"
   }
