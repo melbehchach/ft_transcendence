@@ -39,9 +39,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
         if (response.data.FTAenabled === false) {
           setTfaCheck(false);
           goolgleTFA();
-        }
-        else
-        setTfaCheck(true);
+        } else setTfaCheck(true);
       } else throw new Error();
     } catch (error) {}
   }
@@ -134,9 +132,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
           setTfaCheck(false);
         } else setTfaCheck(true);
       } else throw new Error("bad req");
-    } catch (error) {
-      console.log("hello");
-    }
+    } catch (error) {}
   }
 
   async function remove2FA() {
@@ -196,11 +192,6 @@ function ProfileSettings({ openSettings }: settingsProps) {
         <Username name={name} setName={setName} />
         <Password />
         <GameTheme them={theme} setTheme={setTheme} />
-        {/* <GoogleAuth
-          secret={secret}
-          tfaCheck={tfaCheck}
-          setTfaCheck={setTfaCheck}
-        /> */}
         <div className="w-full flex flex-col gap-[1rem]">
           <h1 className="text-lg">Two-Factor authentication</h1>
           {!tfaCheck ? (
@@ -229,16 +220,11 @@ function ProfileSettings({ openSettings }: settingsProps) {
               <p className="text-xs font-light text-gray-500">
                 Press Enter to continue
               </p>
-              {!codeChecker ? (
+              {!codeChecker && (
                 <div className="w-full h-fit border border-red-700 rounded-[10px] text-sm text-red-700 font-light bg-background flex flex-col justify-center items-center">
                   <p>Youre code is incorrect</p>
                   <p>Please try agin</p>
                 </div>
-              ) : (
-                <></>
-                // <div className="w-full h-fit border border-green-700 rounded-[10px] text-sm text-green-700 font-light bg-background flex flex-col justify-center items-center">
-                //   Press save button to save
-                // </div>
               )}
             </div>
           ) : (

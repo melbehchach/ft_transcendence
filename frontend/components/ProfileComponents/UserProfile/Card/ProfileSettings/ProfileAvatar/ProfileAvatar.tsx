@@ -1,4 +1,5 @@
 import { useAuth } from "../../../../../../app/context/AuthContext";
+import UploadImage from "../../../../../uploadImage/UploadImage";
 import Avatar from "../../../../Avatar/Avatar";
 import { AvatarProps } from "../../../../types/Avatar.type";
 import AddAvatarButton from "./AddAvatarButton";
@@ -9,6 +10,7 @@ function ProfileAvatar() {
       user: { avatar },
     },
   } = useAuth();
+
   const avatarObj: AvatarProps = {
     src: avatar,
     width: 100,
@@ -18,6 +20,10 @@ function ProfileAvatar() {
     fontSize: "text-2xl",
     positiosn: true,
   };
+  function uploadImage() {
+    <UploadImage source="" />
+  }
+
   return (
     <div className="relative w-fit flex flex-row">
       <Avatar avatarObj={avatarObj} />
