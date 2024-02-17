@@ -1,7 +1,7 @@
 import {
   // BadRequestException,
   Injectable,
-  InternalServerErrorException,
+  BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ChannelType } from '@prisma/client';
@@ -51,9 +51,7 @@ export class ChannelsService {
       });
       return user.ChannelsMember;
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Error occured while retrieving record',
-      );
+      throw new BadRequestException('Error occured while retrieving record');
     }
   }
 
@@ -96,7 +94,7 @@ export class ChannelsService {
       },
     });
     if (!channel) {
-      throw new InternalServerErrorException('Channel Not Found');
+      throw new BadRequestException('Channel Not Found');
     }
     const members = channel?.Members.map((member) => {
       return member.id;
@@ -146,7 +144,7 @@ export class ChannelsService {
       });
       return validChannels;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -202,7 +200,7 @@ export class ChannelsService {
       this.gateway.newRoom(newChannel.id, newChannel.name, data.Members);
       return newChannel;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -225,7 +223,7 @@ export class ChannelsService {
   //     },
   //   });
   //   if (!channel)
-  //     throw new InternalServerErrorException('This channel does not exist');
+  //     throw new BadRequestException('This channel does not exist');
   //   if (channel.admins.length === 0 && channel.ownerId !== userId) {
   //     throw new UnauthorizedException('Forbidden');
   //   }
@@ -255,7 +253,7 @@ export class ChannelsService {
   //     return updatedChannel;
   //   } catch (error) {
   //     console.log(error);
-  //     throw new InternalServerErrorException(
+  //     throw new BadRequestException(
   //       'Error occured while updating record',
   //     );
   //   }
@@ -299,7 +297,7 @@ export class ChannelsService {
       //gateway.leaveRoom()
       return 'success';
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -358,7 +356,7 @@ export class ChannelsService {
       }
       return 'success';
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -386,8 +384,7 @@ export class ChannelsService {
         },
       },
     });
-    if (!channel)
-      throw new InternalServerErrorException('This channel does not exist');
+    if (!channel) throw new BadRequestException('This channel does not exist');
     if (channel.admins.length === 0 && channel.ownerId !== userId) {
       throw new UnauthorizedException('Forbidden');
     }
@@ -426,7 +423,7 @@ export class ChannelsService {
       }
       return 'success';
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -472,7 +469,7 @@ export class ChannelsService {
       }
       return 'success';
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -531,7 +528,7 @@ export class ChannelsService {
       }
       return 'success';
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -564,7 +561,7 @@ export class ChannelsService {
       }
       return 'success';
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -591,7 +588,7 @@ export class ChannelsService {
       }
       return 'success';
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -618,7 +615,7 @@ export class ChannelsService {
       }
       return 'success';
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -645,7 +642,7 @@ export class ChannelsService {
       }
       return 'success';
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -704,7 +701,7 @@ export class ChannelsService {
       }
       return 'success';
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -718,7 +715,7 @@ export class ChannelsService {
       },
     });
     if (!channel) {
-      throw new InternalServerErrorException('Channel Not Found');
+      throw new BadRequestException('Channel Not Found');
     }
     if (channel.ownerId !== userId) {
       throw new UnauthorizedException('Forbidden');
@@ -736,9 +733,7 @@ export class ChannelsService {
       });
       return deletedChannel;
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Error occured while deleting record',
-      );
+      throw new BadRequestException('Error occured while deleting record');
     }
   }
 }

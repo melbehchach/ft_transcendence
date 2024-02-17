@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { ChannelMessageDto, DirectMessageDto } from 'src/dto/message.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ChannelsGateway } from '../channels/channels.gateway';
@@ -58,7 +58,7 @@ export class MessageService {
       return message;
     } catch (error) {
       console.log(error);
-      throw new InternalServerErrorException(error);
+      throw new BadRequestException(error);
     }
   }
 
@@ -124,7 +124,7 @@ export class MessageService {
       });
       return message;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -140,9 +140,7 @@ export class MessageService {
       return message ?? null;
     } catch (error) {
       console.log(error);
-      throw new InternalServerErrorException(
-        'Error occured while retreiving record',
-      );
+      throw new BadRequestException('Error occured while retreiving record');
     }
   }
 }

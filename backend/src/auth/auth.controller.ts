@@ -4,7 +4,6 @@ import {
   Controller,
   Get,
   HttpCode,
-  InternalServerErrorException,
   Patch,
   Post,
   Req,
@@ -140,7 +139,7 @@ export class AuthController {
     }
     const id = req.cookies['USER_ID'];
     if (!id) {
-      throw new InternalServerErrorException({
+      throw new BadRequestException({
         error: 'Something went wrong. Try again',
       });
     }
