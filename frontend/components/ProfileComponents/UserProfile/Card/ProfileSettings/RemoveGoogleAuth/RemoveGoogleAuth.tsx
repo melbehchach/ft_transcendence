@@ -21,10 +21,9 @@ function RemoveGoogleAuth({ setTfaCheck }: props) {
             withCredentials: true,
           }
         );
-        if (response.data.success) setTfaCheck(false);
+        if (response.data.success == true) setTfaCheck(false);
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("error kbiiiir");
     }
   }
 

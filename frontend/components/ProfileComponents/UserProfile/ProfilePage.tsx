@@ -64,7 +64,7 @@ function ProfilePage() {
         <div className="w-full h-[25rem] flex flex-col gap-[1rem]">
           <div className=" flex gap-[2rem] text-white font-semibold text-3xl border-gray-500 border-b">
             <button onClick={handleFriendsClick}>Friends</button>
-            <button onClick={handleFriendsrR}>Friends Requets</button>
+            <button onClick={handleFriendsrR}>Friends Requests</button>
           </div>
           {state.friends && (
             <div className="h-full gap-[1rem] z-0">
