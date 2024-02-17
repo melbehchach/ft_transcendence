@@ -69,15 +69,12 @@ export class UserService {
     };
     try {
       if (params.type === SearchType.USERS) {
-        console.log('users');
         const users = await findUsers(params.query);
         return users;
       } else if (params.type === SearchType.CHANNELS) {
-        console.log('channels');
         const channels = await findChannels(params.query);
         return channels;
       } else {
-        console.log('all');
         const users = await findUsers(params.query);
         const channels = await findChannels(params.query);
         return { users, channels };
@@ -218,7 +215,6 @@ export class UserService {
     }
   }
 
-  // verify with the auth method before pushing
   async editAvatar(id: string, avatar: Express.Multer.File) {
     try {
       const user = await this.prisma.user.update({
@@ -226,7 +222,7 @@ export class UserService {
           id,
         },
         data: {
-          avatar: avatar.path,
+          avatar: `http://localhost:3000/uploads/${avatar.filename}`,
         },
       });
       if (!user) {
