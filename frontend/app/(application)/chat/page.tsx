@@ -29,7 +29,7 @@ const NoneSelected = () => {
 const Chat = () => {
   const [selectedChat, setSelectedChat] = useState("");
   const {
-    newChat,
+    sendMessage,
     state: { allChats },
   } = useChat();
   const {
@@ -52,10 +52,10 @@ const Chat = () => {
 
   const [message, setMessage] = useState("");
 
-  function sendMessage(e) {
+  function submitMessage(e) {
     setMessage("");
     e.preventDefault();
-    newChat(friend.id, message);
+    sendMessage(friend.id, message);
   }
 
   const content = !selectedChat ? (
@@ -67,7 +67,7 @@ const Chat = () => {
       <div className="flex w-full flex-col">
         <ChatBody selectedChat={selectedChat} />
         <form
-          onSubmit={sendMessage}
+          onSubmit={submitMessage}
           className="w-full flex relative border-t border-black"
         >
           <input

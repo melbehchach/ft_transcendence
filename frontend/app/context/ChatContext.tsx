@@ -51,7 +51,28 @@ const ChatSocketContextProvider = ({ children }) => {
     }
   }
 
-  async function newChat(receiverId: string, body: string) {
+  async function newChat(friendId: string) {
+    try {
+      if (jwt_token) {
+        const response = await axios.post(
+          "http://localhost:3000/direct/new",
+          {
+            friendId,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+  async function sendMessage(receiverId: string, body: string) {
     try {
       if (jwt_token) {
         const response = await axios.post(
@@ -95,11 +116,6 @@ const ChatSocketContextProvider = ({ children }) => {
   //   }
   //   return user;
   // };
-  const sendMessage = (message) => {
-    if (socket) {
-      socket.emit("chat message", message);
-    }
-  };
 
   const joinRoom = (roomName) => {
     if (socket) {
