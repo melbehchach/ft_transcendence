@@ -1,10 +1,10 @@
-import { AvatarProps } from "../../../types/Avatar.type";
-import { ProfileData } from "../../../types/Avatar.type";
 import { useRouter } from "next/navigation";
-import Avatar from "../../../Avatar/Avatar";
-import { useAmp } from "next/amp";
 import { useAuth } from "../../../../../app/context/AuthContext";
+import Avatar from "../../../Avatar/Avatar";
 import NoImage from "../../NoImage.svg";
+// import NoImage from "../NoImage.svg";
+import { AvatarProps, ProfileData } from "../../../types/Avatar.type";
+// import NoImage from "../NoImage.svg"
 
 type ModalSearch = {
   usersData: () => ProfileData[];
@@ -15,7 +15,7 @@ function AllField({ usersData }: ModalSearch) {
   const users: ProfileData[] = usersData();
 
   const {
-    state: {user}
+    state: { user },
   } = useAuth();
 
   let avatarObj: AvatarProps = {
@@ -27,8 +27,7 @@ function AllField({ usersData }: ModalSearch) {
   };
 
   function handleClick(id: string) {
-    if (user.id != id)
-      router.push(`/profile/${id}`);
+    if (user.id != id) router.push(`/profile/${id}`);
   }
 
   // To prevenet errors of testing acounts in DB (bob...)

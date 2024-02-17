@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
-import AddFriend from "../AddFriend/AddFriend";
-import CancelRequest from "../CancelReq/CancelRequest";
-import BlockUser from "../BlockUser/BlockUser";
-import AcceptFriend from "../AcceptFriend/AcceptFriend";
+import { useEffect, useMemo } from "react";
 import { useAuth } from "../../../../../../../app/context/AuthContext";
+import AcceptFriend from "../AcceptFriend/AcceptFriend";
+import AddFriend from "../AddFriend/AddFriend";
+import BlockUser from "../BlockUser/BlockUser";
+import CancelRequest from "../CancelReq/CancelRequest";
 import ChallengeFriend from "../Challenge/ChallengeFriend";
 import MessageFriend from "../Message/MessageFriend";
 import UnfriendUser from "../UnfriendUser/UnfriendUser";
