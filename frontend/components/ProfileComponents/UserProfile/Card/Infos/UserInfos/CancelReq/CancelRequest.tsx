@@ -4,8 +4,11 @@ import { useParams } from "next/navigation";
 import React from "react";
 import { useAuth } from "../../../../../../../app/context/AuthContext";
 
+type props = {
+  card: boolean;
+}
 
-function CancelRequest() {
+function CancelRequest({card}: props) {
   const param = useParams();
   const {
     fetchFriendsReqData, manageFreindReq,
@@ -40,9 +43,12 @@ function CancelRequest() {
     }
   }
 
+  const className1: string = "w-full h-[2.5rem] p-[1rem] flex items-center gap-3 text-white border border-gray-500 rounded-[8px]";
+  const className2: string ="w-[10rem] h-[3rem] bg-background flex justify-center items-center border border-gray-500 border-solid rounded-[25px] text-sm"
+
   return (
     <button
-      className="w-[10rem] h-[3rem] bg-background flex justify-center items-center border border-gray-500 border-solid rounded-[25px] text-sm"
+      className={card ? className1 : className2}
       onClick={postData}
     >
       Cancel Request

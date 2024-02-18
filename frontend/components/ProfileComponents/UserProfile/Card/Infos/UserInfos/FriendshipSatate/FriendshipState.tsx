@@ -16,7 +16,7 @@ function FriendshipState() {
   const {
     fetchFriendsReqData,
     fetchFriendsData,
-    state: { friendRequests, friends, profile },
+    state: { friendRequests, friends, profile, user },
   } = useAuth();
 
   const buttonType = useMemo(() => {
@@ -46,23 +46,23 @@ function FriendshipState() {
 
   return (
     <div className="w-full">
-      {buttonType === "add" && (
+      {buttonType === "add" && profile.id != user.id && (
         <div className="flex justify-center flex-row gap-3">
-          <AddFriend /> <BlockUser isFriend={true} />
+          <AddFriend card={false} /> <BlockUser isFriend={true} />
         </div>
       )}
-      {buttonType === "cancel" && (
+      {buttonType === "cancel" && profile.id != user.id && (
         <div className="flex justify-center flex-row gap-3">
-          <CancelRequest /> <BlockUser isFriend={true} />
+          <CancelRequest card={false} /> <BlockUser isFriend={true} />
         </div>
       )}
-      {buttonType === "accept" && (
+      {buttonType === "accept" && profile.id != user.id && (
         <div className="flex justify-center flex-row gap-3">
           <AcceptFriend isCard={true} profileId={""} />{" "}
           <BlockUser isFriend={true} />
         </div>
       )}
-      {buttonType === "challenge" && (
+      {buttonType === "challenge" && profile.id != user.id && (
         <div className="flex justify-center flex-row gap-2">
           <ChallengeFriend isFriendCard={false} />
           <MessageFriend isFriendCard={false} />
