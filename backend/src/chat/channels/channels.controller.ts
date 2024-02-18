@@ -171,6 +171,18 @@ export class ChannelsController {
     return this.channelsService.makeAdmin(req.userID, channelId, body);
   }
 
+  @Patch(':id/mute')
+  async muteUser(@Param('id') channelId: string, @Req() req, @Body() body) {
+    if (!req.userID || !channelId || !body.members) {
+      throw new BadRequestException();
+    }
+    return this.channelsService.muteMembers(
+      req.userID,
+      channelId,
+      body.members,
+    );
+  }
+
   @Delete(':id')
   async deleteChannel(@Param('id') channelId: string, @Req() req) {
     if (!channelId || !req.userID) {
