@@ -8,10 +8,13 @@ import ChatButton from "./ChatButton";
 import NewChannel from "./NewChannel";
 import SelectNewChat from "./SelectNewChat";
 
-const CreateNewChat = () => {
+const CreateNewChat = ({ setSelectedChat }) => {
   const modalRef = useRef();
   function openModel() {
     modalRef?.current?.showModal();
+  }
+  function closeModal() {
+    modalRef?.current.close();
   }
   const [step, setStep] = useState(0);
   const NewChannelActions = (
@@ -21,7 +24,15 @@ const CreateNewChat = () => {
     </>
   );
   const content =
-    step === 0 ? <SelectNewChat setStep={setStep} /> : <NewChannel />;
+    step === 0 ? (
+      <SelectNewChat
+        setStep={setStep}
+        closeModal={closeModal}
+        setSelectedChat={setSelectedChat}
+      />
+    ) : (
+      <NewChannel />
+    );
   return (
     <>
       <ChatButton icon={faPlus} onClick={openModel}>

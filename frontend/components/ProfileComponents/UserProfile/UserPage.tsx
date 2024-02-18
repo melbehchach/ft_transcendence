@@ -3,11 +3,12 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { useAuth } from "../../../app/context/AuthContext";
 import UserCard from "./Card/UserCard";
 import RecentGames from "./RecentGames/RecentGames";
-import Friends from "./Friends/Friends";
+import Friends from "./Friends/ProfileFriends";
+import ProfileFriends from "./Friends/ProfileFriends";
 
 function UserPage() {
   const {
-    state: { profile },
+    state: { profile, user },
   } = useAuth();
 
   return (
@@ -36,8 +37,8 @@ function UserPage() {
             <div className="h-full gap-[1rem] z-0">
               <Swiper spaceBetween={10} slidesPerView={3}>
                 {profile?.friends.map((item, index) => (
-                  <SwiperSlide className="!w-fit" key={index}>
-                    <Friends item={item} />
+                  <SwiperSlide className="!w-fit !h-full" key={index}>
+                    {item.id != user.id && <ProfileFriends item={item} />}
                   </SwiperSlide>
                 ))}
               </Swiper>

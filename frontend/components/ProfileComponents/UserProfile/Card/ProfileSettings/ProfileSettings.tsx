@@ -7,8 +7,6 @@ import Password from "./Password/Password";
 import ProfileAvatar from "./ProfileAvatar/ProfileAvatar";
 import Username from "./Username/Username";
 import { QRCodeSVG } from "qrcode.react";
-import GoogleAuth from "./googleAuth/googleAuth";
-import RemoveGoogleAuth from "./RemoveGoogleAuth/RemoveGoogleAuth";
 
 type settingsProps = {
   openSettings: () => void;

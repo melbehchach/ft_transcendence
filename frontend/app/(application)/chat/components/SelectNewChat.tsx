@@ -12,15 +12,38 @@ const RowWrapper = ({ children }) => {
 };
 const SelectNewChat = ({
   setStep,
+  closeModal,
+  setSelectedChat,
 }: {
   setStep: Dispatch<SetStateAction<number>>;
+  closeModal: () => void;
+  setSelectedChat: Dispatch<SetStateAction<string>>;
 }) => {
   const {
     state: {
+      user,
       friends: { friends },
     },
   } = useAuth();
+  const {
+    state: { allChats },
+  } = useChat();
+
   const { newChat } = useChat();
+  const selectChat = async (friend) => {
+    try {
+      await newChat(friend.id);
+    } catch (e) {
+    } finally {
+      let chatID = allChats.find(
+        (chat) =>
+          (chat.user1Id === user.id && chat.user2Id === friend.id) ||
+          (chat.user2Id === user.id && chat.user1Id === friend.id)
+      ).id;
+      setSelectedChat(chatID);
+      closeModal();
+    }
+  };
   return (
     <>
       <RowWrapper>
@@ -46,7 +69,7 @@ const SelectNewChat = ({
         return (
           <RowWrapper key={index}>
             <UserAvatar src={friend.avatar} name={friend.username} />
-            <Button content="Message" onClick={() => newChat(friend.id)} />
+            <Button content="Message" onClick={() => selectChat(friend)} />
           </RowWrapper>
         );
       })}
