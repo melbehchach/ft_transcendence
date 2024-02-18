@@ -8,13 +8,17 @@ import { GameService } from './game/game.service';
 import { GameController } from './game/game.controller';
 import { GameModule } from './game/game.module';
 import { NotificationsModule } from './notifications/notifications.module';
-// import { NotificationsGateway } from './notifications/notifications.gateway';
-// import { NotificationsService } from './notifications/notifications.service';
 import { ChatModule } from './chat/chat.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '../..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
     AuthModule,
     PrismaModule,
     PassportModule,

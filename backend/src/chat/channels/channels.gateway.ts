@@ -2,7 +2,6 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
-  // SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
@@ -12,9 +11,6 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { WsException } from '@nestjs/websockets';
 import { ChannelMessageDto } from 'src/dto/message.dto';
-// import { MessageService } from '../message/message.service';
-// import { Logger } from '@nestjs/common';
-// import { User } from '@prisma/client';
 
 @WebSocketGateway({ cors: { origin: '*' }, namespace: 'channels' })
 export class ChannelsGateway
@@ -25,14 +21,12 @@ export class ChannelsGateway
     private readonly prisma: PrismaService,
   ) {}
 
-  // private logger = new Logger(ChannelsGateway.name);
   @WebSocketServer() server: Server;
   private user: any;
 
   private clientsMap = {};
   addClientToMap(userId: string, client: Socket) {
     if (!this.clientsMap[userId]) {
-      // client.join(this.user.username);
       this.clientsMap[userId] = new Set();
     }
     this.clientsMap[userId].add(client);
@@ -52,20 +46,16 @@ export class ChannelsGateway
       },
     );
   }
-  // getClientFromMap(userId: string) {
-  //   return this.clientsMap[userId] || new Set();
-  // }
 
   // Authenticating Clients
   async afterInit(client: Socket) {
-    // this.logger.log(`SERVER STARTED`);
     client.use(async (req: any, next) => {
       try {
-        const token = req.handshake.headers.jwt_token;
+        const token =
+          req.handshake.auth.jwt_token ?? req.handshake.headers.jwt_token;
         if (!token) {
           throw new WsException('Unauthorized: Token Not Provided');
         }
-        // console.log(token);
         const payload = await validateToken(token, this.jwt);
         this.user = await this.prisma.user.findUnique({
           where: { id: payload?.sub || '' },
@@ -84,38 +74,22 @@ export class ChannelsGateway
         }
         next();
       } catch (error) {
-        console.log(`Auth error: ${error.message}`);
         next(error);
       }
     });
   }
 
   handleConnection(client: Socket) {
-    // const { sockets } = this.server.sockets;
     const channels = this.user.ChannelsMember;
 
     this.addClientToMap(this.user.id, client);
-    // client.join(this.user.id);
-    console.log(this.user.username + ' channels:', channels);
     channels.forEach((channel) => {
       client.join(channel.id);
-      channel.Messages.forEach((msg) => {
-        if (!msg.delivered) {
-          this.server
-            .to(channel.id)
-            .emit('channelMessage', { sender: msg.senderId, body: msg.body });
-        }
-      });
     });
-    console.log(`${client.id} joined`);
-    console.log(this.clientsMap);
   }
 
   handleDisconnect(client: any) {
-    // const { sockets } = this.server.sockets;
     this.deleteClientFromMap(client.id);
-    console.log(`${client.id} left`);
-    // console.log(`${sockets?.size || 0} Connected Clients`);
   }
 
   newRoom(channelId: string, channelName: string, members: string[]) {
@@ -129,14 +103,12 @@ export class ChannelsGateway
           this.clientsMap[members[index]].forEach((client) => {
             client.join(channelId);
             client.emit('joinRoom', { channelId });
-            console.log(`${members[index]} added to ${channelName}`);
           });
         }
       }
       return { msg: 'OK' };
     } catch (error) {
       console.log(`Failed to create room: ${error.message}`);
-      // return null;
       throw new WsException('Failed to create room');
     }
   }
@@ -147,12 +119,10 @@ export class ChannelsGateway
         this.clientsMap[userId].forEach((client) => {
           client.join(channelId);
           client.emit('joinRoom', { channelId });
-          console.log(`${userId} added to ${channelName}`);
         });
       }
     } catch (error) {
       console.log(`Failed to joinRomm ${channelName}`);
-      // return null;
       throw new WsException('Failed to joinRomm');
     }
   }
@@ -163,28 +133,58 @@ export class ChannelsGateway
         this.clientsMap[userId].forEach((client) => {
           client.leave(channelId);
           client.emit('leaveRoom', { channelId });
-          console.log(`${userId} left ${channelName}`);
         });
       }
     } catch (error) {
       console.log(`Failed to leaveRoom ${channelName}`);
-      // return null;
       throw new WsException('Failed to leaveRoom');
     }
   }
 
-  // @SubscribeMessage('channelMessage')
-  sendMessage(data: ChannelMessageDto) {
+  async sendMessage(data: ChannelMessageDto) {
     try {
       if (!data) {
         throw new WsException('invalid message data');
       }
+      const sender = await this.prisma.user.findUnique({
+        where: { id: data.senderId },
+        select: {
+          id: true,
+          blockedByUsers: {
+            select: {
+              id: true,
+            },
+          },
+          blockedUsers: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+      if (!sender) {
+        throw new WsException('sender record not found');
+      }
+      const blockedUsersIds = []
+        .concat(sender.blockedByUsers.map((user) => user.id))
+        .concat(sender.blockedUsers.map((user) => user.id));
+      blockedUsersIds.map((id) => {
+        this.clientsMap[id].forEach((client) => {
+          client.join('BlockedUsers');
+        });
+      });
       this.server
+        .except('BlockedUsers')
         .to(data.channelId)
         .emit('channelMessage', { sender: data.senderId, body: data.body });
+      blockedUsersIds.map((id) => {
+        this.clientsMap[id].forEach((client) => {
+          client.leave('BlockedUsers');
+        });
+      });
     } catch (error) {
       console.log(`Failed to send message: ${error.message}`);
-      throw new WsException('Faild To Send Message');
+      throw new WsException(`Faild To Send Message: ${error.message}`);
     }
   }
 }

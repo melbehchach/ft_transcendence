@@ -1,7 +1,7 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
-  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { authDTO, signinDTO, signupDTO } from '../dto';
@@ -11,8 +11,6 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as speakeasy from 'speakeasy';
-// import { userStatus } from '@prisma/client';
-import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +18,6 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private config: ConfigService,
-    private userService: UserService,
   ) {}
 
   async signup(dto: authDTO) {
@@ -61,15 +58,10 @@ export class AuthService {
         res.redirect('http://localhost:3001/profile');
       }
     } else {
-      const { accessToken } = await this.signToken(
-        req.user.id,
-        // req.user.email,
-      );
-      // const userToken = await this.jwtService.signAsync({
-      //   sub: req.user.id,
-      //   email: req.user.email,
-      // });
-      res.cookie('USER', accessToken);
+      const userToken = await this.jwtService.signAsync({
+        sub: req.user.email,
+      });
+      res.cookie('USER', userToken);
       res.redirect('http://localhost:3001/auth/42-redirect');
     }
   }
@@ -81,7 +73,11 @@ export class AuthService {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.config.get('JWT_SECRET'),
       });
-      const user = await this.findUser(payload.sub);
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email: payload.sub,
+        },
+      });
       return { user };
     } catch {
       throw new UnauthorizedException('Invalid Token');
@@ -109,7 +105,7 @@ export class AuthService {
       // }
       return user.TFAenabled;
     } catch (error) {
-      throw new InternalServerErrorException({ error: error.message });
+      throw new BadRequestException({ error: error.message });
     }
   }
 
@@ -122,7 +118,11 @@ export class AuthService {
       const payload = await this.jwtService.verifyAsync(UserToken, {
         secret: this.config.get('JWT_SECRET'),
       });
-      const user = await this.findUser(payload.sub);
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email: payload.sub,
+        },
+      });
       if (!user)
         throw new ForbiddenException('you need to signup with intra first');
       if (user.isAuthenticated)
@@ -143,7 +143,7 @@ export class AuthService {
       return await this.signToken(user.id);
     } catch (error) {
       if (error.code === 'P2002') {
-        throw new UnauthorizedException({
+        throw new BadRequestException({
           error: `username ${dto.username} is already taken`,
         });
       } else {
@@ -157,16 +157,16 @@ export class AuthService {
       const payload = await this.jwtService.verifyAsync(userToken, {
         secret: this.config.get('JWT_SECRET'),
       });
-      await this.prisma.user.updateMany({
+      await this.prisma.user.update({
         where: {
-          id: payload.sub,
+          email: payload.sub,
         },
         data: {
-          avatar: file.path,
+          avatar: `http://localhost:3000/uploads/${file.filename}`,
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException({
+      throw new BadRequestException({
         error: 'Failed to upload avatar',
       });
     }
@@ -219,7 +219,7 @@ export class AuthService {
         return {};
       }
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -257,7 +257,7 @@ export class AuthService {
         return {};
       }
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -281,7 +281,7 @@ export class AuthService {
         return {};
       }
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -301,7 +301,22 @@ export class AuthService {
       }
       return { success: true };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async TFAisEnabled(id: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+        select: { TFAenabled: true },
+      });
+      if (!user) {
+        throw new Error('User Not Found');
+      }
+      return { FTAenabled: user.TFAenabled };
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
   }
 }

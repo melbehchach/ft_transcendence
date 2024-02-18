@@ -1,4 +1,13 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { GameService } from './game.service';
 import { GameRequestDTO } from 'src/dto/game.dto';
 import { ChatGuard } from 'src/guards/chat.jwt.guard';
@@ -21,20 +30,26 @@ export class GameController {
   }
 
   @Post('accept/:id')
-  async acceptGameRequest(@Param() receiver: GameRequestDTO, @Body() sender: GameRequestDTO) {
-    if (receiver && sender){
-        return this.gameService.acceptGameRequest(sender.id, receiver.id);
-    }else {
-        throw new BadRequestException('Invalid sender or receiver data.');
+  async acceptGameRequest(
+    @Param() receiver: GameRequestDTO,
+    @Body() sender: GameRequestDTO,
+  ) {
+    if (receiver && sender) {
+      return this.gameService.acceptGameRequest(sender.id, receiver.id);
+    } else {
+      throw new BadRequestException('Invalid sender or receiver data.');
     }
   }
 
   @Post('refuse/:id')
-  async refuseGameRequest(@Param() receiver: GameRequestDTO,@Body() sender: GameRequestDTO) {
-    if (receiver && sender){
-        return this.gameService.declineGameRequest(sender.id, receiver.id);
-    }else{
-        throw new BadRequestException('Invalid sender or receiver data.');
+  async refuseGameRequest(
+    @Param() receiver: GameRequestDTO,
+    @Body() sender: GameRequestDTO,
+  ) {
+    if (receiver && sender) {
+      return this.gameService.declineGameRequest(sender.id, receiver.id);
+    } else {
+      throw new BadRequestException('Invalid sender or receiver data.');
     }
   }
 
@@ -46,6 +61,40 @@ export class GameController {
       throw new BadRequestException('Invalid user data.');
     }
   }
+
+  @Post('endgame')
+  async endGame(@Req() req: any, @Body() body: any) {
+    if (req.userID) {
+      return this.gameService.endGame(body.winnerId, body.loserId);
+    } else {
+      throw new BadRequestException('Invalid user data.');
+    }
+  }
+
+  @Get('getLoses/:id')
+  async getLoses(@Param() param: any) {
+    if (param.id) {
+      return this.gameService.getPlayerLoses(param.id);
+    } else {
+      throw new BadRequestException('Invalid user data.');
+    }
+  }
+
+  @Get('getWins/:id')
+  async getWins(@Param() param: any) {
+    if (param.id) {
+      return this.gameService.getPlayerWins(param.id);
+    } else {
+      throw new BadRequestException('Invalid user data.');
+    }
+  }
+
+  @Get('getCurrentGame/:id')
+  async getCurrentGame(@Param() param: any) {
+    if (param.id) {
+      return this.gameService.getCurrentGame(param.id);
+    } else {
+      throw new BadRequestException('Invalid user data.');
+    }
+  }
 }
-
-

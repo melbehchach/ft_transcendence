@@ -19,7 +19,7 @@ export class ChatGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
     try {
       const payload = await validateToken(req.cookies['JWT_TOKEN'], this.jwt);
-      console.log(payload.sub);
+      // console.log(payload.sub);
       const user = await this.prisma.user.findUnique({
         where: {
           id: payload.sub,
@@ -28,6 +28,9 @@ export class ChatGuard implements CanActivate {
           id: true,
         },
       });
+      if (!user) {
+        throw new Error();
+      }
       req['userID'] = user?.id;
       return true;
     } catch (error) {

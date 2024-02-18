@@ -54,7 +54,8 @@ export class DirectMessagesGateway
     // this.logger.log(`SERVER STARTED`);
     client.use(async (req: any, next) => {
       try {
-        const token = req.handshake.headers.jwt_token;
+        const token =
+          req.handshake.auth.jwt_token ?? req.handshake.headers.jwt_token;
         if (!token) {
           throw new WsException('Unauthorized: Token Not Provided');
         }
@@ -75,53 +76,33 @@ export class DirectMessagesGateway
         }
         next();
       } catch (error) {
-        console.log(`Auth error: ${error.message}`);
         next(error);
       }
     });
   }
 
   handleConnection(client: Socket) {
-    try {
-      this.addClientToMap(this.user.id, client);
-      this.user.receivedMessages.forEach((msg) => {
-        if (!msg.delivered) {
-          client.emit('directMessage', {
-            sender: msg.senderId,
-            body: msg.body,
-          });
-        }
-      });
-    } catch (error) {
-      console.log(`Failed to send message: ${error.message}`);
-      throw new WsException('Faild To Send Message');
-    }
+    this.addClientToMap(this.user.id, client);
   }
 
   handleDisconnect(client: Socket) {
-    console.log('disconnected');
-    // this is so dumb, fix in channels too
     this.deleteClientFromMap(client.id);
-    console.log(this.clientsMap);
   }
 
-  // @SubscribeMessage('directMessage')
   sendMessage(data: DirectMessageDto) {
     try {
       if (!data) {
         throw new WsException('invalid message data');
       }
       const receiver = this.clientsMap[data.receiverId];
-      if (!receiver) {
-        throw new WsException('Receiver socket not found');
-      }
-      receiver.forEach((client) => {
-        client.emit('directMessage', {
-          sender: data.senderId,
-          body: data.body,
-          // id: messageId ??
+      if (receiver) {
+        receiver.forEach((client) => {
+          client.emit('directMessage', {
+            sender: data.senderId,
+            body: data.body,
+          });
         });
-      });
+      }
     } catch (error) {
       console.log(`Failed to send message: ${error.message}`);
       throw new WsException('Faild To Send Message');

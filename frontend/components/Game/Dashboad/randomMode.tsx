@@ -2,10 +2,9 @@
 import RandomButton from "./Buttons/randomButton";
 import RandomImage from "./Images/randomImage";
 
-
 export default function RandomMode() {
   return (
-    <section className="flex flex-col justify-center items-center w-auto xl:w-min xl:gap-3">
+    <section className="flex flex-col justify-center items-center space-y-1 lg:space-y-5 lg:w-min">
       <RandomImage />
       <h1 className="text-text not-italic font-bold text-[20px] xl:text-[28px]">
         Find a random opponent

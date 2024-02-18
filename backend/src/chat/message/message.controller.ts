@@ -2,7 +2,7 @@ import {
   Body,
   Controller,
   Delete,
-  InternalServerErrorException,
+  BadRequestException,
   Param,
   Patch,
   Post,
@@ -25,7 +25,7 @@ export class MessageController {
   @Post('/channel/new')
   async newChannelMessage(@Req() req, @Body() body: ChannelMessageDto) {
     if (!req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.messageService.newChannelMessage(body, req.userID);
   }
@@ -33,7 +33,7 @@ export class MessageController {
   @Post('/direct/new')
   async newDirectMessage(@Req() req, @Body() body: DirectMessageDto) {
     if (!req.userID) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.messageService.newDirectMessage(body, req.userID);
   }
@@ -42,7 +42,7 @@ export class MessageController {
   async messageDelivered(@Param('id') messageId: string) {
     const id = parseInt(messageId);
     if (isNaN(id)) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException();
     }
     return this.messageService.messageDelivered(id);
   }

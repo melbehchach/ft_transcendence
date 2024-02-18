@@ -21,7 +21,6 @@ export class FTStrategy extends PassportStrategy(Strategy, '42') {
   }
 
   async validate(accessToken: string, refreshToken: string, profile: Profile) {
-    console.log('Strategy');
     let user = await this.prisma.user.findUnique({
       where: { email: profile.emails[0].value },
     });

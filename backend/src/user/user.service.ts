@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   ChannelType,
@@ -22,7 +26,6 @@ export class UserService {
   ) {}
 
   async search(params: searchDto) {
-    console.log(params);
     const findUsers = async (query) => {
       return await this.prisma.user.findMany({
         where: {
@@ -66,22 +69,19 @@ export class UserService {
     };
     try {
       if (params.type === SearchType.USERS) {
-        console.log('users');
         const users = await findUsers(params.query);
         return users;
       } else if (params.type === SearchType.CHANNELS) {
-        console.log('channels');
         const channels = await findChannels(params.query);
         return channels;
       } else {
-        console.log('all');
         const users = await findUsers(params.query);
         const channels = await findChannels(params.query);
         return { users, channels };
       }
     } catch (error) {
       console.log(error);
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -104,6 +104,18 @@ export class UserService {
           },
           sentRequests: {},
           receivedRequests: {},
+          blockedUsers: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+          blockedByUsers: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
           receivedNotifications: true,
           gameTheme: true,
           status: true,
@@ -111,7 +123,7 @@ export class UserService {
       });
       return user;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -128,7 +140,7 @@ export class UserService {
       }
       return user.status;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -158,7 +170,7 @@ export class UserService {
       this.gateway.updateStatusEvent(user.id, user.status, friends);
       return 'success';
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -176,7 +188,7 @@ export class UserService {
       });
       return user;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -199,11 +211,10 @@ export class UserService {
       });
       return user;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
-  // verify with the auth method before pushing
   async editAvatar(id: string, avatar: Express.Multer.File) {
     try {
       const user = await this.prisma.user.update({
@@ -211,7 +222,7 @@ export class UserService {
           id,
         },
         data: {
-          avatar: avatar.path,
+          avatar: `http://localhost:3000/uploads/${avatar.filename}`,
         },
       });
       if (!user) {
@@ -219,7 +230,7 @@ export class UserService {
       }
       return { msg: 'success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -238,7 +249,13 @@ export class UserService {
       }
       return { msg: 'success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      if (error.code === 'P2002') {
+        throw new BadRequestException({
+          error: `username ${username} is already taken`,
+        });
+      } else {
+        throw new UnauthorizedException({ error: error.message });
+      }
     }
   }
 
@@ -273,7 +290,7 @@ export class UserService {
       }
       return { msg: 'success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -292,7 +309,7 @@ export class UserService {
       }
       return { msg: 'success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -320,7 +337,7 @@ export class UserService {
       // console.log(user);
       return user;
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -390,7 +407,7 @@ export class UserService {
       });
       return { msg: 'Success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -426,7 +443,7 @@ export class UserService {
       });
       return { msg: 'Success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -463,7 +480,7 @@ export class UserService {
       });
       return { msg: 'Success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -516,7 +533,7 @@ export class UserService {
       });
       return { msg: 'Success' };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -564,9 +581,176 @@ export class UserService {
       await this.prisma.$transaction([removeUserA, removeUserB]);
       return { msg: 'Success' };
     } catch {
-      throw new InternalServerErrorException(
+      throw new BadRequestException(
         'Internal Server Error: CannotUnfriendUser',
       );
+    }
+  }
+
+  async blockUser(friendId: string, userId: string) {
+    try {
+      const transactionPromises = [];
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          blockedUsers: {
+            where: {
+              id: friendId,
+            },
+          },
+          blockedByUsers: {
+            where: {
+              id: friendId,
+            },
+          },
+        },
+      });
+      if (user.blockedUsers.length !== 0 || user.blockedByUsers.length !== 0) {
+        return { msg: 'Successd' };
+      }
+      const userToBlock = await this.prisma.user.findUnique({
+        where: { id: friendId },
+      });
+      if (!userToBlock) {
+        throw new Error('User Not Found');
+      }
+      const updatedUser = this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          blockedUsers: {
+            connect: {
+              id: userToBlock.id,
+            },
+          },
+          friends: {
+            disconnect: {
+              id: userToBlock.id,
+            },
+          },
+        },
+      });
+      transactionPromises.push(updatedUser);
+      const updatedUserToBlock = this.prisma.user.update({
+        where: { id: userToBlock.id },
+        data: {
+          blockedByUsers: {
+            connect: {
+              id: user.id,
+            },
+          },
+          friends: {
+            disconnect: {
+              id: user.id,
+            },
+          },
+        },
+      });
+      transactionPromises.push(updatedUserToBlock);
+      const chat =
+        (await this.prisma.chat.findFirst({
+          where: {
+            user1Id: user.id,
+            user2Id: userToBlock.id,
+          },
+        })) ||
+        (await this.prisma.chat.findFirst({
+          where: {
+            user1Id: userToBlock.id,
+            user2Id: user.id,
+          },
+        }));
+      if (chat) {
+        const blockChat = this.prisma.chat.update({
+          where: { id: chat.id },
+          data: { isBlocked: true },
+        });
+        transactionPromises.push(blockChat);
+      }
+      await this.prisma.$transaction(transactionPromises);
+      this.notifications.createNotification(userId, {
+        receiverId: userToBlock.id,
+        type: NotificationType.Block,
+        message: ``,
+      });
+      return { msg: 'Success' };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async unblockUser(friendId: string, userId: string) {
+    try {
+      const transactionPromises = [];
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          blockedUsers: {
+            where: {
+              id: friendId,
+            },
+          },
+        },
+      });
+      if (user.blockedUsers.length === 0) {
+        return { msg: 'Success' };
+      }
+      const blockedUser = await this.prisma.user.findUnique({
+        where: { id: friendId },
+      });
+      if (!blockedUser) {
+        throw new Error('User Not Found');
+      }
+      const updatedUser = this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          blockedUsers: {
+            disconnect: {
+              id: blockedUser.id,
+            },
+          },
+        },
+      });
+      transactionPromises.push(updatedUser);
+      const updatedBlockedUser = this.prisma.user.update({
+        where: { id: blockedUser.id },
+        data: {
+          blockedByUsers: {
+            disconnect: {
+              id: user.id,
+            },
+          },
+        },
+      });
+      transactionPromises.push(updatedBlockedUser);
+      const chat =
+        (await this.prisma.chat.findFirst({
+          where: {
+            user1Id: user.id,
+            user2Id: blockedUser.id,
+          },
+        })) ||
+        (await this.prisma.chat.findFirst({
+          where: {
+            user1Id: blockedUser.id,
+            user2Id: user.id,
+          },
+        }));
+      if (chat) {
+        const blockChat = this.prisma.chat.update({
+          where: { id: chat.id },
+          data: { isBlocked: false },
+        });
+        transactionPromises.push(blockChat);
+      }
+      await this.prisma.$transaction(transactionPromises);
+      this.notifications.createNotification(userId, {
+        receiverId: blockedUser.id,
+        type: NotificationType.unBlock,
+        message: ``,
+      });
+      return { msg: 'Success' };
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
   }
 }

@@ -4,6 +4,7 @@ import { Socket, io } from "socket.io-client";
 import cookie from "js-cookie";
 import Countdown from "./countdown";
 import { Player, Net } from "../../types";
+import axios from "axios";
 
 const canvasWidth = 1080;
 const canvasHeight = 720;
@@ -15,7 +16,7 @@ const drawTable = (
   y: number,
   color: string
 ) => {
-  context.fillStyle = "black";
+  context.fillStyle = color;
   context.fillRect(0, 0, canvasWidth, canvasHeight);
 };
 
@@ -67,69 +68,160 @@ let net: Net = {
   color: "white",
 };
 
-export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoading }: any) {
+export default function RandomMatch({
+  setOpponentScore,
+  setPlayerScore,
+  setLoading,
+  setPlayerAvatar,
+  setOpponnetAvatr,
+}: any) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
-  const Player : Player = {
+  const [theme, setTheme] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await axios
+        .get(`http://localhost:3000/user/profile`, {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            Accept: "application/json",
+          },
+        })
+        .then((res) => {
+          setTheme(res.data.gameTheme);
+        })
+        .catch((error) => {
+          console.log("Error", error);
+        });
+    };
+    fetchData();
+  }, []);
+
+  const upadateTotalWinsAndLoses = async (
+    winnerId: string,
+    loserId: string
+  ) => {
+    await axios
+      .post(
+        `http://localhost:3000/game/endGame`,
+        {
+          winnerId: winnerId,
+          loserId: loserId,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            Accept: "application/json",
+          },
+        }
+      )
+      .then((res) => {
+        console.log("res", res);
+      })
+      .catch((error) => {
+        console.log("ending game error");
+      });
+  };
+
+  const Player: Player = {
     x: 10,
     y: canvasHeight / 2 - 50,
     width: 20,
     height: 150,
     color: "white",
-    // score: 0,
   };
-  const Opponent : Player = {
+  const Opponent: Player = {
     x: canvasWidth - 30,
     y: canvasHeight / 2 - 50,
     width: 20,
     height: 150,
     color: "white",
   };
-  const [countdown, setCountdown] = useState(true);
   const [ballY, setBallY] = useState(canvasHeight / 2);
   const [ballX, setBallX] = useState(canvasWidth / 2);
-
+  const [countdown, setCountdown] = useState(0);
+  const [startCountDown, setStartCountDown] = useState(false);
   let room = "";
 
   const render = () => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
-    drawTable(context, canvas, canvasHeight, canvasWidth, "black");
-    drawBall(context, ballX, ballY, "white");
-    drawRect(
-      context,
-      Player.x,
-      playerY,
-      Player.width,
-      Player.height,
-      Player.color
-    ); // player
-    drawRect(
-      context,
-      Opponent.x,
-      openentY,
-      Opponent.width,
-      Opponent.height,
-      Opponent.color
-    ); // opponent
-    drawNet(context, canvas, net.x, net.y, net.width, net.height, net.color);
+    if (theme === "Retro") {
+      drawTable(context, canvas, canvasHeight, canvasWidth, "#000");
+      drawRect(
+        context,
+        Player.x,
+        playerY,
+        Player.width,
+        Player.height,
+        Player.color
+      );
+      drawRect(
+        context,
+        Opponent.x,
+        openentY,
+        Opponent.width,
+        Opponent.height,
+        Opponent.color
+      );
+      drawNet(context, canvas, net.x, net.y, net.width, net.height, net.color);
+      drawBall(context, ballX, ballY, "white");
+    } else if (theme === "Blue") {
+      drawTable(context, canvas, canvasHeight, canvasWidth, "#056CF2");
+      drawRect(
+        context,
+        Player.x,
+        playerY,
+        Player.width,
+        Player.height,
+        Player.color
+      );
+      drawRect(
+        context,
+        Opponent.x,
+        openentY,
+        Opponent.width,
+        Opponent.height,
+        Opponent.color
+      );
+      drawNet(context, canvas, net.x, net.y, net.width, net.height, net.color);
+      drawBall(context, ballX, ballY, "white");
+    } else if (theme === "Gray") {
+      drawTable(context, canvas, canvasHeight, canvasWidth, "#4D5960");
+      drawRect(
+        context,
+        Player.x,
+        playerY,
+        Player.width,
+        Player.height,
+        Player.color
+      );
+      drawRect(
+        context,
+        Opponent.x,
+        openentY,
+        Opponent.width,
+        Opponent.height,
+        Opponent.color
+      );
+      drawBall(context, ballX, ballY, "white");
+    }
   };
-
-  const onCountdownEnd = useCallback(() => {
-    setCountdown(false);
-  }, []);
-
 
   useEffect(() => {
     const gameLoop = () => {
-        setPlayerY((preV) => preV + (playerY - preV) * 0.6);
-        setOpenentY((preV) => preV + (openentY - preV) * 0.6);
-        render();
+      setPlayerY((preV) => preV + (playerY - preV) * 0.6);
+      setOpenentY((preV) => preV + (openentY - preV) * 0.6);
+      render();
     };
     gameLoop();
-  }, [countdown, playerY, openentY, ballX, ballY]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countdown, playerY, openentY, ballX, ballY, startCountDown]);
 
   const keyPress = (e: any) => {
     if (e.keyCode === 38) {
@@ -173,10 +265,14 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
     if (socket) {
       socket.on("RandomMatch", (data: any) => {
         if (data.player === cookie.get("USER_ID")) {
+          setPlayerAvatar(data.playerAvatr);
+          setOpponnetAvatr(data.opponentAvatar);
           setPlayerY(data.playerY);
           setOpenentY(data.opponentY);
           room = data.room;
         } else {
+          setPlayerAvatar(data.opponentAvatar);
+          setOpponnetAvatr(data.playerAvatr);
           setPlayerY(data.opponentY);
           setOpenentY(data.playerY);
           room = data.room;
@@ -208,11 +304,16 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
           setOpponentScore(data.playerScore);
         }
       });
-      socket.on("gameOver", (data: any) => {
-        if (data.player === cookie.get("USER_ID")) {
-          alert("You win");
-        } else {
-          alert("You lose");
+      socket.on("CheckingWinner", (data: any) => {
+        if (data.player === cookie.get("USER_ID") && data.playerScore === 5) {
+          console.log("Winner");
+          upadateTotalWinsAndLoses(data.player, data.opponent);
+        } else if (
+          data.opponent === cookie.get("USER_ID") &&
+          data.opponentScore === 5
+        ) {
+          console.log("Winner");
+          upadateTotalWinsAndLoses(data.opponent, data.player);
         }
       });
       socket.on("gameStart", () => {
@@ -220,22 +321,26 @@ export default function RandomMatch({ setOpponentScore, setPlayerScore, setLoadi
       });
       socket.on("UnexpectedWinner", (data: any) => {
         if (data.winner === cookie.get("USER_ID")) {
-          setPlayerScore(data.score)
-          console.log("You win");
+          setPlayerScore(data.score);
           // push the player to deashboard game to start a new game
-        } 
+        }
       });
-      // socket.on("countdown", (data: any) => {
-      //   setCountdown(false);
-      // });
+      socket.on("SubmiteScore", (data: any) => {
+        socket.emit("GameIsOver", { data });
+      });
+      socket.on("startCountDown", (data: any) => {
+        setStartCountDown(true);
+        setCountdown(3);
+      });
+      socket.on("updateCountDown", (data: any) => {
+        setCountdown(data);
+      });
     }
   }, [socket]);
 
- 
-
   return (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-      {countdown ? <Countdown onCountdownEnd={onCountdownEnd} /> : false}
+      {countdown > 0 && <Countdown />}
       <canvas
         className="w-full h-full"
         ref={canvasRef}

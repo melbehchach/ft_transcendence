@@ -1,34 +1,37 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
 
 interface ScoreBoardProps {
   playerScore: number;
   opponentScore: number;
+  playerAvatar: string;
+  OpponentAvatar: string;
 }
 
-export default function ScoreBoard({playerScore, opponentScore}: ScoreBoardProps) {
-    const router = useRouter();
-    // const [playerAvatar, setPlayerAvatar] = useState('');
-    // const [opponentAvatar, setOpponentAvatar] = useState('');
+export default function ScoreBoard({
+  playerScore,
+  opponentScore,
+  playerAvatar,
+  OpponentAvatar,
+}: ScoreBoardProps) {
+  const router = useRouter();
 
-  
-    
+
   return (
     <>
-      <div className="flex justify-between items-center m-5 p-5">
-        <div className="flex items-center justify-center gap-1">
+      <div className="flex justify-between items-center p-5 ml-0 my-5  mr-40">
+        <div className="flex items-center justify-center gap-1 ">
           <Image
-            className='rounded-full'
-            src= "/img/avatar.png"
+            className="rounded-full"
+            src={playerAvatar}
             width={55}
             height={55}
             alt="Friend's picture"
           />
-          <span className="mx-2 text-text text-center text-5xl font-bold">{playerScore}</span>
+          <span className="mx-2 text-text text-center text-5xl font-bold">
+            {playerScore}
+          </span>
         </div>
         <button className="inline-flex items-center h-12 bg-primary rounded-3xl p-4 px-14 gap-3">
           <i>
@@ -65,13 +68,17 @@ export default function ScoreBoard({playerScore, opponentScore}: ScoreBoardProps
               />
             </svg>
           </i>
-          <span onClick={() => router.push('/game')} className="text-text">Leave game</span>
+          <span onClick={() => router.push("/game")} className="text-text">
+            Leave game
+          </span>
         </button>
         <div className="flex items-center justify-center gap-1">
-          <span className="mx-2 text-text text-center text-5xl font-bold">{opponentScore}</span>
+          <span className="mx-2 text-text text-center text-5xl font-bold">
+            {opponentScore}
+          </span>
           <Image
-            className='rounded-full'
-            src="/img/avatar.png"
+            className="rounded-full"
+            src={OpponentAvatar}
             width={55}
             height={55}
             alt="Friend's picture"

@@ -1,6 +1,10 @@
-import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import React from "react";
+import AuthContextProvider from "./context/AuthContext";
+import ChatSocketContextProvider from "./context/ChatContext";
+import SocketContextProvider from "./context/SocketContext";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,7 +19,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <AuthContextProvider>
+          <SocketContextProvider>
+            <ChatSocketContextProvider>{children}</ChatSocketContextProvider>
+          </SocketContextProvider>
+        </AuthContextProvider>
+      </body>
     </html>
   );
 }

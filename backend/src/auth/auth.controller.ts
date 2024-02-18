@@ -4,7 +4,6 @@ import {
   Controller,
   Get,
   HttpCode,
-  InternalServerErrorException,
   Patch,
   Post,
   Req,
@@ -106,6 +105,12 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('tfa/check')
+  async checkTFA(@Req() req) {
+    return this.authService.TFAisEnabled(req.user.id);
+  }
+
+  @UseGuards(AuthGuard)
   @Get('tfa/secret')
   async getSecret(@Req() req) {
     return this.authService.TFAgetSecret(req.user.id);
@@ -134,7 +139,7 @@ export class AuthController {
     }
     const id = req.cookies['USER_ID'];
     if (!id) {
-      throw new InternalServerErrorException({
+      throw new BadRequestException({
         error: 'Something went wrong. Try again',
       });
     }

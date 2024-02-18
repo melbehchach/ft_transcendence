@@ -2,7 +2,7 @@ import {
   Body,
   Controller,
   Get,
-  InternalServerErrorException,
+  BadRequestException,
   Param,
   Patch,
   Post,
@@ -32,7 +32,7 @@ export class UserController {
   @Get('profile')
   async getProfile(@Req() req) {
     if (!req.user) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException('BadRequest');
     }
     return this.userService.getProfile(req.user.id);
   }
@@ -40,7 +40,7 @@ export class UserController {
   @Get('friends')
   async getFriends(@Req() req) {
     if (!req.user) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException('BadRequest');
     }
     return this.userService.getFriends(req.user.id);
   }
@@ -48,7 +48,7 @@ export class UserController {
   @Get('status/get')
   async getUserStatus(@Req() req) {
     if (!req.user) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException('BadRequest');
     }
     return this.userService.getUserStatus(req.user.id);
   }
@@ -56,7 +56,7 @@ export class UserController {
   @Patch('status/update')
   async updateUserStatus(@Req() req) {
     if (!req.user || !req.body.status || !isEnum(req.body.status, userStatus)) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException('BadRequest');
     }
     return this.userService.updateUserStatus(req.user.id, req.body.status);
   }
@@ -64,7 +64,7 @@ export class UserController {
   @Get('friendRequests')
   async getFriendRequests(@Req() req) {
     if (!req.user) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException('BadRequest');
     }
     return this.userService.getFriendRequests(req.user.id);
   }
@@ -83,7 +83,7 @@ export class UserController {
   )
   async updateAvatar(@Req() req, @UploadedFile() avatar) {
     if (!avatar) {
-      return new InternalServerErrorException({ error: 'missing file' });
+      return new BadRequestException({ error: 'missing file' });
     }
     return this.userService.editAvatar(req.user.id, avatar);
   }
@@ -91,7 +91,7 @@ export class UserController {
   @Patch('settings/username')
   async editUsername(@Req() req, @Body() body) {
     if (!body.username) {
-      return new InternalServerErrorException({ error: 'missing username' });
+      return new BadRequestException({ error: 'missing username' });
     }
     return this.userService.editUsername(req.user.id, body.username);
   }
@@ -99,7 +99,7 @@ export class UserController {
   @Patch('settings/password')
   async editPassword(@Req() req, @Body() body) {
     if (!body.old_password || !body.new_password) {
-      return new InternalServerErrorException({ error: 'missing data' });
+      return new BadRequestException({ error: 'missing data' });
     }
     return this.userService.editPassword(
       req.user.id,
@@ -111,7 +111,7 @@ export class UserController {
   @Patch('settings/theme')
   async editTheme(@Req() req, @Body() body) {
     if (!body.theme || !isEnum(body.theme, GameTheme)) {
-      return new InternalServerErrorException({
+      return new BadRequestException({
         error: 'missing or invalid data',
       });
     }
@@ -126,7 +126,7 @@ export class UserController {
   @Get(':id/profile')
   async getUserProfile(@Param('id') userId: string) {
     if (!userId) {
-      throw new InternalServerErrorException('BadRequest');
+      throw new BadRequestException('BadRequest');
     }
     return this.userService.getUSerProfile(userId);
   }
@@ -136,7 +136,7 @@ export class UserController {
     if (req.user && req.body.receiverId) {
       return this.userService.sendFriendRequest(req.body, req.user.id);
     }
-    throw new InternalServerErrorException('BadRequest');
+    throw new BadRequestException('BadRequest');
   }
 
   @Patch('unfriendUser')
@@ -144,7 +144,7 @@ export class UserController {
     if (req.user && req.body.friendId) {
       return this.userService.unfriendUser(req.body.friendId, req.user.id);
     }
-    throw new InternalServerErrorException('BadRequest');
+    throw new BadRequestException('BadRequest');
   }
 
   @Patch('cancelRequest')
@@ -159,7 +159,7 @@ export class UserController {
         ? this.userService.cancelFriendRequest(friendRequest, req.user.id)
         : { msg: 'Internal Server Error: requestNotFound' };
     }
-    throw new InternalServerErrorException('BadRequest');
+    throw new BadRequestException('BadRequest');
   }
 
   @Patch('acceptRequest')
@@ -174,7 +174,7 @@ export class UserController {
         ? this.userService.acceptFriendRequest(friendRequest, req.user.id)
         : { msg: 'Internal Server Error: requestNotFound' };
     }
-    throw new InternalServerErrorException('BadRequest');
+    throw new BadRequestException('BadRequest');
   }
 
   @Patch('declineRequest')
@@ -189,6 +189,20 @@ export class UserController {
         ? this.userService.declineFriendRequest(friendRequest, req.user.id)
         : { msg: 'Internal Server Error: requestNotFound' };
     }
-    throw new InternalServerErrorException('BadRequest');
+    throw new BadRequestException('BadRequest');
+  }
+
+  @Patch('block')
+  async blockUser(@Req() req) {
+    if (req.user && req.body.friendId) {
+      return this.userService.blockUser(req.body.friendId, req.user.id);
+    }
+  }
+
+  @Patch('unblock')
+  async unblockUser(@Req() req) {
+    if (req.user && req.body.friendId) {
+      return this.userService.unblockUser(req.body.friendId, req.user.id);
+    }
   }
 }

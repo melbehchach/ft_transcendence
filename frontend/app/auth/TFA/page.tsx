@@ -29,7 +29,7 @@ async function verifyToken(
       }
     } else {
       const res = await response.json();
-      console.log(res);
+      // console.log(res);
       alert(`Request Failed: ${res.error}`);
     }
   } catch (error) {

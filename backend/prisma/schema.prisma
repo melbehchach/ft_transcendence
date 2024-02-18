@@ -20,12 +20,17 @@ model User {
   status        userStatus @default(OFFLINE)
 
   isAuthenticated Boolean
-  win             Int     @default(0)
+  wins            Int     @default(0)
+  loses           Int     @default(0)
 
-  sentRequests     FriendRequest[] @relation("Sender")
-  receivedRequests FriendRequest[] @relation("Receiver")
-  friends          User[]          @relation("Friendship")
-  symmetricFriends User[]          @relation("Friendship")
+  sentRequests            FriendRequest[] @relation("Sender")
+  receivedRequests        FriendRequest[] @relation("Receiver")
+  friends                 User[]          @relation("Friendship")
+  symmetricFriends        User[]          @relation("Friendship")
+  blockedUsers            User[]          @relation("blocked")
+  symmetricBlockedUsers   User[]          @relation("blocked")
+  blockedByUsers          User[]          @relation("blockedBy")
+  symmetricBlockedByUsers User[]          @relation("blockedBy")
 
   ChannelsOwner      Channel[] @relation("Owner")
   ChannelsAdmin      Channel[] @relation("Admin")
@@ -41,9 +46,9 @@ model User {
   sentNotifications     Notification[] @relation("sender")
   receivedNotifications Notification[] @relation("receiver")
 
-  sentMessages     Message[]     @relation("Sender")
-  receivedMessages Message[]     @relation("Receiver")
-  acheivements     Acheivement[]
+  sentMessages     Message[]    @relation("Sender")
+  receivedMessages Message[]    @relation("Receiver")
+  achievements     Achievement?
 }
 
 model FriendRequest {
@@ -70,13 +75,14 @@ model Channel {
 }
 
 model Chat {
-  id       String    @id @default(uuid())
+  id        String    @id @default(uuid())
   // users    User[]
-  myself   User      @relation("started", fields: [user1Id], references: [id])
-  user1Id  String
-  myfriend User      @relation("invited", fields: [user2Id], references: [id])
-  user2Id  String
-  messages Message[]
+  myself    User      @relation("started", fields: [user1Id], references: [id])
+  user1Id   String
+  myfriend  User      @relation("invited", fields: [user2Id], references: [id])
+  user2Id   String
+  isBlocked Boolean   @default(false)
+  messages  Message[]
 }
 
 model Message {
@@ -107,11 +113,17 @@ model Game {
   opponentScore Int      @default(0)
 }
 
-model Acheivement {
-  id          String   @id @default(uuid())
-  createdAt   DateTime @default(now())
-  description Int      @default(0)
-  users       User[]
+model Achievement {
+  achievementId String  @id @default(uuid())
+  player        User    @relation(fields: [playerId], references: [id])
+  playerId      String  @unique
+  freshman      Boolean @default(true)
+  snowdedn      Boolean @default(true)
+  NewHero       Boolean @default(false)
+  Rak3ajbni     Boolean @default(false)
+  Sbe3          Boolean @default(false)
+  a9wedPonger   Boolean @default(false)
+  GetAlifeBro   Boolean @default(false)
 }
 
 model Notification {
@@ -155,6 +167,9 @@ enum NotificationType {
   FriendRequest
   GameRequest
   Acheivement
+  Message
+  Block
+  unBlock
 }
 
 enum ChannelType {
