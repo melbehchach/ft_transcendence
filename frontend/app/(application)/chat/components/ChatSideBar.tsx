@@ -1,13 +1,19 @@
 "use client";
 import clsx from "clsx";
-import { memo, useEffect } from "react";
+import { Dispatch, SetStateAction, memo, useEffect } from "react";
 import UserAvatar from "../../../../components/UserAvatar";
 import { useAuth } from "../../../context/AuthContext";
 import { useChat } from "../../../context/ChatContext";
 import CreateNewChat from "./CreateNewChat";
 import Search from "./Search";
 
-const ChatSideBar = ({ selectedChat, setSelectedChat }) => {
+const ChatSideBar = ({
+  selectedChat,
+  setSelectedChat,
+}: {
+  selectedChat: string;
+  setSelectedChat: Dispatch<SetStateAction<string>>;
+}) => {
   const {
     getAllChats,
     state: { allChats },
@@ -18,6 +24,7 @@ const ChatSideBar = ({ selectedChat, setSelectedChat }) => {
       friends: { friends },
     },
   } = useAuth();
+
   useEffect(() => {
     getAllChats();
   }, []);
@@ -33,7 +40,7 @@ const ChatSideBar = ({ selectedChat, setSelectedChat }) => {
         variant="secondaryTitle"
         />
       </ChatButton> */}
-        <CreateNewChat />
+        <CreateNewChat setSelectedChat={setSelectedChat} />
         {allChats.map((chat, index) => {
           let friend = friends.find(
             (friend) =>
