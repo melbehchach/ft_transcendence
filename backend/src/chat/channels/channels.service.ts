@@ -44,6 +44,12 @@ export class ChannelsService {
                   username: true,
                 },
               },
+              mutedMembers: {
+                select: {
+                  userId: true,
+                  time: true,
+                },
+              },
               Messages: true,
             },
           },
@@ -89,6 +95,12 @@ export class ChannelsService {
             id: true,
             senderId: true,
             body: true,
+          },
+        },
+        mutedMembers: {
+          select: {
+            userId: true,
+            time: true,
           },
         },
       },
@@ -203,61 +215,6 @@ export class ChannelsService {
       throw new BadRequestException(error.message);
     }
   }
-
-  // async updateChannel(
-  //   userId: string,
-  //   channelId: string,
-  //   data: updateChannelDto,
-  // ) {
-  //   const channel = await this.prisma.channel.findUnique({
-  //     where: {
-  //       id: channelId,
-  //     },
-  //     include: {
-  //       admins: {
-  //         where: {
-  //           id: userId,
-  //         },
-  //       },
-  //       Members: true,
-  //     },
-  //   });
-  //   if (!channel)
-  //     throw new BadRequestException('This channel does not exist');
-  //   if (channel.admins.length === 0 && channel.ownerId !== userId) {
-  //     throw new UnauthorizedException('Forbidden');
-  //   }
-  //   if (data.type === ChannelType.PROTECTED && data.password.length === 0) {
-  //     throw new BadRequestException(
-  //       'Password is required for Protected Channels',
-  //     );
-  //   }
-  //   try {
-  //     const updatedChannel = await this.prisma.channel.update({
-  //       where: {
-  //         id: channelId,
-  //       },
-  //       data: {
-  //         name: data.name.length > 0 ? data.name : channel.name,
-  //         image: data.image.length > 0 ? data.image : channel.image,
-  //         type: data.type ? data.type : channel.type,
-  //         password: data.type === ChannelType.PROTECTED ? data.password : null,
-  //         Members: {
-  //           connect: data.Members?.map((memberId: any) => ({
-  //             id: memberId,
-  //           })),
-  //         },
-  //       },
-  //     });
-  //     delete updatedChannel?.password;
-  //     return updatedChannel;
-  //   } catch (error) {
-  //     console.log(error);
-  //     throw new BadRequestException(
-  //       'Error occured while updating record',
-  //     );
-  //   }
-  // }
 
   async leaveChannel(channelId: string, userId: string) {
     //disconnect userId socket in the gateway
@@ -479,7 +436,6 @@ export class ChannelsService {
     body: { members: string[] },
   ) {
     try {
-      console.log(body.members);
       if (body.members?.length > 0) {
         if (!body.members) {
           throw new Error('Invalid members list');
@@ -524,7 +480,6 @@ export class ChannelsService {
         if (!updatedChannel) {
           throw new Error('Failed to update record!');
         }
-        console.log(updatedChannel);
       }
       return 'success';
     } catch (error) {
@@ -558,6 +513,50 @@ export class ChannelsService {
       });
       if (!updatedChannel) {
         throw new Error('Failed to update record');
+      }
+      return 'success';
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async muteMembers(userId: string, channelId: string, members: string[]) {
+    try {
+      if (!members || members?.length === 0) {
+        throw new Error('Invalid members list');
+      }
+      if (members?.length > 0) {
+        const channel = await this.validateChannelUpdate(userId, channelId);
+        await Promise.all(
+          members.map(async (id) => {
+            const user = await this.prisma.user.findUnique({ where: { id } });
+            if (!user) {
+              throw new Error('Invalid User in members list');
+            }
+            if (channel.Members.map((mbr) => mbr.id).indexOf(user.id) == -1) {
+              throw new Error('User is not in the channel');
+            }
+            if (channel.ownerId === id) {
+              throw new Error('Cannot mute channel owner');
+            }
+            await this.prisma.mutedChannelUsers.create({
+              data: {
+                user: {
+                  connect: {
+                    id: id,
+                  },
+                },
+                channels: {
+                  connect: {
+                    id: channelId,
+                  },
+                },
+                time: new Date().toISOString(),
+              },
+            });
+            return user;
+          }),
+        );
       }
       return 'success';
     } catch (error) {

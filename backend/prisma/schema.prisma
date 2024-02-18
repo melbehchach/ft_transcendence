@@ -46,9 +46,10 @@ model User {
   sentNotifications     Notification[] @relation("sender")
   receivedNotifications Notification[] @relation("receiver")
 
-  sentMessages     Message[]    @relation("Sender")
-  receivedMessages Message[]    @relation("Receiver")
-  achievements     Achievement?
+  sentMessages      Message[]           @relation("Sender")
+  receivedMessages  Message[]           @relation("Receiver")
+  achievements      Achievement?
+  mutedChannelUsers mutedChannelUsers[]
 }
 
 model FriendRequest {
@@ -61,17 +62,26 @@ model FriendRequest {
 }
 
 model Channel {
-  id            String      @id @default(uuid())
+  id            String              @id @default(uuid())
   name          String
   image         String
   type          ChannelType
   password      String?
-  owner         User        @relation("Owner", fields: [ownerId], references: [id])
+  owner         User                @relation("Owner", fields: [ownerId], references: [id])
   ownerId       String
-  admins        User[]      @relation("Admin")
-  Members       User[]      @relation("Member")
-  bannedMembers User[]      @relation("Banned")
-  Messages      Message[]   @relation("channelMessages")
+  admins        User[]              @relation("Admin")
+  Members       User[]              @relation("Member")
+  bannedMembers User[]              @relation("Banned")
+  Messages      Message[]           @relation("channelMessages")
+  mutedMembers  mutedChannelUsers[] @relation("mute")
+}
+
+model mutedChannelUsers {
+  id       String    @id @default(uuid())
+  user     User      @relation(fields: [userId], references: [id])
+  userId   String
+  channels Channel[] @relation("mute")
+  time     String
 }
 
 model Chat {
