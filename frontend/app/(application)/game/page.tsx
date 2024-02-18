@@ -25,7 +25,7 @@ export default function GamePage() {
                 <div className="text-small leading-tight text-center md:hidden text-textSecondary">
                   {"Find a random opponent"}
                 </div>
-                <div className="h-full w-full bg-[url('/img/random.png')] bg-no-repeat bg-center bg-cover"></div>
+                <div className="h-full w-full bg-[url('/img/random.png')] bg-no-repeat bg-center bg-cover rounded-lg"></div>
                 <div className="text-small min-[2000px]:text-body leading-tight text-center hidden md:block text-textSecondary">
                   {"Find a random opponent"}
                 </div>
@@ -43,7 +43,7 @@ export default function GamePage() {
                 <div className="text-small leading-tight text-center md:hidden text-textSecondary">
                   {"challenge your friends for a 1v1"}
                 </div>
-                <div className="w-full h-full bg-[url('/img/friend.png')] bg-no-repeat bg-center bg-cover"></div>
+                <div className="w-full h-full bg-[url('/img/friend.png')] bg-no-repeat bg-center bg-cover rounded-lg"></div>
                 <div className="text-small min-[2000px]:text-body leading-tight text-center hidden md:block text-textSecondary">
                   {"challenge your friends for a 1v1"}
                 </div>
@@ -56,7 +56,7 @@ export default function GamePage() {
               </div>
             </div>
           </div>
-          <div className="hidden 2xl:block m-auto w-full h-full bg-[url('/img/GameIntro.png')] bg-no-repeat bg-center bg-cover" />
+          <div className="hidden 2xl:block m-auto w-full h-full rounded-lg bg-[url('/img/GameIntro.png')] bg-no-repeat bg-center bg-cover" />
         </div>
       </div>
     </>
