@@ -3,9 +3,9 @@ import { useAuth } from "../../../app/context/AuthContext";
 import { Swiper, SwiperSlide } from "swiper/react";
 import ProfileCard from "./Card/ProfileCard";
 import RecentGames from "./RecentGames/RecentGames";
-import Friends from "./Friends/Friends";
 import FriendsRequest from "./FriendsRequest/FriendsRequest";
 import { stat } from "fs";
+import UserFriends from "./Friends/UserFriends";
 
 function reducer(state, action) {
   switch (action.type) {
@@ -71,7 +71,7 @@ function ProfilePage() {
               <Swiper spaceBetween={10} slidesPerView={3}>
                 {friends?.friends.map((item, index) => (
                   <SwiperSlide className="!w-fit" key={index}>
-                    <Friends item={item} />
+                    <UserFriends item={item} />
                   </SwiperSlide>
                 ))}
               </Swiper>
