@@ -606,7 +606,7 @@ export class ChannelsService {
           id: channelId,
         },
         data: {
-          image: avatar.path,
+          image: `http://localhost:3000/uploads/${avatar.filename}`,
         },
       });
       if (!updatedChannel) {
