@@ -7,7 +7,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { useChat } from "../../../context/ChatContext";
 import Button from "./Button";
 
-const RowWrapper = ({ children }) => {
+export const RowWrapper = ({ children }) => {
   return <div className="flex justify-between">{children}</div>;
 };
 const SelectNewChat = ({
