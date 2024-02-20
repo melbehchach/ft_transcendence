@@ -180,6 +180,7 @@ enum NotificationType {
   Message
   Block
   unBlock
+  Channel
 }
 
 enum ChannelType {
