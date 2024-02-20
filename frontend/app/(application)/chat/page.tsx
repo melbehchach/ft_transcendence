@@ -41,12 +41,20 @@ const Chat = () => {
   const chat = useMemo(() => {
     return allChats.find((chat) => chat.id === selectedChat);
   }, [friends, selectedChat]);
-  const friend = useMemo(() => {
-    if (selectedChat)
-      return friends.find(
-        (friend) =>
-          friend.id === (user.id !== chat.user2Id ? chat.user2Id : chat.user1Id)
-      );
+  const headerInfo = useMemo(() => {
+    console.log(chat);
+    if (selectedChat) {
+      if (chat?.name) {
+        return { name: chat.name, avatar: "" };
+      } else {
+        let friend = friends.find(
+          (friend) =>
+            friend.id ===
+            (user.id !== chat.user2Id ? chat.user2Id : chat.user1Id)
+        );
+        return { name: friend.username, avatar: friend.avatar, id: friend.id };
+      }
+    }
     return null;
   }, [friends, selectedChat]);
 
@@ -55,14 +63,14 @@ const Chat = () => {
   function submitMessage(e) {
     setMessage("");
     e.preventDefault();
-    sendMessage(friend.id, message);
+    sendMessage(chat.name ? chat.id : headerInfo.id, message, chat.name);
   }
 
   const content = !selectedChat ? (
     <NoneSelected />
   ) : (
     <div className="w-3/4 grow">
-      <ChatHeader friend={friend} />
+      <ChatHeader headerInfo={headerInfo} />
       {/* <div className="flex"> */}
       <div className="flex w-full flex-col">
         <ChatBody selectedChat={selectedChat} />

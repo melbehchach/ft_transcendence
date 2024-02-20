@@ -15,36 +15,155 @@ const ChatContext = createContext(null);
 
 const initialeState = {
   allChats: [],
+  members: [],
 };
 
 const actionTypes = {
   LOAD_ALL_CHATS: "LOAD_ALL_CHATS",
+  UPDATE_MEMBERS: "UPDATE_MEMBERS",
 };
 const chatReducer = (state, action) => {
   switch (action.type) {
     case actionTypes.LOAD_ALL_CHATS:
       return { ...state, allChats: action.payload };
+    case actionTypes.UPDATE_MEMBERS:
+      return { ...state, members: action.payload };
+    default:
+      return state;
   }
 };
 
 const ChatSocketContextProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
+  const [socketChannels, setSocketChannels] = useState(null);
   const [state, dispatch] = useReducer(chatReducer, initialeState);
   const {
+    fetchData,
     state: { user, friends },
   } = useAuth();
   const jwt_token = Cookies.get("JWT_TOKEN");
 
   async function getAllChats() {
     try {
+      const result = await Promise.all([getAllChannels(), getAllDMs()]);
+      let r = [...result[0], ...result[1]];
+      dispatch({
+        type: actionTypes.LOAD_ALL_CHATS,
+        payload: r,
+      });
+
+      let members = [];
+      r.forEach((channel) => {
+        if (channel.Members) {
+          channel.Members.forEach((element) => {
+            members.push(element.id);
+          });
+        }
+      });
+      members = [...new Set(members)];
+      let membersData = [];
+      console.log({ members, user });
+      members.forEach(async (element) => {
+        let friend;
+        if (state.members.find((m) => m.id === element)) {
+        } else if (user?.id === element) {
+          membersData.push(user);
+        } else if ((friend = friends?.friends?.find((f) => f.id === element))) {
+          membersData.push(friend);
+        } else {
+          let data = fetchData(element, true);
+          membersData.push(data);
+        }
+      });
+      membersData = await Promise.all(membersData);
+      dispatch({ type: actionTypes.UPDATE_MEMBERS, payload: membersData });
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+
+  async function getAllDMs() {
+    try {
       if (jwt_token) {
-        const response = await axios.get("http://localhost:3000/direct/all", {
-          headers: {
-            Authorization: `Bearer ${jwt_token}`,
-          },
-          withCredentials: true,
-        });
-        dispatch({ type: actionTypes.LOAD_ALL_CHATS, payload: response.data });
+        const dms = (
+          await axios.get("http://localhost:3000/direct/all", {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          })
+        ).data;
+        return dms;
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+
+  async function getAllChannels() {
+    try {
+      if (jwt_token) {
+        const channels = (
+          await axios.get("http://localhost:3000/channels/all", {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          })
+        ).data;
+        return channels;
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+
+  async function newChannel(
+    params: {
+      name: string;
+      type: string;
+      password: string;
+      Memberes: string[];
+    },
+    avatar
+  ) {
+    try {
+      if (jwt_token) {
+        const response = await axios.post(
+          "http://localhost:3000/channels/new",
+          params,
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        await getAllChats();
+        return response.data.id;
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+  async function updateChannelAvatar(id, avatar) {
+    try {
+      if (jwt_token) {
+        // let formDatat = new FormData();
+        // formDatat.append("avatar", avatar);
+        console.log(avatar);
+        const response = await axios.patch(
+          `http://localhost:3000/channels/${id}/editAvatar`,
+          avatar,
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        console.log(response);
+        // getAllChats();
       } else throw new Error("bad req");
     } catch (error) {
       console.log("an error occured");
@@ -72,22 +191,32 @@ const ChatSocketContextProvider = ({ children }) => {
       console.log("an error occured");
     }
   }
-  async function sendMessage(receiverId: string, body: string) {
+  async function sendMessage(
+    receiverId: string,
+    body: string,
+    channelName: boolean
+  ) {
     try {
       if (jwt_token) {
-        const response = await axios.post(
-          "http://localhost:3000/message/direct/new",
-          {
-            receiverId,
-            body,
+        let url = !channelName
+          ? "http://localhost:3000/message/direct/new"
+          : "http://localhost:3000/message/channel/new";
+        let params = channelName
+          ? {
+              channelName,
+              channelId: receiverId,
+              body,
+            }
+          : {
+              receiverId,
+              body,
+            };
+        const response = await axios.post(url, params, {
+          headers: {
+            Authorization: `Bearer ${jwt_token}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${jwt_token}`,
-            },
-            withCredentials: true,
-          }
-        );
+          withCredentials: true,
+        });
         getAllChats();
       } else throw new Error("bad req");
     } catch (error) {
@@ -102,10 +231,18 @@ const ChatSocketContextProvider = ({ children }) => {
         token: Cookies.get("USER_ID"),
       },
     });
+    const newSocketChannels: Socket = io("http://localhost:3000/channels", {
+      auth: {
+        jwt_token: Cookies.get("JWT_TOKEN"),
+        token: Cookies.get("USER_ID"),
+      },
+    });
     setSocket(newSocket);
+    setSocketChannels(newSocketChannels);
 
     return () => {
       newSocket.disconnect();
+      newSocketChannels.disconnect();
     };
   }, []);
 
@@ -137,6 +274,20 @@ const ChatSocketContextProvider = ({ children }) => {
     }
   }, [socket]);
 
+  useEffect(() => {
+    if (socketChannels) {
+      console.log("loggggeeeeeeeeed");
+      socketChannels.on("channelMessage", (data) => {
+        console.log(data);
+        getAllChats();
+      });
+      socketChannels.on("directMessage", (data) => {
+        console.log(data);
+        getAllChats();
+      });
+    }
+  }, [socketChannels]);
+
   return (
     <ChatContext.Provider
       value={{
@@ -147,6 +298,7 @@ const ChatSocketContextProvider = ({ children }) => {
         sendMessage,
         joinRoom,
         leaveRoom,
+        newChannel,
       }}
     >
       {children}

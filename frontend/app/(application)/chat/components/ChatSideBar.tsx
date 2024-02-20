@@ -42,12 +42,7 @@ const ChatSideBar = ({
       </ChatButton> */}
         <CreateNewChat setSelectedChat={setSelectedChat} />
         {allChats.map((chat, index) => {
-          let friend = friends.find(
-            (friend) =>
-              friend.id ===
-              (user.id !== chat.user2Id ? chat.user2Id : chat.user1Id)
-          );
-          if (friend) {
+          if (chat.name) {
             return (
               <button
                 className={clsx({
@@ -57,13 +52,33 @@ const ChatSideBar = ({
                 key={index}
                 onClick={() => setSelectedChat(chat.id)}
               >
-                <UserAvatar
-                  key={index}
-                  src={friend.avatar}
-                  name={friend.username}
-                />
+                <UserAvatar key={index} src={""} name={chat.name} />
               </button>
             );
+          } else {
+            let friend = friends.find(
+              (friend) =>
+                friend.id ===
+                (user.id !== chat.user2Id ? chat.user2Id : chat.user1Id)
+            );
+            if (friend) {
+              return (
+                <button
+                  className={clsx({
+                    "bg-textSecondary rounded-[10px] py-2":
+                      selectedChat === chat.id,
+                  })}
+                  key={index}
+                  onClick={() => setSelectedChat(chat.id)}
+                >
+                  <UserAvatar
+                    key={index}
+                    src={friend.avatar}
+                    name={friend.username}
+                  />
+                </button>
+              );
+            }
           }
         })}
       </div>
