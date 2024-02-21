@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useState } from "react";
 import { useAuth } from "../../../app/context/AuthContext";
 import { Swiper, SwiperSlide } from "swiper/react";
 import ProfileCard from "./Card/ProfileCard";
@@ -40,7 +40,7 @@ function ProfilePage() {
   }
 
   const {
-    state: { user, friendRequests, friends },
+    state: { friendRequests, friends },
   } = useAuth();
 
   return (

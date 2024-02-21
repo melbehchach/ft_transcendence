@@ -3,12 +3,14 @@ import Cookies from "js-cookie";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
 import { useAuth } from "./AuthContext";
+import { useParams } from "next/navigation";
 
 const SocketContext = createContext(null);
 
 const SocketContextProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
-  const { fetchFriendsReqData, fetchFriendsData } = useAuth();
+  const { fetchFriendsReqData, fetchFriendsData, fetchData } = useAuth();
+  const param = useParams();
   useEffect(() => {
     const newSocket: Socket = io("http://localhost:3000/notifications", {
       auth: {
@@ -44,8 +46,14 @@ const SocketContextProvider = ({ children }) => {
   useEffect(() => {
     if (socket) {
       socket.on("FriendRequest", (data) => {
-        console.log(data);
         fetchFriendsReqData();
+      });
+      socket.on("Block", (data) => {
+        fetchFriendsData();
+        fetchData();
+      });
+      socket.on("unBlock", (data) => {
+        fetchData();
       });
     }
   }, [socket]);

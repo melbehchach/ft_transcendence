@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import "swiper/css";
 import SideBar from "../../components/ProfileComponents/SideBar/SideBar";
@@ -26,10 +26,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   }, [location]);
 
-  function handleClick() {
-    if (!open) steOpen(true);
-    else steOpen(false);
-  }
   useEffect(() => {
     fetchData();
     fetchFriendsReqData();
@@ -39,16 +35,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute>
       <div className="flex">
-        {/* <div className="sm:w-[5rem] h-fit sm:hidden flex bg-background">
-        <button className=" m-[1rem] " onClick={handleClick}>
-        <SideBarButton />
-        </button>
-        </div>
-        {open && (
-          <div className="w-screen sm:hidden h-screen relative flex justify-center bg-background">
-          <SideBar active={active} setSideBar={steOpen} />
-          </div>
-        )} */}
         <div className="flex flex-col h-screen bg-background border-r border-black w-[14rem]">
           <SideBar active={active} setSideBar={steOpen} />
         </div>

@@ -12,7 +12,6 @@ import achievementsData from "./Infos/Achievements/AchievementsData";
 function ProfileCard() {
   const [setting, setSetting] = useState<boolean>(false);
   const {
-    fetchData,
     state: { user },
   } = useAuth();
 
