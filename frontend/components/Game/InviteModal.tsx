@@ -39,14 +39,15 @@ const InviteModal = ({ loading }: any) => {
     setReceiverId(friend.id);
     setReceiverUsername(friend.username);
     handleSendInvite(friend.id);
-    changeText(`Waiting for ${friend.username} to accept the challenge`);
+    changeText(`Waiting for ${friend.username} to accept the challenge ...`);
   };
 
   useEffect(() => {
     if (text != initailText)
       setTimeout(() => {
-        setText(initailText);
-      }, 60000); /// the opponent has 1 minute to accept the challenge
+        // setText(initailText);
+        router.push("/game/decline");
+      }, 10000); /// the opponent has 10s to accept the challenge
   }, [text]);
 
   const changeText = (text: string) => setText(text);
