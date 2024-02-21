@@ -3,50 +3,58 @@ import React from "react";
 import { useAuth } from "../../../../../../../app/context/AuthContext";
 import Cookies from "js-cookie";
 import axios from "axios";
-import BlockIcon from "../UnfriendUser/BlockIcon";
+import BlockIcon from "./BlockIcon";
 
 type props = {
   isFriend: boolean;
+  setBlocker: any;
 };
 
-function BlockUser({ isFriend }: props) {
+function BlockUser({ isFriend, setBlocker }: props) {
   const param = useParams();
-  const {
-    fetchFriendsReqData,
-    fetchFriendsData,
-    state: { friends },
-  } = useAuth();
+  const { fetchFriendsData, fetchData } = useAuth();
 
-  function getId() {
-    return friends?.friends.find((elem) => elem.id === param.id).id;
-  }
-
-  async function postData() {
+  async function blockSate(id: string | string[]) {
     const jwt_token = Cookies.get("JWT_TOKEN");
     try {
       if (jwt_token) {
-        const response = await axios.patch(
-          "http://localhost:3000/user/block",
-          { friendId: getId() },
-          {
-            headers: {
-              Authorization: `Bearer ${jwt_token}`,
-            },
-            withCredentials: true,
-          }
-        );
+        const response = await axios
+          .patch(
+            "http://localhost:3000/user/block",
+            { friendId: id },
+            {
+              headers: {
+                Authorization: `Bearer ${jwt_token}`,
+              },
+              withCredentials: true,
+            }
+          )
+          .then(() => {
+            fetchFriendsData();
+          })
+          .then(() => {
+            fetchData();
+          })
+          .then(() => {
+            fetchData(id);
+          })
+          .then(() => setBlocker(true));
       } else throw new Error("bad req");
-    } catch (error) {
-      console.log("an error occured");
-    }
+    } catch (error) {}
   }
 
+  function blockUser() {
+    blockSate(param.id);
+  }
+
+  const className1: string =
+    "w-[10rem] h-[3rem] flex justify-center items-center border border-gray-500 border-solid rounded-[25px] text-sm ";
+  const className2: string =
+    "w-[5rem] h-[3rem] bg-[#D9923B] flex justify-center items-center  rounded-[25px] text-sm ";
+
   return (
-    <button
-      className="w-[10rem] h-[3rem]  flex justify-center items-center border border-gray-500 border-solid rounded-[25px] text-sm "
-      onClick={postData}
-    >
-      Block User
+    <button className={isFriend ? className2 : className1} onClick={blockUser}>
+      {isFriend ? <BlockIcon /> : <p>Block User</p>}
     </button>
   );
 }

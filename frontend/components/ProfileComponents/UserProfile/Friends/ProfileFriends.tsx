@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useAuth } from "../../../../app/context/AuthContext";
 import Avatar from "../../Avatar/Avatar";
 import { AvatarProps } from "../../types/Avatar.type";
@@ -9,6 +10,7 @@ type props = {
 
 const ProfileFriends = ({ item }: props) => {
   const {
+    fetchFriendsData,
     state: { user },
   } = useAuth();
   const router = useRouter();
@@ -25,6 +27,10 @@ const ProfileFriends = ({ item }: props) => {
   function handleClick() {
     router.push(`/profile/${item.id}`);
   }
+
+  useEffect(() => {
+    fetchFriendsData();
+  }, []);
 
   return (
     <div className="w-[16rem] h-full flex flex-col gap-3 border border-black border-solid border-b-1 rounded-[15px]">

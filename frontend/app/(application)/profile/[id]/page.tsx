@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import SearchBar from "../../../../components/ProfileComponents/Search/SearchBar";
 import NotificationBar from "../../../../components/ProfileComponents/NotificationBar/NotificationBar";
 import UserProfile from "../../../../components/ProfileComponents/UserProfile/UserProfile";
-import { useParams, usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useAuth } from "../../../context/AuthContext";
 
 export default function Page() {
@@ -22,7 +22,7 @@ export default function Page() {
           <NotificationBar />
         </div>
       </div>
-      <UserProfile isProfile={false}/>
+      <UserProfile isProfile={false} />
     </main>
   );
 }
