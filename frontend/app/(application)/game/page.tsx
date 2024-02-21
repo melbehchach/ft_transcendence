@@ -1,6 +1,5 @@
 "use client";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 export default function GamePage() {
   const router = useRouter();
@@ -8,7 +7,7 @@ export default function GamePage() {
     <>
       <div className="bg-background w-full h-screen flex px-5 py-10 justify-center ">
         <div className="flex justify-center content-center gap-5 w-full">
-          <div className="w-[80%] flex flex-col md:place-content-evenly">
+          <div className="w-11/12 flex flex-col md:place-content-evenly">
             <h1 className="text-text font-bold text-3xl md:text-5xl min-[2000px]:text-7xl text-center">
               READY TO PONG?
             </h1>
