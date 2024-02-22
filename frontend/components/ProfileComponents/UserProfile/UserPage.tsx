@@ -79,7 +79,7 @@ function UserPage() {
               <div className="h-full gap-[1rem] z-0">
                 <Swiper spaceBetween={10} slidesPerView={3} >
                   {profile?.friends.map((item, index) => (
-                    <SwiperSlide className="!w-fit !h-full">
+                    <SwiperSlide className="!w-fit !h-full" key={index}>
                       {item.id != user.id && <ProfileFriends item={item} />}
                     </SwiperSlide>
                   ))}

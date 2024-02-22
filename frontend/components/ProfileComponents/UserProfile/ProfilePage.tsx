@@ -93,7 +93,7 @@ function ProfilePage() {
             <div className="h-full gap-[1rem] z-0">
               <Swiper spaceBetween={10} slidesPerView={3}>
                 {friends?.friends.map((item, index) => (
-                  <SwiperSlide className="!w-fit"  >
+                  <SwiperSlide className="!w-fit" key={index} >
                     <UserFriends item={item} />
                   </SwiperSlide>
                 ))}
@@ -106,7 +106,7 @@ function ProfilePage() {
                 {friendRequests.receivedRequests.map((item, index) => {
                   if (item.status === "PENDING")
                     return (
-                      <SwiperSlide className="!w-fit">
+                      <SwiperSlide className="!w-fit" key={index}>
                         <FriendsRequest item={item} />
                       </SwiperSlide>
                     );
