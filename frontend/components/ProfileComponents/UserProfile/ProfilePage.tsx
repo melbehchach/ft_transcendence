@@ -1,11 +1,12 @@
-import React, { useReducer, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { useAuth } from "../../../app/context/AuthContext";
 import { Swiper, SwiperSlide } from "swiper/react";
 import ProfileCard from "./Card/ProfileCard";
 import RecentGames from "./RecentGames/RecentGames";
 import FriendsRequest from "./FriendsRequest/FriendsRequest";
-import { stat } from "fs";
 import UserFriends from "./Friends/UserFriends";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 function reducer(state, action) {
   switch (action.type) {
@@ -27,6 +28,23 @@ function reducer(state, action) {
 }
 
 function ProfilePage() {
+  let recentGames: any;
+  async function fetchRecentGames() {
+    const jwt_token = Cookies.get("JWT_TOKEN");
+    try {
+      if (jwt_token) {
+        let url: string = "http://localhost:3000/game/MatchHistory";
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${jwt_token}`,
+          },
+          withCredentials: true,
+        });
+        console.log(response.data);
+      } else throw new Error("bad req");
+    } catch (error) {}
+  }
+
   const [state, dispatch] = useReducer(reducer, {
     friends: true,
     friendsRq: false,
@@ -42,6 +60,11 @@ function ProfilePage() {
   const {
     state: { friendRequests, friends },
   } = useAuth();
+
+  useEffect(() => {
+    fetchRecentGames();
+    console.log("RecentGames: ", recentGames);
+  }, []);
 
   return (
     <div className="w-screen h-full flex gap-[1.5rem] p-[1rem] pt-[1.5rem]">
@@ -70,7 +93,7 @@ function ProfilePage() {
             <div className="h-full gap-[1rem] z-0">
               <Swiper spaceBetween={10} slidesPerView={3}>
                 {friends?.friends.map((item, index) => (
-                  <SwiperSlide className="!w-fit" key={index}>
+                  <SwiperSlide className="!w-fit"  >
                     <UserFriends item={item} />
                   </SwiperSlide>
                 ))}
@@ -83,7 +106,7 @@ function ProfilePage() {
                 {friendRequests.receivedRequests.map((item, index) => {
                   if (item.status === "PENDING")
                     return (
-                      <SwiperSlide className="!w-fit" key={index}>
+                      <SwiperSlide className="!w-fit">
                         <FriendsRequest item={item} />
                       </SwiperSlide>
                     );
