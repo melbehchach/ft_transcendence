@@ -3,7 +3,6 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import GameModalComponent from "../../../../components/Game/Modal";
 
-///////////////// Amzil remove countdown from game, instead display this modal for 5 seconds then jump to the game
 export default function GameRules() {
   const router = useRouter();
   const [counter, setCounter] = useState(5);
@@ -35,7 +34,7 @@ export default function GameRules() {
   const cancelCallback = () => router.push("/game");
   const btn1Callback = () => router.push("/game/friend");
   const modalContent = (
-    <div className="flex flex-col justify-center content-center gap-8 md:gap-4 border-2 rounded-xl border-textSecondary text-small xl:text-body 2xl:text-title text-text m-5 p-5 h-5/6">
+    <div className="flex flex-col justify-center content-center gap-8 md:gap-4 border-2 rounded-xl border-textSecondary text-small xl:text-body text-text m-5 p-5 h-5/6">
       <div className="flex content-center gap-5 justify-center">
         <div className="hidden md:block">{pongIcon}</div>
         <div className="flex flex-col justify-center">

@@ -4,12 +4,14 @@ import GameModalComponent from "../../../../components/Game/Modal";
 import PongAnimation from "../../../../public/img/PongAnimation.json";
 import Lottie from "lottie-react";
 
-export default function GamePage() {
+export default function DeclineModal() {
   const router = useRouter();
   const cancelCallback = () => router.push("/game");
   const btn1Callback = () => router.push("/game");
   const content = (
-    <Lottie className="mb-5 rounded-lg" animationData={PongAnimation} />
+    <div className="h-3/4 flex justify-center content-center bg-black rounded-xl my-6">
+      <Lottie className="mb-5 rounded-lg" animationData={PongAnimation} />
+    </div>
   );
 
   return (

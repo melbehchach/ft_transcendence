@@ -24,7 +24,7 @@ const GameModalComponent: FC<GameModalComponentProps> = ({
   return (
     <>
       <div className="h-screen fixed inset-0 backdrop-blur-sm bg-black/60 flex justify-center items-center z-30">
-        <div className="max-h-1/2 h-5/6 w-full md:w-3/5 rounded-lg bg-background z-60 p-2">
+        <div className="w-full md:w-3/5 xl:w-1/2 h-1/2 rounded-lg bg-background z-60 p-2">
           <svg
             onClick={cancelCallback}
             className="cursor-pointer float-right mr-4 mt-4"
