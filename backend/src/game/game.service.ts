@@ -370,4 +370,19 @@ export class GameService {
     }
     return count;
   }
+
+  async getAchievements(id: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+        select: { achievements: true },
+      });
+      if (!user) {
+        throw new Error('invalid user id');
+      }
+      return user.achievements;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
 }
