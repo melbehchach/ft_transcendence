@@ -13,13 +13,24 @@ type settingsProps = {
 };
 
 function ProfileSettings({ openSettings }: settingsProps) {
-  const { fetchData } = useAuth();
+  // const { fetchData } = useAuth();
   const [name, setName] = useState("");
   const [theme, setTheme] = useState("");
   const [secret, steSecret] = useState("");
   const [tfaCheck, setTfaCheck] = useState(false);
   const [code, setCode] = useState("");
   const [codeChecker, setCodeChecker] = useState(true);
+
+  const {
+    fetchData,
+    fetchRecentGames,
+    state: {
+      user: { avatar },
+    },
+  } = useAuth();
+
+  const [avatarFile, setAvatar] = useState<any>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>(avatar);
 
   async function tfaChecker() {
     const jwt_token = Cookies.get("JWT_TOKEN");
@@ -154,13 +165,41 @@ function ProfileSettings({ openSettings }: settingsProps) {
     } catch (error) {}
   }
 
+  async function handleSubmit() {
+    const formData = new FormData();
+    formData.append("avatar", avatarFile);
+    const jwt_token = Cookies.get("JWT_TOKEN");
+    try {
+      if (jwt_token) {
+        const formData = new FormData();
+        formData.append("avatar", avatarFile);
+        const response = await fetch(
+          "http://localhost:3000/user/settings/avatar",
+          {
+            credentials: "include",
+            method: "PATCH",
+            body: formData,
+          }
+        );
+        if (!response.ok) {
+          alert("File upload failed.");
+        }
+        fetchData();
+      } else throw new Error("bad req");
+    } catch (error) {}
+  }
+
   function handleClick() {
+    if (avatarFile) {
+      handleSubmit();
+    }
     if (name != "") {
       updateUsername();
     }
     if (theme != "") {
       updateTheme();
     }
+    fetchData();
     openSettings();
   }
 
@@ -186,7 +225,13 @@ function ProfileSettings({ openSettings }: settingsProps) {
     <div className="w-[21rem] h-full flex flex-col ">
       <h1 className="w-full font-semibold text-3xl">Settings</h1>
       <div className="w-full h-full flex justify-center flex-col gap-[1.5rem] ">
-        <ProfileAvatar />
+        <ProfileAvatar
+          avatarFile={avatarFile}
+          setAvatar={setAvatar}
+          previewUrl={previewUrl}
+          setPreviewUrl={setPreviewUrl}
+          handleSubmit={handleSubmit}
+        />
         <Username name={name} setName={setName} />
         <Password />
         <GameTheme them={theme} setTheme={setTheme} />

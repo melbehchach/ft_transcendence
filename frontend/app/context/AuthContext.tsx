@@ -111,8 +111,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           payload: { profile: { ...response.data, id } },
         });
       } else throw new Error("bad req");
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   async function fetchRecentGames() {

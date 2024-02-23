@@ -5,8 +5,6 @@ import ProfileCard from "./Card/ProfileCard";
 import RecentGames from "./RecentGames/RecentGames";
 import FriendsRequest from "./FriendsRequest/FriendsRequest";
 import UserFriends from "./Friends/UserFriends";
-import axios from "axios";
-import Cookies from "js-cookie";
 
 function reducer(state, action) {
   switch (action.type) {
@@ -28,23 +26,6 @@ function reducer(state, action) {
 }
 
 function ProfilePage() {
-  let recentGames: any;
-  async function fetchRecentGames() {
-    const jwt_token = Cookies.get("JWT_TOKEN");
-    try {
-      if (jwt_token) {
-        let url: string = "http://localhost:3000/game/MatchHistory";
-        const response = await axios.get(url, {
-          headers: {
-            Authorization: `Bearer ${jwt_token}`,
-          },
-          withCredentials: true,
-        });
-        console.log(response.data);
-      } else throw new Error("bad req");
-    } catch (error) {}
-  }
-
   const [state, dispatch] = useReducer(reducer, {
     friends: true,
     friendsRq: false,
@@ -56,32 +37,28 @@ function ProfilePage() {
   function handleFriendsrR() {
     dispatch({ type: "newFriendsRq" });
   }
+  const [setting, setSetting] = useState<boolean>(false);
 
   const {
-    state: { friendRequests, friends },
+    state: { friendRequests, friends, recentGames },
   } = useAuth();
-
-  useEffect(() => {
-    fetchRecentGames();
-    console.log("RecentGames: ", recentGames);
-  }, []);
 
   return (
     <div className="w-screen h-full flex gap-[1.5rem] p-[1rem] pt-[1.5rem]">
-      <ProfileCard />
+      <ProfileCard setting={setting} setSetting={setSetting} />
       <div className="w-screen h-full">
         <div className="w-full h-[14rem] flex flex-col gap-[1rem]">
           <h1 className="w-screen h-fit border-b border-gray-500 text-white font-semibold text-3xl">
             Recent Games
           </h1>
           <div className="w-full">
-            {/* <Swiper spaceBetween={10} slidesPerView={3}>
-              {db.map((item, index) => (
+            <Swiper spaceBetween={10} slidesPerView={3}>
+              {recentGames?.map((item, index) => (
                 <SwiperSlide className="!w-fit" key={index}>
-                  <RecentGames />
+                  <RecentGames player={item} />
                 </SwiperSlide>
               ))}
-            </Swiper> */}
+            </Swiper>
           </div>
         </div>
         <div className="w-full h-[25rem] flex flex-col gap-[1rem]">
@@ -93,7 +70,7 @@ function ProfilePage() {
             <div className="h-full gap-[1rem] z-0">
               <Swiper spaceBetween={10} slidesPerView={3}>
                 {friends?.friends.map((item, index) => (
-                  <SwiperSlide className="!w-fit" key={index} >
+                  <SwiperSlide className="!w-fit" key={index}>
                     <UserFriends item={item} />
                   </SwiperSlide>
                 ))}

@@ -9,8 +9,12 @@ import SettingIcon from "./ProfileSettings/SettingIcon";
 import fakeData from "./Infos/Scores/RecordsData";
 import achievementsData from "./Infos/Achievements/AchievementsData";
 
-function ProfileCard() {
-  const [setting, setSetting] = useState<boolean>(false);
+type props = {
+  setting: boolean;
+  setSetting: any;  
+}
+
+function ProfileCard({setting, setSetting}: props) {
   const {
     state: { user },
   } = useAuth();

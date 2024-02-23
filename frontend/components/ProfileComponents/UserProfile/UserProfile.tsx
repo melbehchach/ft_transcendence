@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../../app/context/AuthContext";
 import ProfilePage from "./ProfilePage";
 import UserPage from "./UserPage";

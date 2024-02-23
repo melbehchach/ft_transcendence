@@ -15,6 +15,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     fetchData,
     fetchFriendsReqData,
     fetchFriendsData,
+    fetchRecentGames,
     state: { profile },
   } = useAuth();
 
@@ -28,6 +29,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     fetchData();
+    fetchRecentGames();
     fetchFriendsReqData();
     fetchFriendsData();
   }, []);
