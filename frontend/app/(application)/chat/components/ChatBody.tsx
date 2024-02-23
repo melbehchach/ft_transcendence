@@ -16,10 +16,12 @@ const ChatBody = ({ selectedChat }) => {
   const messages = useMemo(() => {
     if (allChats) {
       scrollToBottom();
-      return allChats.find((chat) => chat.id === selectedChat).messages;
+      let chat = allChats.find((chat) => chat.id === selectedChat);
+      if (chat.name) return chat.Messages;
+      else return chat.messages;
     }
     return [];
-  }, [allChats]);
+  }, [allChats, selectedChat]);
 
   useEffect(() => {
     scrollToBottom();

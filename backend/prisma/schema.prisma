@@ -128,7 +128,7 @@ model Achievement {
   player        User    @relation(fields: [playerId], references: [id])
   playerId      String  @unique
   freshman      Boolean @default(true)
-  snowdedn      Boolean @default(true)
+  snowdedn      Boolean @default(false)
   NewHero       Boolean @default(false)
   Rak3ajbni     Boolean @default(false)
   Sbe3          Boolean @default(false)
@@ -180,6 +180,7 @@ enum NotificationType {
   Message
   Block
   unBlock
+  Channel
 }
 
 enum ChannelType {

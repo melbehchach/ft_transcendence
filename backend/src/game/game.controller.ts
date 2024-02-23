@@ -83,6 +83,7 @@ export class GameController {
   @Get('getWins/:id')
   async getWins(@Param() param: any) {
     if (param.id) {
+      console.log(param.id);
       return this.gameService.getPlayerWins(param.id);
     } else {
       throw new BadRequestException('Invalid user data.');
@@ -96,5 +97,31 @@ export class GameController {
     } else {
       throw new BadRequestException('Invalid user data.');
     }
+  }
+
+  @Get('TotalGames/:id')
+  async getTotalGames(@Param() param: any) {
+    if (param.id) {
+      return this.gameService.getTotalGames(param.id);
+    } else {
+      throw new BadRequestException('Invalid user data.');
+    }
+  }
+
+  @Get('TotalAchievement/:id')
+  async getTotalAchievement(@Param() param: any) {
+    if (param.id) {
+      return this.gameService.getTotalAchievement(param.id);
+    } else {
+      throw new BadRequestException('Invalid user data.');
+    }
+  }
+
+  @Get('achievements/:id')
+  async getAchievements(@Param('id') id: string) {
+    if (!id) {
+      return new BadRequestException('invalid user Id');
+    }
+    return this.gameService.getAchievements(id);
   }
 }

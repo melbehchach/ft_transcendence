@@ -24,8 +24,7 @@ function AcceptFriend({ isCard, profileId }: props) {
       return friendRequests.receivedRequests.find(
         (elem) => elem.senderId === profileId && elem.status === "PENDING"
       ).id;
-    }
-    else {
+    } else {
       return friendRequests.receivedRequests.find(
         (elem) => elem.senderId === param.id && elem.status === "PENDING"
       ).id;
@@ -36,18 +35,23 @@ function AcceptFriend({ isCard, profileId }: props) {
     const jwt_token = Cookies.get("JWT_TOKEN");
     try {
       if (jwt_token) {
-        const response = await axios.patch(
-          "http://localhost:3000/user/acceptRequest",
-          { friendRequestId: getId() },
-          {
-            headers: {
-              Authorization: `Bearer ${jwt_token}`,
-            },
-            withCredentials: true,
-          }
-        );
-        fetchFriendsReqData();
-        fetchFriendsData();
+        const response = await axios
+          .patch(
+            "http://localhost:3000/user/acceptRequest",
+            { friendRequestId: getId() },
+            {
+              headers: {
+                Authorization: `Bearer ${jwt_token}`,
+              },
+              withCredentials: true,
+            }
+          )
+          .then(() => {
+            fetchFriendsReqData();
+          })
+          .then(() => {
+            fetchFriendsData();
+          })
       } else throw new Error("bad req");
     } catch (error) {
       console.log(error);

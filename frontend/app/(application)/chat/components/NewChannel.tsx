@@ -6,9 +6,15 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
-import { useState } from "react";
+import { useRef } from "react";
+import Avatar from "../../../../components/Avatar";
+import Modal from "../../../../components/Modal";
 import Typography from "../../../../components/Typography";
+import UserAvatar from "../../../../components/UserAvatar";
+import { useAuth } from "../../../context/AuthContext";
 import Button from "./Button";
+import { newChannelActionTypes } from "./CreateNewChat";
+import { RowWrapper } from "./SelectNewChat";
 
 const NewChannelRow = ({
   label,
@@ -30,9 +36,15 @@ const NewChannelRow = ({
   );
 };
 
-const NewChannel = () => {
-  const [avatar, setAvatar] = useState(null);
+const NewChannel = ({ dispatch, state }) => {
+  const modalRef = useRef();
 
+  function openModel() {
+    modalRef?.current?.showModal();
+  }
+  function closeModal() {
+    modalRef?.current.close();
+  }
   const handleFileChange = (event) => {
     const file = event.target.files[0];
 
@@ -40,15 +52,23 @@ const NewChannel = () => {
       const reader = new FileReader();
 
       reader.onloadend = () => {
-        // Update state with the selected image
-        setAvatar(reader.result);
+        dispatch({
+          type: newChannelActionTypes.CHANNEL_AVATAR,
+          payload: formData,
+        });
+        // setAvatar(reader.result);
       };
 
       // Read the selected image as a data URL
       reader.readAsDataURL(file);
     }
   };
-
+  const {
+    state: {
+      friends: { friends },
+      user,
+    },
+  } = useAuth();
   return (
     <>
       <NewChannelRow label="Channel Photo">
@@ -71,9 +91,9 @@ const NewChannel = () => {
               className="w-6 h-6 absolute  text-white rounded-full"
             />
           </label>
-          {avatar && (
+          {state.avatar && (
             <img
-              src={avatar}
+              src={state.avatar}
               alt="Avatar"
               className="w-full h-full object-cover rounded-full"
             />
@@ -82,13 +102,27 @@ const NewChannel = () => {
       </NewChannelRow>
       <NewChannelRow label="Channel Name">
         <input
+          value={state.channelName}
+          onChange={(e) =>
+            dispatch({
+              type: newChannelActionTypes.CHANNEL_NAME,
+              payload: e.target.value,
+            })
+          }
           className="w-full border rounded-sm px-6 py-2 bg-transparent text-white rounded-md"
           placeholder="Type The Channel Name"
         />
       </NewChannelRow>
       <NewChannelRow alignStart label="Channel Type">
         <div className="flex flex-col gap-4">
-          <div>
+          <div
+            onClick={() =>
+              dispatch({ type: newChannelActionTypes.CHANNEL_TYPE, payload: 0 })
+            }
+            className={clsx("p-4 cursor-pointer", {
+              "rounded-[12px] border": state.type === 0,
+            })}
+          >
             <div className="flex gap-2 items-center">
               <FontAwesomeIcon className="w-4 h-4" icon={faEarthAmericas} />
               <Typography content="Public" type="paragraphe" variant="body" />
@@ -100,7 +134,14 @@ const NewChannel = () => {
               colorVariant="secondary"
             ></Typography>
           </div>
-          <div>
+          <div
+            onClick={() =>
+              dispatch({ type: newChannelActionTypes.CHANNEL_TYPE, payload: 1 })
+            }
+            className={clsx("p-4 cursor-pointer ", {
+              "rounded-[12px] border": state.type === 1,
+            })}
+          >
             <div className="flex gap-2 items-center">
               <FontAwesomeIcon className="w-4 h-4" icon={faKey} />
               <Typography
@@ -116,7 +157,14 @@ const NewChannel = () => {
               colorVariant="secondary"
             ></Typography>
           </div>
-          <div>
+          <div
+            className={clsx("p-4 cursor-pointer ", {
+              "rounded-[12px] border": state.type === 2,
+            })}
+            onClick={() =>
+              dispatch({ type: newChannelActionTypes.CHANNEL_TYPE, payload: 2 })
+            }
+          >
             <div className="flex gap-2 items-center">
               <FontAwesomeIcon className="w-4 h-4" icon={faLock} />
               <Typography content="Private" type="paragraphe" variant="body" />
@@ -137,7 +185,63 @@ const NewChannel = () => {
         />
       </NewChannelRow>
       <NewChannelRow label="Channel Members">
-        <Button content="Add members" />
+        <>
+          <div className="flex items-center gap-4">
+            <div className="mr-[25px]">
+              <Button content="Add members" onClick={openModel} />
+            </div>
+            <div className="flex items-center">
+              {state.members.map((id, key) => {
+                return (
+                  <div key={key} className="ml-[-25px]">
+                    <Avatar
+                      src={friends.find((friend) => friend.id === id).avatar}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <Modal
+            forwardedRef={modalRef}
+            bordered={true}
+            title="Talk to someone or start a new channel"
+            onCancel={() => {}}
+          >
+            {friends.map((friend, index) => {
+              if (state.members.find((elem) => elem === friend.id))
+                return (
+                  <RowWrapper key={index}>
+                    <UserAvatar src={friend.avatar} name={friend.username} />
+                    <Button
+                      content="Remove"
+                      onClick={() => {
+                        dispatch({
+                          type: newChannelActionTypes.UPDATE_MEMBERS,
+                          payload: friend.id,
+                        });
+                      }}
+                    />
+                  </RowWrapper>
+                );
+              return (
+                <RowWrapper key={index}>
+                  <UserAvatar src={friend.avatar} name={friend.username} />
+                  <Button
+                    content="Add"
+                    type="primary"
+                    onClick={() => {
+                      dispatch({
+                        type: newChannelActionTypes.UPDATE_MEMBERS,
+                        payload: friend.id,
+                      });
+                    }}
+                  />
+                </RowWrapper>
+              );
+            })}
+          </Modal>
+        </>
       </NewChannelRow>
     </>
   );

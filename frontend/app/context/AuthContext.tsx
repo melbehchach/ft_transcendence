@@ -1,5 +1,6 @@
 "use client";
 import axios from "axios";
+import { profile } from "console";
 import Cookies from "js-cookie";
 import React, { createContext, useContext, useReducer } from "react";
 
@@ -13,6 +14,7 @@ type AuthContext = {
   friendRequests: any;
   friends: any;
   tfa: "idle" | true | false;
+  recentGames: any;
 };
 
 const initialeState: AuthContext = {
@@ -23,6 +25,7 @@ const initialeState: AuthContext = {
   friendRequests: null,
   friends: null,
   tfa: "idle",
+  recentGames: null,
 };
 
 const actionTypes = {
@@ -34,6 +37,7 @@ const actionTypes = {
   LOAD_PROFILE_DATA: "LOAD_PROFILE_DATA",
   LOAD_FRIEND_REQUESTS: "LOAD_FRIEND_REQUESTS",
   LOAD_FRIENDS: "LOAD_FRIENDS",
+  RECENT_GAMES: "RECENT_GAMES",
 };
 
 const authReducer = (state, action) => {
@@ -66,6 +70,9 @@ const authReducer = (state, action) => {
     case actionTypes.LOAD_FRIENDS: {
       return { ...state, friends: action.payload.friends };
     }
+    case actionTypes.RECENT_GAMES: {
+      return { ...state, recentGames: action.payload.recentGames };
+    }
     default:
       return state;
   }
@@ -75,7 +82,6 @@ const Auth = createContext<any>(null);
 
 const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(authReducer, initialeState);
-
   const jwt_token = Cookies.get("JWT_TOKEN");
 
   async function fetchData(id: string, isFriendReq?: boolean) {
@@ -84,6 +90,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         let url: string = !id
           ? "http://localhost:3000/user"
           : "http://localhost:3000/user/" + id;
+
         const response = await axios.get(url + "/profile", {
           headers: {
             Authorization: `Bearer ${jwt_token}`,
@@ -104,9 +111,25 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           payload: { profile: { ...response.data, id } },
         });
       } else throw new Error("bad req");
-    } catch (error) {
-      console.log("an error occured");
-    }
+    } catch (error) {}
+  }
+
+  async function fetchRecentGames() {
+    try {
+      if (jwt_token) {
+        let url: string = "http://localhost:3000/game/MatchHistory";
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${jwt_token}`,
+          },
+          withCredentials: true,
+        });
+        dispatch({
+          type: actionTypes.RECENT_GAMES,
+          payload: { recentGames: response.data },
+        });
+      } else throw new Error("bad req");
+    } catch (error) {}
   }
 
   async function fetchFriendsReqData() {
@@ -124,9 +147,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           payload: { friendRequests: response.data },
         });
       } else throw new Error("bad req");
-    } catch (error) {
-      console.log("an error occured");
-    }
+    } catch (error) {}
   }
 
   async function fetchFriendsData() {
@@ -144,9 +165,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           payload: { friends: response.data },
         });
       } else throw new Error("bad req");
-    } catch (error) {
-      console.log("an error occured");
-    }
+    } catch (error) {}
   }
 
   async function manageFreindReq(id: string, type: string) {
@@ -175,9 +194,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         fetchFriendsReqData();
         fetchFriendsData();
       }
-    } catch (error) {
-      console.log("an error occured");
-    }
+    } catch (error) {}
   }
 
   async function login(username: string, password: string) {
@@ -226,6 +243,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         fetchFriendsReqData,
         fetchFriendsData,
         getUserInfo,
+        fetchRecentGames,
       }}
     >
       {children}

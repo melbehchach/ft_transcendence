@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { useAuth } from "../../../app/context/AuthContext";
 import ProfilePage from "./ProfilePage";
 import UserPage from "./UserPage";
 
@@ -6,9 +8,10 @@ type props = {
 };
 
 function UserProfile({ isProfile }: props) {
+
   return (
     <div className="w-screen h-full flex">
-      {isProfile ? <ProfilePage /> : <UserPage />}
+      {isProfile  ? <ProfilePage /> : <UserPage />}
     </div>
   );
 }

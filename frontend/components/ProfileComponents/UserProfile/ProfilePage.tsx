@@ -1,10 +1,9 @@
-import React, { useReducer } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { useAuth } from "../../../app/context/AuthContext";
 import { Swiper, SwiperSlide } from "swiper/react";
 import ProfileCard from "./Card/ProfileCard";
 import RecentGames from "./RecentGames/RecentGames";
 import FriendsRequest from "./FriendsRequest/FriendsRequest";
-import { stat } from "fs";
 import UserFriends from "./Friends/UserFriends";
 
 function reducer(state, action) {
@@ -38,27 +37,28 @@ function ProfilePage() {
   function handleFriendsrR() {
     dispatch({ type: "newFriendsRq" });
   }
+  const [setting, setSetting] = useState<boolean>(false);
 
   const {
-    state: { user, friendRequests, friends },
+    state: { friendRequests, friends, recentGames },
   } = useAuth();
 
   return (
     <div className="w-screen h-full flex gap-[1.5rem] p-[1rem] pt-[1.5rem]">
-      <ProfileCard />
+      <ProfileCard setting={setting} setSetting={setSetting} />
       <div className="w-screen h-full">
         <div className="w-full h-[14rem] flex flex-col gap-[1rem]">
           <h1 className="w-screen h-fit border-b border-gray-500 text-white font-semibold text-3xl">
             Recent Games
           </h1>
           <div className="w-full">
-            {/* <Swiper spaceBetween={10} slidesPerView={3}>
-              {db.map((item, index) => (
+            <Swiper spaceBetween={10} slidesPerView={3}>
+              {recentGames?.map((item, index) => (
                 <SwiperSlide className="!w-fit" key={index}>
-                  <RecentGames />
+                  <RecentGames player={item} />
                 </SwiperSlide>
               ))}
-            </Swiper> */}
+            </Swiper>
           </div>
         </div>
         <div className="w-full h-[25rem] flex flex-col gap-[1rem]">

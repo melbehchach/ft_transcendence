@@ -1,7 +1,8 @@
-import { memo } from "react";
+"use client";
+import { memo, useMemo } from "react";
 import Avatar from "../../../../components/Avatar";
 import Typography from "../../../../components/Typography";
-import { useAuth } from "../../../context/AuthContext";
+import { useChat } from "../../../context/ChatContext";
 
 function getTimeDifferenceFromNow(apiTime) {
   const apiDate = new Date(apiTime);
@@ -26,29 +27,14 @@ function getTimeDifferenceFromNow(apiTime) {
   }
 }
 const Message = ({ message }) => {
-  //   const {
   const {
-    state: {
-      user,
-      friends: { friends },
-    },
-  } = useAuth();
-  const { getUserInfo } = useAuth();
-  //   const sender = useMemo(() => {
-  //     return getUserInfo(message.senderId);
-  //   }, [message]);
-  const sender = getUserInfo(message.senderId);
-  //     state: { allChats },
-  //   } = useChat();
-  //   const {
-  //     state: {
-  //       friends: { friends },
-  //     },
-  //   } = useAuth();
-  //   console.log(allChats);
-  //   console.log(getMessageSender());
-  //   console.log(message.senderId);
-  //   console.log(getUserInfo(message.senderId));
+    state: { members },
+  } = useChat();
+
+  const sender = useMemo(() => {
+    return members.find((member) => member.id === message.senderId);
+  }, [members]);
+
   if (!sender) return;
   return (
     <div className="flex gap-4 items-start">

@@ -1,21 +1,21 @@
 import {
-  // BadRequestException,
   Injectable,
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ChannelType } from '@prisma/client';
+import { ChannelType, NotificationType } from '@prisma/client';
 import { editTypeDto, makeAdminDto, newChannelDto } from 'src/dto/channels.dto';
-// import { updateChannelDto } from 'src/dto/channels.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ChannelsGateway } from './channels.gateway';
 import * as argon from 'argon2';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class ChannelsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly gateway: ChannelsGateway,
+    private readonly notifications: NotificationsService,
   ) {}
 
   // Get the channels that the user created or joined
@@ -210,6 +210,13 @@ export class ChannelsService {
       });
       delete newChannel?.password;
       this.gateway.newRoom(newChannel.id, newChannel.name, data.Members);
+      data.Members.map((member) => {
+        this.notifications.createNotification(userId, {
+          receiverId: member,
+          type: NotificationType.Channel,
+          message: `You were added to channel ${newChannel.name}`,
+        });
+      });
       return newChannel;
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -378,6 +385,11 @@ export class ChannelsService {
       if (!updatedChannel) {
         throw new Error('Failed to update record!');
       }
+      this.notifications.createNotification(userId, {
+        receiverId: user.id,
+        type: NotificationType.Channel,
+        message: `You were unbanned from channel ${channel.name}. You can request to join again`,
+      });
       return 'success';
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -424,6 +436,12 @@ export class ChannelsService {
       if (!updatedChannel) {
         throw new Error('Failed to update record!');
       }
+      this.gateway.leaveRoom(channel.id, channel.name, user.id);
+      this.notifications.createNotification(userId, {
+        receiverId: user.id,
+        type: NotificationType.Channel,
+        message: `You were banned from channel ${channel.name}`,
+      });
       return 'success';
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -480,6 +498,14 @@ export class ChannelsService {
         if (!updatedChannel) {
           throw new Error('Failed to update record!');
         }
+        body.members.map((member) => {
+          this.gateway.leaveRoom(channel.id, channel.name, member);
+          this.notifications.createNotification(userId, {
+            receiverId: member,
+            type: NotificationType.Channel,
+            message: `You were kicked from channel ${channel.name}`,
+          });
+        });
       }
       return 'success';
     } catch (error) {
@@ -606,7 +632,7 @@ export class ChannelsService {
           id: channelId,
         },
         data: {
-          image: avatar.path,
+          image: `http://localhost:3000/uploads/${avatar.filename}`,
         },
       });
       if (!updatedChannel) {
@@ -697,6 +723,14 @@ export class ChannelsService {
         if (!updatedChannel) {
           throw new Error('Failed to update record');
         }
+        body.members.map((member) => {
+          this.gateway.joinRoom(channel.id, channel.name, member);
+          this.notifications.createNotification(userId, {
+            receiverId: member,
+            type: NotificationType.Channel,
+            message: `You were added to channel ${updatedChannel.name}`,
+          });
+        });
       }
       return 'success';
     } catch (error) {

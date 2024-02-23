@@ -1,9 +1,9 @@
 import UserAvatar from "../../../../components/UserAvatar";
 
-const ChatHeader = ({ friend }) => {
+const ChatHeader = ({ headerInfo: { avatar, name } }) => {
   return (
     <div className="border-b border-black py-4 fixed w-full">
-      <UserAvatar src={friend.avatar} name={friend.username} />
+      <UserAvatar src={avatar} name={name} />
     </div>
   );
 };

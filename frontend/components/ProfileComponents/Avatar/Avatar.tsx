@@ -3,7 +3,12 @@ import Image from "next/image";
 import { AvatarProps } from "../types/Avatar.type";
 
 export default function Avatar({ avatarObj }) {
-  if (!avatarObj) return null;
+  if (!avatarObj) {
+    console.log("makayn walo");
+    return null;
+  }
+
+  // console.log(avatarObj.src);
 
   return (
     <div
@@ -12,13 +17,12 @@ export default function Avatar({ avatarObj }) {
         " items-center gap-[0.5rem]"
       }
     >
-      <Image
+      <img
         src={avatarObj.src}
         width={100}
         height={100}
         alt={avatarObj.userName ? avatarObj.userName : ""}
         className={`${avatarObj.imageStyle}`}
-        priority={true}
       />
       <span className={`${avatarObj.fontSize}`}>{avatarObj.userName}</span>
     </div>
