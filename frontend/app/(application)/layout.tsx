@@ -16,6 +16,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     fetchFriendsReqData,
     fetchFriendsData,
     fetchRecentGames,
+    fetchNotifications,
     state: { profile },
   } = useAuth();
 
@@ -32,6 +33,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     fetchRecentGames();
     fetchFriendsReqData();
     fetchFriendsData();
+    // fetchNotifications();
   }, []);
 
   return (

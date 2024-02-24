@@ -4,7 +4,6 @@ import Avatar from "../../Avatar/Avatar";
 import { AvatarProps } from "../../types/Avatar.type";
 import Achievements from "./Infos/Achievements/Achievements";
 import achievementsData from "./Infos/Achievements/AchievementsData";
-import fakeData from "./Infos/Scores/RecordsData";
 import Scores from "./Infos/Scores/Scores";
 import FriendshipState from "./Infos/UserInfos/FriendshipSatate/FriendshipState";
 import { useParams } from "next/navigation";
@@ -46,7 +45,7 @@ function UserCard({setBlocker, setBlocked}: props) {
           <Avatar avatarObj={avatarObj} />
         </div>
         <FriendshipState setBlocker={setBlocker} setBlocked={setBlocked} />
-        <Scores myScoresArray={fakeData} />
+        <Scores />
         <Achievements achievementsArray={achievementsData} />
       </div>
     </div>

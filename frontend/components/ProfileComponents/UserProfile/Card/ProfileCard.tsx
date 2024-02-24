@@ -6,15 +6,14 @@ import Scores from "./Infos/Scores/Scores";
 import Achievements from "./Infos/Achievements/Achievements";
 import ProfileSettings from "./ProfileSettings/ProfileSettings";
 import SettingIcon from "./ProfileSettings/SettingIcon";
-import fakeData from "./Infos/Scores/RecordsData";
 import achievementsData from "./Infos/Achievements/AchievementsData";
 
 type props = {
   setting: boolean;
-  setSetting: any;  
-}
+  setSetting: any;
+};
 
-function ProfileCard({setting, setSetting}: props) {
+function ProfileCard({ setting, setSetting }: props) {
   const {
     state: { user },
   } = useAuth();
@@ -46,7 +45,7 @@ function ProfileCard({setting, setSetting}: props) {
           <div className="w-full flex justify-center items-center">
             <Avatar avatarObj={avatarObj} />
           </div>
-          <Scores myScoresArray={fakeData} />
+          <Scores />
           <Achievements achievementsArray={achievementsData} />
         </div>
       ) : (
