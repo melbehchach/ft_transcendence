@@ -116,4 +116,12 @@ export class GameController {
       throw new BadRequestException('Invalid user data.');
     }
   }
+
+  @Get('achievements/:id')
+  async getAchievements(@Param('id') id: string) {
+    if (!id) {
+      return new BadRequestException('invalid user Id');
+    }
+    return this.gameService.getAchievements(id);
+  }
 }

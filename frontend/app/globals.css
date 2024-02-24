@@ -3,16 +3,16 @@
 @tailwind utilities;
 
 #file-input {
-    display: none;
-  }
+  display: none;
+}
 
 #file-upload-button {
-    display: none;
+  display: none;
 }
 
 .main-height {
   overflow: scroll;
-  height : calc(100vh - 142px);
+  height: calc(100vh - 142px);
   margin-top: 81px;
 }
 
