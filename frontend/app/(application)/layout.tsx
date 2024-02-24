@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import "swiper/css";
 import SideBar from "../../components/ProfileComponents/SideBar/SideBar";
 import ProtectedRoute from "../../components/ProtectedRoute";
+import AcceptOrRefuse from "../../components/Game/AcceptOrRefuse";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState<string>("");
@@ -13,6 +14,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const locations = ["profile", "chat", "game"];
   const {
     fetchData,
+    notifications,
+    sender,
     fetchFriendsReqData,
     fetchFriendsData,
     fetchRecentGames,
@@ -41,6 +44,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <SideBar active={active} setSideBar={steOpen} />
         </div>
         {profile && children}
+        {notifications ? <AcceptOrRefuse sender={sender} /> : null} 
       </div>
     </ProtectedRoute>
   );

@@ -3,14 +3,17 @@ import Cookies from "js-cookie";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
 import { useAuth } from "./AuthContext";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 const SocketContext = createContext(null);
 
 const SocketContextProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
+  const [notifications, setNotifications] = useState<boolean>(false);
+  const [sender, setSender] = useState<string>("");
   const { fetchFriendsReqData, fetchFriendsData, fetchData } = useAuth();
   const param = useParams();
+  const router = useRouter();
   useEffect(() => {
     const newSocket: Socket = io("http://localhost:3000/notifications", {
       auth: {
@@ -55,12 +58,19 @@ const SocketContextProvider = ({ children }) => {
       socket.on("unBlock", (data) => {
         fetchData();
       });
+      socket.on("GameRequest", (data) => {
+        setNotifications(true);
+        setSender(data.sender);
+      });
+      socket.on("redirect", (data) => {
+        router.push(data.url);
+      });
     }
   }, [socket]);
 
   return (
     <SocketContext.Provider
-      value={{ socket, sendMessage, joinRoom, leaveRoom }}
+      value={{ socket, sendMessage, joinRoom, leaveRoom, notifications, sender}}
     >
       {children}
     </SocketContext.Provider>

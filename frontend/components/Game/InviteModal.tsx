@@ -3,24 +3,23 @@ import Image from "next/image";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { useAuth } from "../../app/context/AuthContext";
 
 const InviteModal = ({ loading }: any) => {
-  const [friends, setFriends] = useState([]);
   const [text, setText] = useState(["Challenge"]);
   const router = useRouter();
   const initailText: string = "Challenge";
-  const [senderId, setSenderId] = useState("");
   const [receiverId, setReceiverId] = useState("");
   const [senderUsername, setSenderUsername] = useState("");
   const [receiverUsername, setReceiverUsername] = useState("");
-  const [friendAvatar, setFriendAvatar] = useState("");
-
+  const { state } = useAuth();
+  console.log(state.profile.id);
   const handleSendInvite = (friendId) => {
     axios
       .post(
         `http://localhost:3000/game/${friendId}/send-game-request`,
         {
-          id: senderId,
+          id: state.profile.id.toString(),
         },
         {
           withCredentials: true,
@@ -30,51 +29,35 @@ const InviteModal = ({ loading }: any) => {
           },
         }
       )
+      .then((res) => {
+        if (res.status === 200) {
+          console.log("Request sent successfully");
+        } else {
+          console.log("Request failed");
+        }
+      })
       .catch((error) => {
-        console.log(error);
+        console.log(error.response.data);
       });
   };
 
-  const ChangeTextandSendRequest = (friend) => {
-    setReceiverId(friend.id);
-    setReceiverUsername(friend.username);
-    handleSendInvite(friend.id);
-    changeText(`Waiting for ${friend.username} to accept the challenge ...`);
+  const ChangeTextandSendRequest = () => {
+    setReceiverId(state.profile.friends[0].id);
+    setReceiverUsername(state.profile.friends[0].username);
+    handleSendInvite(state.profile.friends[0].id);
+    changeText(
+      `Waiting for ${state.profile.friends.username} to accept the challenge ...`
+    );
   };
 
   useEffect(() => {
     if (text != initailText)
       setTimeout(() => {
-        // setText(initailText);
         router.push("/game/decline");
       }, 10000); /// the opponent has 10s to accept the challenge
   }, [text]);
 
   const changeText = (text: string) => setText(text);
-  // if (!loading) return;
-  useEffect(() => {
-    if (!loading) return;
-    const fetchData = () => {
-      axios
-        .get(`http://localhost:3000/user/${Cookies.get("USER_ID")}/profile`, {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-        })
-        .then((res) => {
-          setSenderId(res.data.id); // the sender Id
-          setSenderUsername(res.data.username); // the sender username
-          setFriends(res.data.friends); // the friends of the current user
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    };
-    fetchData();
-  }, [loading]);
-
   return (
     <>
       <div className="h-screen fixed inset-0 backdrop-blur-sm bg-black/60 flex justify-center items-center z-30">
@@ -101,22 +84,22 @@ const InviteModal = ({ loading }: any) => {
               Who do you want to challenge ?
             </h1>
             <div className="flex-col  items-center text-center border-solid border-2 rounded-xl border-textSecondary m-10 p-5">
-              {friends.map((friend: any, index: any) => (
+              {state.profile.friends.map((friend: any, index: any) => (
                 <ul key={index} className="flex justify-between items-center ">
                   <figure className="flex items-center text-center gap-5">
                     <Image
                       className="rounded-full"
-                      src={friend.avatar}
+                      src={state.profile.friends[0].avatar}
                       width={55}
                       height={55}
                       alt="Friend's picture"
                     />
                     <figcaption className="text-text ">
-                      {friend.username}
+                      {state.profile.friends[0].username}
                     </figcaption>
                   </figure>
                   <button
-                    onClick={() => ChangeTextandSendRequest(friend)}
+                    onClick={() => ChangeTextandSendRequest()}
                     className="border-solid border-2 border-textSecondary rounded-3xl pr-5 pl-5 pt-2 pb-2 text-text text-center"
                   >
                     {text}

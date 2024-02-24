@@ -1,6 +1,5 @@
 "use client";
 import axios from "axios";
-import { profile } from "console";
 import Cookies from "js-cookie";
 import React, { createContext, useContext, useReducer } from "react";
 
