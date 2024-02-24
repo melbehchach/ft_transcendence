@@ -52,7 +52,7 @@ const ChatSocketContextProvider = ({ children }) => {
         payload: r,
       });
 
-      let members = [];
+      let members = [...friends.friends.map((f) => f.id), user.id];
       r.forEach((channel) => {
         if (channel.Members) {
           channel.Members.forEach((element) => {
@@ -61,8 +61,7 @@ const ChatSocketContextProvider = ({ children }) => {
         }
       });
       members = [...new Set(members)];
-      let membersData = [];
-      console.log({ members, user });
+      let membersData = [...state.members];
       members.forEach(async (element) => {
         let friend;
         if (state.members.find((m) => m.id === element)) {
@@ -105,6 +104,24 @@ const ChatSocketContextProvider = ({ children }) => {
       if (jwt_token) {
         const channels = (
           await axios.get("http://localhost:3000/channels/all", {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          })
+        ).data;
+        return channels;
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+
+  async function exploreChannels() {
+    try {
+      if (jwt_token) {
+        const channels = (
+          await axios.get("http://localhost:3000/channels/explore", {
             headers: {
               Authorization: `Bearer ${jwt_token}`,
             },
@@ -169,6 +186,25 @@ const ChatSocketContextProvider = ({ children }) => {
       console.log("an error occured");
     }
   }
+  async function joinChannel(id, pwd) {
+    try {
+      if (jwt_token) {
+        const response = await axios.post(
+          `http://localhost:3000/channels/${id}/join`,
+          { password: pwd },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        await getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
 
   async function newChat(friendId: string) {
     try {
@@ -185,7 +221,8 @@ const ChatSocketContextProvider = ({ children }) => {
             withCredentials: true,
           }
         );
-        getAllChats();
+        console.log(response);
+        await getAllChats();
       } else throw new Error("bad req");
     } catch (error) {
       console.log("an error occured");
@@ -269,6 +306,7 @@ const ChatSocketContextProvider = ({ children }) => {
   useEffect(() => {
     if (socket) {
       socket.on("directMessage", (data) => {
+        console.log(data);
         getAllChats();
       });
     }
@@ -276,13 +314,24 @@ const ChatSocketContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (socketChannels) {
-      console.log("loggggeeeeeeeeed");
+      // console.log("loggggeeeeeeeeed");
       socketChannels.on("channelMessage", (data) => {
-        console.log(data);
+        console.log({ evenet: "channelMessage", data });
         getAllChats();
       });
       socketChannels.on("directMessage", (data) => {
-        console.log(data);
+        console.log({ evenet: "directMessage", data });
+        // console.log(data);
+        getAllChats();
+      });
+      socketChannels.on("leaveRoom", (data) => {
+        // console.log(data);
+        console.log({ evenet: "leaveRoom", data });
+        getAllChats();
+      });
+      socketChannels.on("joinRoom", (data) => {
+        // console.log(data);
+        console.log({ evenet: "joinRoom", data });
         getAllChats();
       });
     }
@@ -299,6 +348,8 @@ const ChatSocketContextProvider = ({ children }) => {
         joinRoom,
         leaveRoom,
         newChannel,
+        exploreChannels,
+        joinChannel,
       }}
     >
       {children}

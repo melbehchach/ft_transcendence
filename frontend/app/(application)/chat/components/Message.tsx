@@ -28,14 +28,15 @@ function getTimeDifferenceFromNow(apiTime) {
 }
 const Message = ({ message }) => {
   const {
-    state: { members },
+    state: { members, allChats },
   } = useChat();
 
+  // console.log(message);
   const sender = useMemo(() => {
     return members.find((member) => member.id === message.senderId);
-  }, [members]);
+  }, [members, allChats]);
 
-  if (!sender) return;
+  if (!sender) return <div>{message.body}</div>;
   return (
     <div className="flex gap-4 items-start">
       <Avatar src={sender?.avatar} />
