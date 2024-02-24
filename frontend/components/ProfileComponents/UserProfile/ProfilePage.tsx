@@ -26,6 +26,10 @@ function reducer(state, action) {
 }
 
 function ProfilePage() {
+  const {
+    state: { friendRequests, friends, recentGames },
+  } = useAuth();
+
   const [state, dispatch] = useReducer(reducer, {
     friends: true,
     friendsRq: false,
@@ -38,10 +42,6 @@ function ProfilePage() {
     dispatch({ type: "newFriendsRq" });
   }
   const [setting, setSetting] = useState<boolean>(false);
-
-  const {
-    state: { friendRequests, friends, recentGames },
-  } = useAuth();
 
   return (
     <div className="w-screen h-full flex gap-[1.5rem] p-[1rem] pt-[1.5rem]">

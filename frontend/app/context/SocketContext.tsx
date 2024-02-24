@@ -55,6 +55,9 @@ const SocketContextProvider = ({ children }) => {
       socket.on("unBlock", (data) => {
         fetchData();
       });
+      socket.on("Message", (data) => {
+        fetchData();
+      });
     }
   }, [socket]);
 
