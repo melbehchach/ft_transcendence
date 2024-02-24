@@ -6,6 +6,7 @@ import { useChat } from "../../context/ChatContext";
 import ChatBody from "./components/ChatBody";
 import ChatHeader from "./components/ChatHeader";
 import ChatSideBar from "./components/ChatSideBar";
+import ManageChatBar from "./components/ManageChatBar";
 
 const NoneSelected = () => {
   return (
@@ -42,7 +43,6 @@ const Chat = () => {
     return allChats.find((chat) => chat.id === selectedChat);
   }, [friends, selectedChat]);
   const headerInfo = useMemo(() => {
-    console.log(chat);
     if (selectedChat) {
       if (chat?.name) {
         return { name: chat.name, avatar: "" };
@@ -72,32 +72,36 @@ const Chat = () => {
     <div className="w-3/4 grow">
       <ChatHeader headerInfo={headerInfo} />
       {/* <div className="flex"> */}
-      <div className="flex w-full flex-col">
-        <ChatBody selectedChat={selectedChat} />
-        <form
-          onSubmit={submitMessage}
-          className="w-full flex relative border-t border-black"
-        >
-          <input
-            value={message}
-            className="w-full h-[60px] bg-transparent p-5"
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="send message"
-          ></input>
-          <button type="submit" className="absolute inset-y-1/4 right-10">
-            send
-          </button>
-        </form>
-        {/* </div> */}
-        {/* <div className=" h-full border-l border-black main-height">
-            <ManageChatBar />
-          </div> */}
+      <div className="flex">
+        <div className="flex w-full flex-col">
+          <ChatBody selectedChat={selectedChat} />
+          <form
+            onSubmit={submitMessage}
+            className="w-full flex relative border-t border-black"
+          >
+            <input
+              value={message}
+              className="w-full h-[60px] bg-transparent p-5"
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="send message"
+            ></input>
+            <button type="submit" className="absolute inset-y-1/4 right-10">
+              send
+            </button>
+          </form>
+          {/* </div> */}
+        </div>
+        {chat.name && (
+          <div className=" h-full border-l border-black manage_bar-height min-w-[250px] ">
+            <ManageChatBar chat={chat} />
+          </div>
+        )}
       </div>
     </div>
   );
   return (
     <>
-      <div className="grow max-w-[320px] min-w-[250px] border-r-2 border-black">
+      <div className="grow min-w-[300px] border-r border-black">
         <ChatSideBar
           selectedChat={selectedChat}
           setSelectedChat={setSelectedChat}
