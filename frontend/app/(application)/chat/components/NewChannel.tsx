@@ -12,6 +12,7 @@ import Modal from "../../../../components/Modal";
 import Typography from "../../../../components/Typography";
 import UserAvatar from "../../../../components/UserAvatar";
 import { useAuth } from "../../../context/AuthContext";
+import { useChat } from "../../../context/ChatContext";
 import Button from "./Button";
 import { newChannelActionTypes } from "./CreateNewChat";
 import { RowWrapper } from "./SelectNewChat";
@@ -40,13 +41,29 @@ const NewChannelRow = ({
   );
 };
 
-const NewChannel = ({ dispatch, state }) => {
+const NewChannel = ({
+  dispatch,
+  state,
+  channel,
+}: {
+  dispatch: any;
+  state: any;
+  channel?: any;
+}) => {
   const modalRef = useRef();
   const [inputErrors, setInputErrors] = useState({
     channelName: "",
     password: "",
   });
-  const [previewUrl, setPreviewUrl] = useState<string>("");
+  // const [channel, setChannel] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState<string>(
+    state.avatar ? state.avatar : ""
+  );
+  const {
+    getChannelByID,
+    unbanMember,
+    state: { members, allChats },
+  } = useChat();
   const handleInputChange = (e, field) => {
     const { value } = e.target;
     // Validate input based on field
@@ -90,25 +107,22 @@ const NewChannel = ({ dispatch, state }) => {
   function closeModal() {
     modalRef?.current.close();
   }
-  useEffect(() => {console.log(state)}, [state])
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
 
-      if (file) {
-        const maxFileSize = 1024 * 1024 * 5;
-        if (file.size > maxFileSize) {
-          alert(
-            "File is too large. Please upload a file smaller than 5 MB."
-          );
-          return;
-        }
-        setPreviewUrl(URL.createObjectURL(file));
-        console.log(file)
-        dispatch({
-          type: newChannelActionTypes.CHANNEL_AVATAR,
-          payload: file,
-        });
+    if (file) {
+      const maxFileSize = 1024 * 1024 * 5;
+      if (file.size > maxFileSize) {
+        alert("File is too large. Please upload a file smaller than 5 MB.");
+        return;
       }
+      setPreviewUrl(URL.createObjectURL(file));
+      dispatch({
+        type: newChannelActionTypes.CHANNEL_AVATAR,
+        payload: file,
+      });
+    }
   };
   const {
     state: {
@@ -259,7 +273,7 @@ const NewChannel = ({ dispatch, state }) => {
                 return (
                   <div key={key} className="ml-[-25px]">
                     <Avatar
-                      src={friends.find((friend) => friend.id === id).avatar}
+                      src={friends.find((friend) => friend.id === id)?.avatar}
                     />
                   </div>
                 );
@@ -273,7 +287,23 @@ const NewChannel = ({ dispatch, state }) => {
             onCancel={() => {}}
           >
             {friends.map((friend, index) => {
-              if (state.members.find((elem) => elem === friend.id))
+              if (
+                channel &&
+                channel.name &&
+                channel?.bannedMembers?.find((el) => el.id === friend.id)
+              ) {
+                return (
+                  <RowWrapper key={index}>
+                    <UserAvatar src={friend.avatar} name={friend.username} />
+                    <Button
+                      content="Unban"
+                      onClick={() => {
+                        unbanMember(channel.id, friend.id);
+                      }}
+                    />
+                  </RowWrapper>
+                );
+              } else if (state.members.find((elem) => elem === friend.id))
                 return (
                   <RowWrapper key={index}>
                     <UserAvatar src={friend.avatar} name={friend.username} />
