@@ -3,7 +3,7 @@ import Typography from "./Typography";
 
 const UserAvatar = ({ src, name }: { src?: string; name?: string }) => {
   return (
-    <div className="w-full flex items-center gap-4 pl-[16px]">
+    <div className="w-fit flex items-center gap-4 pl-[16px]">
       <Avatar
         src={src ? src : "https://tecdn.b-cdn.net/img/new/avatars/2.webp"}
       />
