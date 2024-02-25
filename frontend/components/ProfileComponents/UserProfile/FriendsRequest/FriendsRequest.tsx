@@ -35,6 +35,7 @@ const FriendsRequest = ({ item }) => {
     imageStyle: "rounded-t-[15px] w-[15.9rem] h-[11rem] object-cover",
     fontSize: "text-base text-white",
     positiosn: true,
+    existStatos: false,
   };
 
   return (

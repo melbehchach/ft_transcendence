@@ -34,6 +34,7 @@ const chatReducer = (state, action) => {
 };
 
 const ChatSocketContextProvider = ({ children }) => {
+  
   const [socket, setSocket] = useState(null);
   const [socketChannels, setSocketChannels] = useState(null);
   const [state, dispatch] = useReducer(chatReducer, initialeState);
