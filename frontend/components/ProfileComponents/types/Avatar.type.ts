@@ -6,6 +6,8 @@ export type AvatarProps = {
     imageStyle: string;
     fontSize: string;
     positiosn: boolean;
+    existStatos: boolean;
+    statos?: string;
 }
 
 

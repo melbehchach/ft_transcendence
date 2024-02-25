@@ -10,6 +10,7 @@ const SocketContext = createContext(null);
 
 const SocketContextProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
+  const [status, setStatus] = useState(null);
   const [notifications, setNotifications] = useState<boolean>(false);
   const [sender, setSender] = useState({});
   const { fetchFriendsReqData, fetchFriendsData, fetchData } = useAuth();
@@ -23,30 +24,39 @@ const SocketContextProvider = ({ children }) => {
         token: Cookies.get("USER_ID"),
       },
     });
-    setSocket(newSocket);
 
+    const statusSocket: Socket = io("http://localhost:3000/status", {
+      auth: {
+        jwt_token: Cookies.get("JWT_TOKEN"),
+        token: Cookies.get("USER_ID"),
+      },
+    });
+
+    setSocket(newSocket);
+    setStatus(statusSocket);
     return () => {
       newSocket.disconnect();
+      statusSocket.disconnect();
     };
   }, []);
 
-  const sendMessage = (message) => {
-    if (socket) {
-      socket.emit("chat message", message);
-    }
-  };
+  // const sendMessage = (message) => {
+  //   if (socket) {
+  //     socket.emit("chat message", message);
+  //   }
+  // };
 
-  const joinRoom = (roomName) => {
-    if (socket) {
-      socket.emit("join room", roomName);
-    }
-  };
+  // const joinRoom = (roomName) => {
+  //   if (socket) {
+  //     socket.emit("join room", roomName);
+  //   }
+  // };
 
-  const leaveRoom = (roomName) => {
-    if (socket) {
-      socket.emit("leave room", roomName);
-    }
-  };
+  // const leaveRoom = (roomName) => {
+  //   if (socket) {
+  //     socket.emit("leave room", roomName);
+  //   }
+  // };
 
   useEffect(() => {
     if (socket) {
@@ -73,18 +83,21 @@ const SocketContextProvider = ({ children }) => {
         getAllChats();
       });
     }
+    if (status) {
+      status.on("statusUpdate", (data) => {
+        fetchData();
+      });
+    }
   }, [socket]);
 
   return (
     <SocketContext.Provider
       value={{
         socket,
-        sendMessage,
-        joinRoom,
-        leaveRoom,
         notifications,
         sender,
         setNotifications,
+        status,
       }}
     >
       

@@ -1,6 +1,7 @@
 "use client";
-import Image from "next/image";
 import { AvatarProps } from "../types/Avatar.type";
+
+
 
 export default function Avatar({ avatarObj }) {
   if (!avatarObj) {
@@ -20,7 +21,22 @@ export default function Avatar({ avatarObj }) {
         alt={avatarObj.userName ? avatarObj.userName : ""}
         className={`${avatarObj.imageStyle}`}
       />
-      <span className={`${avatarObj.fontSize}`}>{avatarObj.userName}</span>
+      <div className="flex flex-row justify-center items-center gap-[1rem]">
+        <span className={`${avatarObj.fontSize}`}>{avatarObj.userName}</span>
+        {avatarObj.existStatos && avatarObj.statos === "ONLINE" && (
+          <div className="flex flex-row justify-center items-center gap-[0.1rem]">
+            <div className="w-[10px] h-[10px] bg-green-500 rounded-full text-grey-500"></div>
+            online
+          </div>
+        )}
+        {avatarObj.existStatos && avatarObj.statos === "OFFLINE" && (
+          <div className="flex flex-row justify-center items-center gap-[0.1rem]">
+            <div className="w-[10px] h-[10px] bg-red-500 rounded-full text-grey-500"></div>
+            offline
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
