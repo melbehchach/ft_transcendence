@@ -69,9 +69,9 @@ const UserAchievements = () => {
   };
 
   return (
-    <div className="w-full h-full flex justify-start flex-col gap-3 rounded-[5px] overflow-auto border border-black border-solid">
-      <h3 className="text-xl font-inter font-bold ml-3 mt-3">Achievements</h3>
-      <ul className="flex flex-col ml-4 gap-4">
+    <div className="w-full grow flex justify-start flex-col gap-[1rem] rounded-[10px] border border-black border-solid p-[0.5rem] overflow-auto">
+      <h3 className="text-xl font-inter font-bold">Achievements</h3>
+      <ul className="h-fit flex flex-col gap-[1rem]">
         {achievementsData.map((array) => (
           <li
             className={!array.state ? "flex gap-2 opacity-25" : "flex gap-2"}

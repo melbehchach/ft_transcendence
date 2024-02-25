@@ -11,7 +11,7 @@ import NewChannel from "./NewChannel";
 import SelectNewChat from "./SelectNewChat";
 
 const initialeState = {
-  avatar: "",
+  avatar: null,
   channelName: "",
   type: 0,
   members: [],
@@ -24,9 +24,10 @@ export const newChannelActionTypes = {
   UPDATE_MEMBERS: "UPDATE_MEMBERS",
   CLEAR_CHANNEL: "CLEAR_CHANNEL",
   UPDATE_PASSWORD: "UPDATE_PASSWORD",
+  UPDATE_STATE: "UPDATE_STATE",
 };
 
-const newChannelReducer = (state, action) => {
+export const newChannelReducer = (state, action) => {
   switch (action.type) {
     case newChannelActionTypes.CHANNEL_NAME:
       return { ...state, channelName: action.payload };
@@ -46,6 +47,8 @@ const newChannelReducer = (state, action) => {
       return { ...state, password: action.payload };
     case newChannelActionTypes.CLEAR_CHANNEL:
       return initialeState;
+    case newChannelActionTypes.UPDATE_STATE:
+      return { ...action.payload };
     default:
       return state;
   }
@@ -62,6 +65,7 @@ const CreateNewChat = ({ setSelectedChat }) => {
   }
   const {
     newChannel,
+    updateChannelAvatar,
     state: { allChats },
   } = useChat();
   const {
@@ -77,6 +81,9 @@ const CreateNewChat = ({ setSelectedChat }) => {
       <Button
         type="primary"
         content="Create"
+        disabled={
+          state.channelName < 3 || (state.password < 6 && state.type === 1)
+        }
         onClick={async () => {
           try {
             let params = {
@@ -91,10 +98,12 @@ const CreateNewChat = ({ setSelectedChat }) => {
               Members: state.members,
             };
             newChannel(params, state.avatar).then((result) => {
-              setSelectedChat(result);
+              updateChannelAvatar(result, state.avatar).then(() => {
+                setSelectedChat(result);
+              });
+              dispatch({ type: newChannelActionTypes.CLEAR_CHANNEL });
             });
             closeModal();
-            dispatch({ type: newChannelActionTypes.CLEAR_CHANNEL });
           } catch {}
         }}
       />

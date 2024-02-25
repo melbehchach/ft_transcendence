@@ -45,7 +45,7 @@ const Chat = () => {
   const headerInfo = useMemo(() => {
     if (selectedChat) {
       if (chat?.name) {
-        return { name: chat.name, avatar: "" };
+        return { name: chat.name, avatar: chat.image };
       } else {
         let friend = friends.find(
           (friend) =>
@@ -70,7 +70,7 @@ const Chat = () => {
     <NoneSelected />
   ) : (
     <div className="w-3/4 grow">
-      <ChatHeader headerInfo={headerInfo} />
+      <ChatHeader headerInfo={headerInfo} chat={chat} />
       {/* <div className="flex"> */}
       <div className="flex">
         <div className="flex w-full flex-col">
@@ -81,7 +81,7 @@ const Chat = () => {
           >
             <input
               value={message}
-              className="w-full h-[60px] bg-transparent p-5"
+              className="w-[80%] h-[60px] bg-transparent p-5"
               onChange={(e) => setMessage(e.target.value)}
               placeholder="send message"
             ></input>

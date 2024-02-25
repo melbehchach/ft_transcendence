@@ -48,7 +48,7 @@ const Paragraphe = ({
     <p
       className={clsx("font-inter text-text", {
         "text-body font-normal leading-[25px] text-nowrap": variant === "body",
-        "text-sm font-normal": variant === "body2",
+        "text-sm font-normal break-all": variant === "body2",
         "text-textSecondary": colorVariant === "secondary",
       })}
     >

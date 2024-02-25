@@ -11,13 +11,13 @@
 }
 
 .main-height {
-  overflow: scroll;
+  overflow: auto;
   height: calc(100vh - 142px);
   margin-top: 81px;
 }
 
 .manage_bar-height {
-  overflow: scroll;
+  overflow: auto;
   height : calc(100vh - 81px);
   margin-top: 81px;
 }
@@ -29,5 +29,5 @@
 
 .side__bar--height {
   height: 100vh;
-  overflow: scroll;
+  overflow: auto;
 }

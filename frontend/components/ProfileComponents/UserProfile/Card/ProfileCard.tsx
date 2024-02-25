@@ -32,7 +32,7 @@ function ProfileCard({ setting, setSetting }: props) {
   }
 
   return (
-    <div className="w-[22rem] h-full p-[0.5rem] text-white flex flex-col border border-black border-solid rounded-[15px]">
+    <div className="w-[25rem] h-full p-[0.5rem] text-white flex flex-col gap-[0.5rem] border border-black border-solid rounded-[15px] ">
       <button
         className={!setting ? "place-self-end" : "hidden"}
         onClick={() => setSetting(true)}
@@ -40,7 +40,7 @@ function ProfileCard({ setting, setSetting }: props) {
         <SettingIcon />
       </button>
       {!setting ? (
-        <div className="w-full h-full flex flex-col justify-center items-center gap-[1rem]">
+        <div className="flex h-full flex-col gap-[1rem]  overflow-hidden">
           <div className="w-full flex justify-center items-center">
             <Avatar avatarObj={avatarObj} />
           </div>

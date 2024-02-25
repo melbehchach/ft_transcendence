@@ -27,9 +27,11 @@ function reducer(state, action) {
 }
 
 function ProfilePage() {
+
   const {
     fetchData,
-    state: { friendRequests, friends, recentGames },
+    fetchRecentGames,
+    state: { friendRequests, friends, recentGames, user },
   } = useAuth();
 
   const [state, dispatch] = useReducer(reducer, {
@@ -45,10 +47,14 @@ function ProfilePage() {
   }
   const [setting, setSetting] = useState<boolean>(false);
 
+  useEffect(() => {
+    fetchRecentGames(user.id)
+  }, [])
+
   return (
-    <div className="w-screen h-full flex gap-[1.5rem] p-[1rem] pt-[1.5rem]">
+    <div className="w-full h-full flex gap-[1.5rem]  p-[1rem] pt-[1.5rem]">
       <ProfileCard setting={setting} setSetting={setSetting} />
-      <div className="w-screen h-full">
+      <div className="w-full h-full">
         <div className="w-full h-[14rem] flex flex-col gap-[1rem]">
           <h1 className="w-screen h-fit border-b border-gray-500 text-white font-semibold text-3xl">
             Recent Games
