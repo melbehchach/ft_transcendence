@@ -1,6 +1,6 @@
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import Modal from "../../../../components/Modal";
 import Typography from "../../../../components/Typography";
 import UserAvatar from "../../../../components/UserAvatar";
@@ -40,7 +40,15 @@ const ChatHeader = ({ headerInfo: { avatar, name }, chat }) => {
     addMembers,
     getAllChats,
     state: { allChats },
+    getChannelByID,
   } = useChat();
+  const [channel, setChannel] = useState(null);
+  async function fetchChannelData() {
+    getChannelByID(chat.id).then((res) => setChannel(res));
+  }
+  useEffect(() => {
+    if (chat?.name) fetchChannelData();
+  }, [chat, allChats]);
 
   useEffect(() => {
     if (chat.name) {
@@ -58,7 +66,7 @@ const ChatHeader = ({ headerInfo: { avatar, name }, chat }) => {
         },
       });
     }
-  }, [chat, allChats]);
+  }, [chat, allChats, channel]);
   const NewChannelActions = !chat.name ? (
     <></>
   ) : (
@@ -157,7 +165,7 @@ const ChatHeader = ({ headerInfo: { avatar, name }, chat }) => {
               title="Talk to someone or start a new channel"
               actions={NewChannelActions}
             >
-              <NewChannel dispatch={dispatch} state={state} />
+              <NewChannel dispatch={dispatch} state={state} channel={channel} />
             </Modal>
           </div>
         )}

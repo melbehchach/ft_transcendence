@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Typography from "../../../components/Typography";
 import { useAuth } from "../../context/AuthContext";
 import { useChat } from "../../context/ChatContext";
@@ -29,8 +29,10 @@ const NoneSelected = () => {
 
 const Chat = () => {
   const [selectedChat, setSelectedChat] = useState("");
+  const [isDisabled, setIsDisabled] = useState(false);
   const {
     sendMessage,
+    getChannelByID,
     state: { allChats },
   } = useChat();
   const {
@@ -60,12 +62,28 @@ const Chat = () => {
 
   const [message, setMessage] = useState("");
 
+  async function fetchChannelData() {
+    getChannelByID(chat.id).then((res) => {
+      let m;
+      if ((m = res.mutedMembers.find((elem) => elem.userId === user.id))) {
+        let currentTime = new Date();
+        let givenTime = new Date(m.time);
+        let timeDifference = currentTime - givenTime;
+        let minutesPassed = timeDifference / (1000 * 60);
+        setIsDisabled(minutesPassed < 5 ? true : false);
+      }
+    });
+  }
   function submitMessage(e) {
     setMessage("");
     e.preventDefault();
     sendMessage(chat.name ? chat.id : headerInfo.id, message, chat.name);
   }
 
+  useEffect(() => {
+    if (allChats.find((chat) => chat.id === selectedChat)?.name)
+      fetchChannelData();
+  }, [selectedChat, allChats]);
   const content = !selectedChat ? (
     <NoneSelected />
   ) : (
@@ -80,6 +98,7 @@ const Chat = () => {
             className="w-full flex relative border-t border-black"
           >
             <input
+              disabled={isDisabled}
               value={message}
               className="w-[80%] h-[60px] bg-transparent p-5"
               onChange={(e) => setMessage(e.target.value)}
