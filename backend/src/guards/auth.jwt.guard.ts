@@ -28,7 +28,7 @@ export class AuthGuard implements CanActivate {
       delete user?.password;
       req['user'] = user;
     } catch {
-      console.log('AuthGuard Error');
+      // console.log('AuthGuard Error');
       throw new UnauthorizedException('Invalid Token');
     }
     return true;
