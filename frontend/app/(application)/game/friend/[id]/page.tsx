@@ -12,21 +12,7 @@ export default function Page() {
   const [Playerscore, setPlayerScore] = useState(0);
   const [OpponentScore, setOpponentScore] = useState(0);
   const [loading, setLoading] = useState(true);
-  // useEffect(() => {
-  //   const checkUser = async () => {
-  //     try {
-  //       const res = await axios.post("http://localhost:3000/game/play", {
-  //         token: cookie.get("USER_ID"),
-  //         gameId: id,
-  //       });
-  //       res && setLoadingGame(false);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-
-  //   };
-  //   checkUser();
-  // }, []);
+  
   return (
     <>
       <div className="pl-[10%] bg-background h-screen w-screen justify-center ">

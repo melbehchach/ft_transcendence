@@ -29,12 +29,7 @@ export class GameService {
         },
       });
 
-      if (
-        !sender ||
-        !receiver ||
-        receiver?.friends?.length === 0 ||
-        receiver?.status === userStatus.OFFLINE
-      ) {
+      if (!sender || !receiver || receiver?.friends?.length === 0) {
         throw new Error('Internal Server Error: cannotSendGameRequest');
       }
       this.notificationsGateway.handleNotificationEvent(

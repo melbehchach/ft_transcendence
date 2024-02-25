@@ -3,10 +3,9 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import GameModalComponent from "../../../../components/Game/Modal";
 
-export default function GameRules() {
+export default function GameRules({setLoading, setrules}: any)  {
   const router = useRouter();
   const [counter, setCounter] = useState(5);
-
   useEffect(() => {
     if (counter > 0) {
       const timer = setTimeout(() => {
@@ -14,6 +13,8 @@ export default function GameRules() {
       }, 1000);
 
       return () => clearTimeout(timer);
+    } else if (counter === 0) {
+      setrules(false);
     }
   }, [counter, router]);
 
@@ -59,7 +60,6 @@ export default function GameRules() {
       <div className="font-bold text-3xl lg:text-4xl"> {counter} </div>
     </div>
   );
-
   return (
     <>
       <GameModalComponent
