@@ -5,77 +5,98 @@ import { useAuth } from "../../../../../../app/context/AuthContext";
 import { useParams } from "next/navigation";
 
 const Scores = () => {
-  const {
-    state: { user },
-  } = useAuth();
-
+  const { state: { user, loading } } = useAuth();
   const jwt_token = Cookies.get("JWT_TOKEN");
+  const { id } = useParams();
   const [loses, setLoses] = useState(0);
   const [wins, setWins] = useState(0);
   const [achievements, setAchievements] = useState(0);
+  const [dataLoaded, setDataLoaded] = useState(false); 
 
-  const param = useParams();
-
-  async function totalLoses() {
-    let id: string | string[];
-    if (param.id) id = param.id;
-    else id = user.id;
+  async function totalLoses(userId) {
     try {
       if (jwt_token) {
-        let url: string = "http://localhost:3000/game/getLoses/" + id;
+        const url = `http://localhost:3000/game/getLoses/${userId}`;
         const response = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${jwt_token}`,
           },
           withCredentials: true,
         });
-        setLoses(response.data);
-      } else throw new Error("bad req");
-    } catch (error) {}
+        return response.data;
+      } else {
+        throw new Error("bad req");
+      }
+    } catch (error) {
+      console.error("Error fetching total loses:", error);
+      return 0;
+    }
   }
 
-  async function totalWins() {
-    let id: string | string[];
-    if (param.id) id = param.id;
-    else id = user.id;
+  async function totalWins(userId) {
     try {
       if (jwt_token) {
-        let url: string = "localhost:3000/game/getWins/" + id;
+        const url = `http://localhost:3000/game/getWins/${userId}`;
         const response = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${jwt_token}`,
           },
           withCredentials: true,
         });
-        setWins(response.data);
-      } else throw new Error("bad req");
-    } catch (error) {}
+        return response.data;
+      } else {
+        throw new Error("bad req");
+      }
+    } catch (error) {
+      console.error("Error fetching total wins:", error);
+      return 0;
+    }
   }
 
-  async function totlaAchievments() {
-    let id: string | string[];
-    if (param.id) id = param.id;
-    else id = user.id;
+  async function totalAchievements(userId) {
     try {
       if (jwt_token) {
-        let url: string = "localhost:3000/game/TotalAchievement/" + id;
+        const url = `http://localhost:3000/game/TotalAchievement/${userId}`;
         const response = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${jwt_token}`,
           },
           withCredentials: true,
         });
-        setAchievements(response.data);
-      } else throw new Error("bad req");
-    } catch (error) {}
+        return response.data;
+      } else {
+        throw new Error("bad req");
+      }
+    } catch (error) {
+      console.error("Error fetching total achievements:", error);
+      return 0;
+    }
   }
 
   useEffect(() => {
-    totalLoses();
-    totalWins();
-    totlaAchievments();
-  }, []);
+    async function fetchData() {
+      try {
+        const userId = id || user.id;
+        const totalLosesCount = await totalLoses(userId);
+        const totalWinsCount = await totalWins(userId);
+        const totalAchievementsCount = await totalAchievements(userId);
 
+        setLoses(totalLosesCount);
+        setWins(totalWinsCount);
+        setAchievements(totalAchievementsCount);
+        setDataLoaded(true);
+      } catch (error) {
+        console.error("Error fetching scores:", error);
+      }
+    }
+
+    fetchData();
+  }, [id, user.id]);
+
+  if (loading || !dataLoaded) {
+    return <p>Loading...</p>;
+  }
+  
   return (
     <div className="w-full h-[4rem] p-5 items-center flex justify-center rounded-[5px] gap-[0.5rem] border border-black border-solid">
       <div className="flex flex-col gap-[0.2rem]">

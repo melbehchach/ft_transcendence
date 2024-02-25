@@ -3,16 +3,21 @@ import NotificationBar from "../../../components/ProfileComponents/NotificationB
 import NotificationBarIcon from "../../../components/ProfileComponents/NotificationBar/NotificationBarIcon";
 import SearchBar from "../../../components/ProfileComponents/Search/SearchBar";
 import UserProfile from "../../../components/ProfileComponents/UserProfile/UserProfile";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Page() {
   const {
     fetchNotifications,
-    state: { notifications },
+    fetchAchievements,
+    state: { notifications, user },
   } = useAuth();
 
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    fetchAchievements(user.id);
+  }, []);
 
   function handleClick() {
     fetchNotifications();
@@ -28,7 +33,7 @@ export default function Page() {
           className={
             open
               ? "w-[3rem] h-[3rem] rounded-[10px] flex items-center justify-center bg-[#D9923B]"
-              : "w-[3rem] h-[3rem] rounded-[10px] flex items-center justify-center "
+              : "w-[3rem] h-[3rem] rounded-[10px] flex items-center justify-center hover:bg-primary/5"
           }
         >
           <button onClick={handleClick}>

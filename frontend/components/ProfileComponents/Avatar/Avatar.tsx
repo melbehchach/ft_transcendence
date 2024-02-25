@@ -4,12 +4,8 @@ import { AvatarProps } from "../types/Avatar.type";
 
 export default function Avatar({ avatarObj }) {
   if (!avatarObj) {
-    console.log("makayn walo");
     return null;
   }
-
-  // console.log(avatarObj.src);
-
   return (
     <div
       className={

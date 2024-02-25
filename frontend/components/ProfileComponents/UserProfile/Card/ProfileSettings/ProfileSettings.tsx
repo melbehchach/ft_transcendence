@@ -67,11 +67,8 @@ function ProfileSettings({ openSettings }: settingsProps) {
           }
         );
         steSecret(response.data.secret);
-        console.log("got new seceret");
       } else throw new Error("bad req");
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   }
 
   async function updateUsername() {
@@ -92,9 +89,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
         );
         fetchData();
       } else throw new Error("bad req");
-    } catch (error) {
-      console.log("error kbiiiir");
-    }
+    } catch (error) {}
   }
 
   async function updateTheme() {
@@ -115,9 +110,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
         );
         fetchData();
       } else throw new Error("bad req");
-    } catch (error) {
-      console.log("error kbiiiir");
-    }
+    } catch (error) {}
   }
 
   async function sendCode() {

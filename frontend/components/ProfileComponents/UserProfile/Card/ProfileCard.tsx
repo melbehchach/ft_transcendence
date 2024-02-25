@@ -3,7 +3,7 @@ import { useAuth } from "../../../../app/context/AuthContext";
 import { AvatarProps } from "../../types/Avatar.type";
 import Avatar from "../../Avatar/Avatar";
 import Scores from "./Infos/Scores/Scores";
-import Achievements from "./Infos/Achievements/Achievements";
+import Achievements from "./Infos/Achievements/UserAchievements";
 import ProfileSettings from "./ProfileSettings/ProfileSettings";
 import SettingIcon from "./ProfileSettings/SettingIcon";
 import achievementsData from "./Infos/Achievements/AchievementsData";
