@@ -6,7 +6,6 @@ import Scores from "./Infos/Scores/Scores";
 import Achievements from "./Infos/Achievements/UserAchievements";
 import ProfileSettings from "./ProfileSettings/ProfileSettings";
 import SettingIcon from "./ProfileSettings/SettingIcon";
-import achievementsData from "./Infos/Achievements/AchievementsData";
 
 type props = {
   setting: boolean;
@@ -46,7 +45,7 @@ function ProfileCard({ setting, setSetting }: props) {
             <Avatar avatarObj={avatarObj} />
           </div>
           <Scores />
-          <Achievements achievementsArray={achievementsData} />
+          <Achievements />
         </div>
       ) : (
         <ProfileSettings openSettings={closeSettings} />
