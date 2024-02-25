@@ -83,24 +83,42 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           },
         };
         this.MapGames.set(room, gameState);
-        try {
-          await this.prisma.game.update({
-            where: {
-              id: room,
-            },
-            data: {
-              Player: {
-                connect: { id: player.id },
+        const playerDb = await this.prisma.user.findUnique({
+          where: { id: player.id },
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          },
+        });
+        const opponentDb = await this.prisma.user.findUnique({
+          where: { id: opponent.id },
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          },
+        });
+        if (playerDb && opponentDb) {
+          try {
+            await this.prisma.game.create({
+              data: {
+                id: room,
+                Player: {
+                  connect: { id: player.id },
+                },
+                Opponent: {
+                  connect: { id: opponent.id },
+                },
+                playerScore: gameState.player1Obj.score,
+                opponentScore: gameState.player2Obj.score,
+                type: GameType.RandomMatch,
               },
-              Opponent: {
-                connect: { id: opponent.id },
-              },
-              playerScore: gameState.player1Obj.score,
-              opponentScore: gameState.player2Obj.score,
-              type: GameType.FriendMatch,
-            },
-          });
-        } catch (error) {}
+            });
+          } catch (error) {
+            console.error(error);
+          }
+        }
         const gameRoom = this.MapGames.get(room);
         this.server.to(gameRoom.roomName).emit('InviteFriend', {
           player: gameRoom.player1Obj.id,
@@ -110,6 +128,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           room: gameRoom.roomName,
           playerScore: gameRoom.player1Obj.score,
           opponentScore: gameRoom.player2Obj.score,
+          playerAvatr: playerDb?.avatar,
+          opponentAvatar: opponentDb?.avatar,
         });
       }
     } catch (error) {}
@@ -361,9 +381,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
     gameRoom.player1Obj.socket.leave(payload.data.room);
     gameRoom.player2Obj.socket.leave(payload.data.room);
-    console.log('game over', this.MapGames.size);
     this.MapGames.delete(payload.data.room);
-    console.log('game over', this.MapGames.size);
     this.MapRoomToPlayers.delete(payload.data.room);
   }
 

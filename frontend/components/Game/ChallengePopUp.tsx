@@ -4,12 +4,14 @@ import { useRouter } from "next/navigation";
 import Lottie from "lottie-react";
 import PongAnimation from "../../public/img/PongAnimation.json";
 import Cookies from "js-cookie";
+import { useSocket } from "../../app/context/SocketContext";
 
 
 export default function ChallengePopUp({ sender }: any) {
+  const { setNotifications} = useSocket();
   const handleAccept = () => {
     try {
-      axios.post(`http://localhost:3000/game/accept/${Cookies.get("USER_ID")}`, {
+     const res =  axios.post(`http://localhost:3000/game/accept/${Cookies.get("USER_ID")}`, {
         id: sender.senderId,
       }, {
         withCredentials: true,
@@ -18,6 +20,9 @@ export default function ChallengePopUp({ sender }: any) {
           Accept: "application/json",
         },
       });
+      if (res) {
+        setNotifications(false);
+      }
     } catch (error) {
       console.log(error.response.data);
     }
@@ -25,10 +30,21 @@ export default function ChallengePopUp({ sender }: any) {
 
   const handleRefuse = () => {
     try {
-      axios.post(`http://localhost:3000/game/refuse/${Cookies.get("USER_ID")}`, {
+     const res = axios.post(`http://localhost:3000/game/refuse/${Cookies.get("USER_ID")}`, {
         id: sender.senderId,
+      }, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
       });
-    } catch (error) {}
+      if (res) {
+        setNotifications(false);
+      }
+    } catch (error) {
+      console.log(error.response.data);
+    }
   }
   const router = useRouter();
   const content = (

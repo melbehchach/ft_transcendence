@@ -1,13 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useParams, usePathname } from "next/navigation";
+import {  usePathname } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import "swiper/css";
 import SideBar from "../../components/ProfileComponents/SideBar/SideBar";
-import ProtectedRoute from "../../components/ProtectedRoute";
-import AcceptOrRefuse from "../../components/Game/ChallengePopUp";
 import { useSocket } from "../context/SocketContext";
 import ChallengePopUp from "../../components/Game/ChallengePopUp";
+import ProtectedRoute from "../../components/ProtectedRoute";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState<string>("");
@@ -48,6 +47,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <SideBar active={active} setSideBar={steOpen} />
         </div>
         {notifications && <ChallengePopUp sender={sender} />}
+
         {profile && children}
       </div>
     </ProtectedRoute>

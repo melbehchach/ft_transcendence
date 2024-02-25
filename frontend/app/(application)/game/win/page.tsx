@@ -20,8 +20,9 @@ export default function WinnerGame() {
         content={content}
         cancelCallback={cancelCallback}
         btn1="Exit"
+        btn1Callback={cancelCallback}
         btn2={null}
-        btn2Callback={cancelCallback}
+        btn2Callback={null}
       ></GameModalComponent>
       ;
     </>

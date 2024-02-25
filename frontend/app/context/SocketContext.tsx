@@ -66,8 +66,7 @@ const SocketContextProvider = ({ children }) => {
           setSender({senderId : data.data.senderId, sender : data.data.sender});
         }
       });
-      socket.on("redirect", (data) => {
-        console.log('redirecting');
+      socket.on("AcceptGame", (data) => {
         router.push(data.url);
       });
       socket.on("Channel", (data) => {
@@ -85,6 +84,7 @@ const SocketContextProvider = ({ children }) => {
         leaveRoom,
         notifications,
         sender,
+        setNotifications,
       }}
     >
       
