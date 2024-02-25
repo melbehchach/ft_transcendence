@@ -59,14 +59,13 @@ const SocketContextProvider = ({ children }) => {
         fetchData();
       });
       socket.on("GameRequest", (data) => {
-        console.log('socket conetxt', data);
         if (data.data.receiverId === Cookies.get("USER_ID")) {
           setNotifications(true);
           setSender({senderId : data.data.senderId, sender : data.data.sender});
         }
       });
       socket.on("redirect", (data) => {
-        console.log('redirect', data);
+        console.log('redirecting');
         router.push(data.url);
       });
     }

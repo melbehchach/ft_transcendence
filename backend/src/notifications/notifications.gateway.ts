@@ -101,7 +101,7 @@ export class NotificationsGateway
   }
 
   handleAcceptEvent(senderId: string, receiverId: string, gameId: string) {
-    console.log('accepting game request');
+    console.log('accepting game request FROM NOTIFICATION GATEWAY');
     const senderSocket = this.socketMap.get(senderId);
     if (senderSocket) {
       this.server.to(senderSocket.id).emit('redirect', {
