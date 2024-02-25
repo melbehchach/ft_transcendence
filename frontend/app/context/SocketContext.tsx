@@ -62,6 +62,7 @@ const SocketContextProvider = ({ children }) => {
     if (socket) {
       socket.on("FriendRequest", (data) => {
         fetchFriendsReqData();
+        fetchFriendsData();
       });
       socket.on("Block", (data) => {
         fetchFriendsData();
@@ -71,8 +72,15 @@ const SocketContextProvider = ({ children }) => {
         fetchData();
       });
       socket.on("GameRequest", (data) => {
+<<<<<<< Updated upstream
         setNotifications(true);
         setSender(data.sender);
+=======
+        if (data.data.receiverId === Cookies.get("USER_ID")) {
+          setNotifications(true);
+          setSender({ senderId: data.data.senderId, sender: data.data.sender });
+        }
+>>>>>>> Stashed changes
       });
       socket.on("redirect", (data) => {
         router.push(data.url);

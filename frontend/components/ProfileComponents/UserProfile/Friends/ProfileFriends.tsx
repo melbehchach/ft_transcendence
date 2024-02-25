@@ -11,17 +11,17 @@ type props = {
 const ProfileFriends = ({ item }: props) => {
   const {
     fetchFriendsData,
+    fetchData,
     state: { user, loading },
   } = useAuth();
   const router = useRouter();
   const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    fetchFriendsData().then(() => {
+    fetchData()
       setTimeout(() => {
         setDataLoaded(true);
       }, 1000);
-    });
   }, []);
 
   const avatarObj: AvatarProps = {
