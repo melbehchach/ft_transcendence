@@ -53,6 +53,7 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
   });
   const [searchValue, setSearchValue] = useState<string>("");
   const [searchUsersData, setSearchUsersData] = useState<ProfileData[]>([]);
+  const [searchChannelsData, setSearchChannelsData] = useState<any>([]);
   const [searchALLData, setSearchALLData] = useState<SearchDataFetch>({
     users: [],
     channels: [],
@@ -77,10 +78,12 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
           } else if (state.requestType === "USERS") {
             setSearchUsersData(response.data);
           }
+          else if (state.requestType === "CHANNELS") {
+            setSearchChannelsData(response.data);
+          }
         }
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
     }
   }
 
@@ -94,6 +97,9 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
         });
       } else if (state.requestType === "USERS") {
         setSearchUsersData([]);
+      }
+      else if (state.requestType === "CHANNELS") {
+        setSearchChannelsData([]);
       }
     }
   }, [searchValue]);
@@ -113,14 +119,16 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
     dispatch({ type: "updateRequestType", payload: "CHANNELS" });
   }
 
-  function usesrData(): ProfileData[] {
-    let usersArray: ProfileData[];
+  function usesrData(): any {
+    let usersArray: any;
     if (state.requestType === "ALL") {
-      usersArray = searchALLData.users;
+      usersArray = searchALLData;
     } else if (state.requestType === "USERS") {
       usersArray = searchUsersData;
     }
-
+    else if (state.requestType === "CHANNELS") {
+      usersArray = searchChannelsData;
+    }
     return usersArray;
   }
 
@@ -136,11 +144,11 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-100"
       id="modalClose"
       onClick={handleModalClose}
     >
-      <div className="w-[55rem] h-[50rem] rounded-[10px] flex flex-col bg-background p-[1rem] pt-0">
+      <div className="w-[55rem] h-[50rem] rounded-[10px] flex flex-col bg-background p-[1rem] ">
         <div className="w-full h-[5rem] flex items-center gap-[1rem]">
           <SearchIcon />
           <form className="w-full h-[1rem]">
@@ -152,39 +160,32 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
             />
           </form>
         </div>
-        <div className="w-full h-[3rem] flex items-center gap-[1rem] border-b border-black">
-          <div className="w-fit h-fit flex items-center text-white text-basic">
-            <button
-              type="button"
-              onClick={allClick}
-              className={state.all ? "border-gray-500 border-b-2" : ""}
-            >
-              All
-            </button>
-          </div>
-          <div className="w-fit h-fit flex items-center text-white text-basic">
-            <button
-              type="button"
-              onClick={usersClick}
-              className={state.users ? "border-gray-500 border-b-2" : ""}
-            >
-              Users
-            </button>
-          </div>
-          <div className="w-fit h-fit flex items-center text-white text-basic">
-            <button
-              type="button"
-              onClick={channelsClick}
-              className={state.channels ? "border-gray-500 border-b-2" : ""}
-            >
-              Channels
-            </button>
-          </div>
+        <div className="w-full h-[3rem] flex items-center text-white text-basic gap-[1rem] border-b border-black">
+          <button
+            onClick={allClick}
+            className={state.all ? "h-full border-gray-500 border-b-2" : ""}
+          >
+            All
+          </button>
+          <button
+            onClick={usersClick}
+            className={state.users ? "h-full border-gray-500 border-b-2" : ""}
+          >
+            Users
+          </button>
+          <button
+            onClick={channelsClick}
+            className={
+              state.channels ? "h-full border-gray-500 border-b-2" : ""
+            }
+          >
+            Channels
+          </button>
         </div>
-        <div className="w-full h-full mt-[1rem]">
+        <div className="w-full h-full p-[1rem] pl-0">
           {state.all && <AllField usersData={usesrData} />}
           {state.users && <UsersField usersData={usesrData} />}
-          {state.channels && <ChannelsField />}
+          {state.channels && <ChannelsField usersData={usesrData} />}
         </div>
       </div>
     </div>

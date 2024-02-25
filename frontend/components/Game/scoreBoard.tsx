@@ -2,19 +2,14 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-interface ScoreBoardProps {
-  playerScore: number;
-  opponentScore: number;
-  playerAvatar: string;
-  OpponentAvatar: string;
-}
+
 
 export default function ScoreBoard({
   playerScore,
   opponentScore,
   playerAvatar,
   OpponentAvatar,
-}: ScoreBoardProps) {
+}: any) {
   const router = useRouter();
 
 

@@ -32,11 +32,11 @@ const config: Config = {
         sans: ["inter", "sans-serif"],
       },
       zIndex: {
-        '0': '0',
-        '100': '100',
-      }
+        "0": "0",
+        "100": "100",
+      },
     },
   },
-  plugins: [require('flowbite/plugin')],
+  plugins: [require("flowbite/plugin"), require("daisyui")],
 };
 export default config;

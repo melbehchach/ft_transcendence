@@ -1,40 +1,42 @@
 "use client";
 import { useParams } from "next/navigation";
-import { useState, useEffect } from "react";
-import axios from "axios";
-import cookie from "js-cookie";
-import InviteMatch from "../../../../../components/Game/inviteMatch";
+import { useState } from "react";
+import InviteMatch from "../../../../../components/Game/InviteMatch";
 import ScoreBoard from "../../../../../components/Game/scoreBoard";
+import GameRules from "../../rules/page";
+import DeclineModal from "../../issue/page";
 
 export default function Page() {
-  const { id } = useParams();
-  const [loadingGame, setLoadingGame] = useState(true);
   const [Playerscore, setPlayerScore] = useState(0);
   const [OpponentScore, setOpponentScore] = useState(0);
+  const [playerAvatar, setPlayerAvatar] = useState("");
+  const [OpponentAvatar, setOpponnetAvatr] = useState("");
   const [loading, setLoading] = useState(true);
-  // useEffect(() => {
-  //   const checkUser = async () => {
-  //     try {
-  //       const res = await axios.post("http://localhost:3000/game/play", {
-  //         token: cookie.get("USER_ID"),
-  //         gameId: id,
-  //       });
-  //       res && setLoadingGame(false);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
+  const [rules, setrules] = useState(false);
+  const [issue, setIssue] = useState(false);
 
-  //   };
-  //   checkUser();
-  // }, []);
   return (
     <>
       <div className="pl-[10%] bg-background h-screen w-screen justify-center ">
-        <ScoreBoard playerScore={Playerscore} opponentScore={OpponentScore} />
+        {rules ? (
+          <GameRules setLoading={setLoading} setrules={setrules} />
+        ) : null}
+        {issue ? <DeclineModal /> : null}
+        <ScoreBoard
+          playerScore={Playerscore}
+          opponentScore={OpponentScore}
+          playerAvatar={playerAvatar}
+          OpponentAvatar={OpponentAvatar}
+        />
         <InviteMatch
           setPlayerScore={setPlayerScore}
           setOpponentScore={setOpponentScore}
+          setPlayerAvatar={setPlayerAvatar}
+          setOpponnetAvatr={setOpponnetAvatr}
           setLoading={setLoading}
+          setrules={setrules}
+          setIssue={setIssue}
+          issue={issue}
         />
       </div>
     </>

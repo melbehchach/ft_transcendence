@@ -102,6 +102,7 @@ const SignUpForm: React.FC<User> = ({ email, username, avatar }) => {
   const checkSpecialChar = new RegExp("(?=.*[^A-Za-z0-9])");
   const checkLength = new RegExp("(?=.{8,})");
   const checkDigit = new RegExp("(?=.*[0-9])");
+  
   function validatePassowrd(password: string) {
     if (checkLength.test(password)) {
       setPasswdCheck({ isValid: true, errorMessage: "No errros" });

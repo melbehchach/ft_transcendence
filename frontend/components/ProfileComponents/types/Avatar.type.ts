@@ -2,10 +2,12 @@ export type AvatarProps = {
     src: string;
     width?: number;
     height?: number;
-    userName: string;
+    userName: any;
     imageStyle: string;
-    positiosn: boolean
     fontSize: string;
+    positiosn: boolean;
+    existStatos: boolean;
+    statos?: string;
 }
 
 

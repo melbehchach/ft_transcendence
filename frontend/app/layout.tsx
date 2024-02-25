@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import React from "react";
 import AuthContextProvider from "./context/AuthContext";
+import ChatSocketContextProvider from "./context/ChatContext";
 import SocketContextProvider from "./context/SocketContext";
 import "./globals.css";
 
@@ -20,7 +21,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthContextProvider>
-          <SocketContextProvider>{children}</SocketContextProvider>
+          <ChatSocketContextProvider>
+            <SocketContextProvider>{children}</SocketContextProvider>
+          </ChatSocketContextProvider>
         </AuthContextProvider>
       </body>
     </html>

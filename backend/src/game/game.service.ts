@@ -29,20 +29,13 @@ export class GameService {
         },
       });
 
-      if (
-        !sender ||
-        !receiver ||
-        receiver.friends.length === 0 ||
-        receiver.status === userStatus.OFFLINE
-      ) {
-        throw new BadRequestException(
-          'Internal Server Error: cannotSendGameRequest',
-        );
+      if (!sender || !receiver || receiver?.friends?.length === 0) {
+        throw new Error('Internal Server Error: cannotSendGameRequest');
       }
       this.notificationsGateway.handleNotificationEvent(
         NotificationType.GameRequest,
         receiverId,
-        `${sender.username} wants to challenge you.`,
+        {receiverId, senderId, sender: sender.username},
       );
     } catch (error) {
       throw new BadRequestException('Invalid sender or receiver data.');
@@ -67,6 +60,7 @@ export class GameService {
         receiverId,
         game.id,
       );
+      // console.log('FROM GAME SERVICE'); 
       return game;
     } catch (error) {
       // console.log(error);
@@ -82,57 +76,71 @@ export class GameService {
   }
 
   async getGame(playerId: string) {
-    const game = await this.prisma.game.findFirst({
-      where: {
-        OR: [
-          {
-            Player: {
-              id: playerId,
+    try {
+      const game = await this.prisma.game.findFirst({
+        where: {
+          OR: [
+            {
+              Player: {
+                id: playerId,
+              },
             },
-          },
-          {
-            Opponent: {
-              id: playerId,
+            {
+              Opponent: {
+                id: playerId,
+              },
             },
-          },
-        ],
-      },
-    });
-    return game;
+          ],
+        },
+      });
+      if (!game) {
+        throw new Error('Game not found');
+      }
+      return game;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async getCurrentGame(playerId: string) {
-    const game = await this.prisma.game.findFirst({
-      where: {
-        OR: [
-          {
-            Player: {
-              id: playerId,
+    try {
+      const game = await this.prisma.game.findFirst({
+        where: {
+          OR: [
+            {
+              Player: {
+                id: playerId,
+              },
+            },
+            {
+              Opponent: {
+                id: playerId,
+              },
+            },
+          ],
+        },
+        include: {
+          Player: {
+            select: {
+              username: true,
+              avatar: true,
             },
           },
-          {
-            Opponent: {
-              id: playerId,
+          Opponent: {
+            select: {
+              username: true,
+              avatar: true,
             },
           },
-        ],
-      },
-      include: {
-        Player: {
-          select: {
-            username: true,
-            avatar: true,
-          },
         },
-        Opponent: {
-          select: {
-            username: true,
-            avatar: true,
-          },
-        },
-      },
-    });
-    return game;
+      });
+      if (!game) {
+        throw new Error('Game not found');
+      }
+      return game;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async getPlayerLoses(playerId: string) {
@@ -145,7 +153,10 @@ export class GameService {
           loses: true,
         },
       });
-      return user.loses;
+      if (!user) {
+        throw new Error('Invalid User');
+      }
+      return user?.loses;
     } catch (error) {
       throw new BadRequestException('Cannot get player loses');
     }
@@ -161,9 +172,12 @@ export class GameService {
           wins: true,
         },
       });
-      return user.wins;
+      if (!user) {
+        throw new Error('Invalid User');
+      }
+      return user?.wins;
     } catch (error) {
-      throw new BadRequestException('Cannot get player wins');
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -225,18 +239,6 @@ export class GameService {
         },
       });
 
-      if (!achievement) {
-        achievement = await this.prisma.achievement.create({
-          data: {
-            playerId: winnerId,
-            NewHero: false,
-            Rak3ajbni: false,
-            Sbe3: false,
-            a9wedPonger: false,
-            GetAlifeBro: false,
-          },
-        });
-      }
       if (!user) {
         // console.log('no user');
         return;
@@ -303,6 +305,76 @@ export class GameService {
       return MatchHistory;
     } catch (error) {
       throw new BadRequestException('Invalid user data.');
+    }
+  }
+
+  async getTotalGames(userId: string): Promise<number> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          Playerat: true,
+          Opponentat: true,
+        },
+      });
+      if (!user) {
+        throw new Error('invalid user');
+      }
+      let totalGames = 0;
+      totalGames += user.Playerat ? user.Playerat.length : 0;
+      totalGames += user.Opponentat ? user.Opponentat.length : 0;
+      return totalGames;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async getTotalAchievement(userId: string): Promise<number> {
+    const userWithAchievements = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        achievements: true,
+      },
+    });
+
+    if (!userWithAchievements || !userWithAchievements.achievements) {
+      return 0;
+    }
+
+    const achievements = userWithAchievements.achievements;
+    let count = 0;
+    for (const key of Object.keys(achievements)) {
+      if (achievements[key] === true) {
+        count += 1;
+      }
+    }
+    return count;
+  }
+
+  async getAchievements(id: string) {
+    try {
+      const achievement = await this.prisma.achievement.findUnique({
+        where: { playerId: id },
+        select: {
+          freshman: true,
+          snowdedn: true,
+          NewHero: true,
+          Rak3ajbni: true,
+          Sbe3: true,
+          a9wedPonger: true,
+          GetAlifeBro: true,
+        },
+      });
+      if (!achievement) {
+        throw new Error('achievement not found');
+      }
+      return achievement;
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
   }
 }

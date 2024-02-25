@@ -1,10 +1,12 @@
 "use client";
-import Image from "next/image";
 import { AvatarProps } from "../types/Avatar.type";
 
-export default function Avatar({avatarObj}) {
-  if (!avatarObj.src) return null;
-  
+
+
+export default function Avatar({ avatarObj }) {
+  if (!avatarObj) {
+    return null;
+  }
   return (
     <div
       className={
@@ -12,15 +14,35 @@ export default function Avatar({avatarObj}) {
         " items-center gap-[0.5rem]"
       }
     >
-      <Image
+      <img
         src={avatarObj.src}
         width={100}
         height={100}
-        alt={avatarObj.userName}
+        alt={avatarObj.userName ? avatarObj.userName : ""}
         className={`${avatarObj.imageStyle}`}
-        priority={true}
       />
-      <span className={`${avatarObj.fontSize}`}>{avatarObj.userName}</span>
+      <div className="flex flex-row justify-center items-center gap-[1rem]">
+        <span className={`${avatarObj.fontSize}`}>{avatarObj.userName}</span>
+        {avatarObj.existStatos && avatarObj.statos === "ONLINE" && (
+          <div className="flex flex-row justify-center items-center gap-[0.5rem]">
+            <div className="w-[10px] h-[10px] bg-green-500 rounded-full text-grey-500"></div>
+            online
+          </div>
+        )}
+        {avatarObj.existStatos && avatarObj.statos === "OFFLINE" && (
+          <div className="flex flex-row justify-center items-center gap-[0.5rem]">
+            <div className="w-[10px] h-[10px] bg-red-500 rounded-full text-grey-500"></div>
+            offline
+          </div>
+        )}
+        {avatarObj.existStatos && avatarObj.statos === "PLAYING" && (
+          <div className="flex flex-row justify-center items-center gap-[0.5rem]">
+            <div className="w-[10px] h-[10px] bg-red-500 rounded-full text-grey-500"></div>
+            playing
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+

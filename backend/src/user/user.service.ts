@@ -205,6 +205,7 @@ export class UserService {
               id: true,
               username: true,
               avatar: true,
+              status: true,
             },
           },
         },
