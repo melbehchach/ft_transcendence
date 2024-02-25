@@ -255,7 +255,15 @@ export class AuthService {
               TFAsecret: user.TFAtempSecret,
             },
           });
-          if (!userUpdate) {
+          const achievementUpdate = await this.prisma.achievement.update({
+            where: {
+              playerId: id,
+            },
+            data: {
+              snowdedn: true,
+            },
+          });
+          if (!userUpdate || !achievementUpdate) {
             throw new Error('Failed to update record');
           }
           return { enabled: true };
