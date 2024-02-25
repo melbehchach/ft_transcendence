@@ -3,6 +3,7 @@ import { useEffect, useRef, useState} from "react";
 import { Socket, io } from "socket.io-client";
 import cookie from "js-cookie";
 import { Player, Net } from "../../types";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useAuth } from "../../app/context/AuthContext";
 
@@ -84,7 +85,7 @@ export default function RandomMatch({
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
   const {state:{user}} = useAuth();
-
+  const router = useRouter();
   const upadateTotalWinsAndLoses = async (
     winnerId: string,
     loserId: string
@@ -271,14 +272,19 @@ export default function RandomMatch({
         });
       socket.on("CheckingWinner", (data: any) => {
         if (data.player === cookie.get("USER_ID") && data.playerScore === 3) {
-          console.log("Winner");
+          router.push("/game/win");
           upadateTotalWinsAndLoses(data.player, data.opponent);
-        } else if (
+        } if (
           data.opponent === cookie.get("USER_ID") &&
           data.opponentScore === 3
         ) {
-          console.log("Winner");
+          router.push("/game/win");
           upadateTotalWinsAndLoses(data.opponent, data.player);
+        }
+        if (data.player === cookie.get("USER_ID") && data.playerScore < 3){
+          router.push("/game");
+        } if (data.opponent === cookie.get("USER_ID") && data.opponentScore < 3){
+          router.push("/game");
         }
       });
       socket.on("gameStart", () => {

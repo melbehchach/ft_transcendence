@@ -238,18 +238,6 @@ export class GameService {
         },
       });
 
-      if (!achievement) {
-        achievement = await this.prisma.achievement.create({
-          data: {
-            playerId: winnerId,
-            NewHero: false,
-            Rak3ajbni: false,
-            Sbe3: false,
-            a9wedPonger: false,
-            GetAlifeBro: false,
-          },
-        });
-      }
       if (!user) {
         console.log('no user');
         return;

@@ -55,6 +55,7 @@ export class GameController {
 
   @Get('MatchHistory/:id')
   async getMatchHistory(@Param('id') param) {
+    console.log('heeeeeeey');
     if (param) {
       return this.gameService.getMatchHistory(param);
     } else {
