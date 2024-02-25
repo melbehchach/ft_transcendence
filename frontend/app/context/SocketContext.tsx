@@ -12,7 +12,7 @@ const SocketContextProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [status, setStatus] = useState(null);
   const [notifications, setNotifications] = useState<boolean>(false);
-  const [sender, setSender] = useState<string>("");
+  const [sender, setSender] = useState({});
   const { fetchFriendsReqData, fetchFriendsData, fetchData } = useAuth();
   const param = useParams();
   const router = useRouter();
@@ -77,7 +77,7 @@ const SocketContextProvider = ({ children }) => {
           setSender({ senderId: data.data.senderId, sender: data.data.sender });
         }
       });
-      socket.on("redirect", (data) => {
+      socket.on("AcceptGame", (data) => {
         router.push(data.url);
       });
       socket.on("Channel", (data) => {
@@ -97,9 +97,11 @@ const SocketContextProvider = ({ children }) => {
         socket,
         notifications,
         sender,
+        setNotifications,
         status,
       }}
     >
+      
       {children}
     </SocketContext.Provider>
   );

@@ -268,10 +268,72 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       alert("Failed To Signin");
     }
   }
+
+  const ChangeStatus = async (status: string) => {
+    if (jwt_token){
+     const res = await axios.patch(`http://localhost:3000/user/status/update`, {status: status}, {
+        headers: {
+          Authorization: `Bearer ${jwt_token}`,
+        },
+        withCredentials: true,
+      })
+    };
+  };
   const getUserInfo = (id) => {
     if (id === state.user.id) return state.user;
     else {
       return state.friends?.friends.find((friend) => friend.id === id);
+    }
+  };
+
+  const AcceptGameRequest = async () => {
+    if (jwt_token) {
+      await axios
+        .post(`http://localhost:3000/game/accept/${Cookies.get("USER_ID")}`,)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
+  const RefuseGameRequest = async () => {
+    if (jwt_token) {
+      await axios
+        .post(`http://localhost:3000/game/refuse/${Cookies.get("USER_ID")}`,)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
+  const GameRequest = async (id: string) => {
+    if (jwt_token) {
+      await axios
+        .post(
+          `http://localhost:3000/game/${id}/send-game-request`,
+          {
+            id: Cookies.get("USER_ID"),
+          },
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+          }
+        )
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((error) => {
+          console.log(error.response.data);
+        });
     }
   };
 
@@ -293,6 +355,8 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         fetchRecentGames,
         fetchNotifications,
         fetchAchievements,
+        GameRequest,
+        ChangeStatus,
       }}
     >
       {children}

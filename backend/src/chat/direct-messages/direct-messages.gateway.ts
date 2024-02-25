@@ -104,7 +104,7 @@ export class DirectMessagesGateway
         });
       }
     } catch (error) {
-      console.log(`Failed to send message: ${error.message}`);
+      // console.log(`Failed to send message: ${error.message}`);
       throw new WsException('Faild To Send Message');
     }
   }

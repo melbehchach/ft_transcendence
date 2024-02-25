@@ -80,7 +80,7 @@ export class UserService {
         return { users, channels };
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       throw new BadRequestException(error.message);
     }
   }
@@ -205,6 +205,7 @@ export class UserService {
               id: true,
               username: true,
               avatar: true,
+              status: true,
             },
           },
         },

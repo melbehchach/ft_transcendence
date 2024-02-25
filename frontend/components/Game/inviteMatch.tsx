@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState} from "react";
+import { useRouter } from "next/navigation";
 import { Socket, io } from "socket.io-client";
 import cookie from "js-cookie";
 import { useParams } from "next/navigation";
-import Countdown from "./countdown";
 import { Player, Net } from "../../types";
 import axios from "axios";
 import { useAuth } from "../../app/context/AuthContext";
@@ -88,8 +88,8 @@ export default function InviteMatch({
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
-  const {state:{user}} = useAuth();
-
+  const {state:{user}, ChangeStatus} = useAuth();
+  const router = useRouter();
   const Player: Player = {
     x: 10,
     y: canvasHeight / 2 - 50,
@@ -128,7 +128,7 @@ export default function InviteMatch({
         }
       )
       .then((res) => {
-        console.log("res", res);
+        // console.log("res", res);
       })
       .catch((error) => {
         console.log("ending game error");
@@ -257,12 +257,14 @@ export default function InviteMatch({
           setPlayerY(data.playerY);
           setOpenentY(data.opponentY);
           room = data.room;
+          ChangeStatus();
         } else {
           setPlayerAvatar(data.opponentAvatar);
           setOpponnetAvatr(data.playerAvatr);
           setPlayerY(data.opponentY);
           setOpenentY(data.playerY);
           room = data.room;
+          ChangeStatus();
         }
       });
       socket.on("PlayerMoved", (data: any) => {
@@ -276,14 +278,19 @@ export default function InviteMatch({
       });
       socket.on("CheckingWinner", (data: any) => {
         if (data.player === cookie.get("USER_ID") && data.playerScore === 3) {
-          console.log("Winner");
+          router.push("/game/win");
           upadateTotalWinsAndLoses(data.player, data.opponent);
-        } else if (
+        } if (
           data.opponent === cookie.get("USER_ID") &&
           data.opponentScore === 3
         ) {
-          console.log("Winner");
+          router.push("/game/win");
           upadateTotalWinsAndLoses(data.opponent, data.player);
+        }
+        if (data.player === cookie.get("USER_ID") && data.playerScore < 3){
+          router.push("/game");
+        } if (data.opponent === cookie.get("USER_ID") && data.opponentScore < 3){
+          router.push("/game");
         }
       });
       socket.on("gameStartInvite", () => {
@@ -299,7 +306,6 @@ export default function InviteMatch({
               setBallY(data.y);
             });
             socket.on("updateScore", (data: any) => {
-              console.log("player", data.playerScore, "opponent", data.opponentScore);
               if (data.player === cookie.get("USER_ID")) {
                 setPlayerScore(data.playerScore);
                 setOpponentScore(data.opponentScore);

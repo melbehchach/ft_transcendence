@@ -35,7 +35,7 @@ export class GameService {
       this.notificationsGateway.handleNotificationEvent(
         NotificationType.GameRequest,
         receiverId,
-        `${sender.username} wants to challenge you.`,
+        {receiverId, senderId, sender: sender.username},
       );
     } catch (error) {
       throw new BadRequestException('Invalid sender or receiver data.');
@@ -60,9 +60,10 @@ export class GameService {
         receiverId,
         game.id,
       );
+      // console.log('FROM GAME SERVICE'); 
       return game;
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   }
 
@@ -70,7 +71,7 @@ export class GameService {
     try {
       this.notificationsGateway.handleDeclineEvent(senderId, receiverId);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   }
 
@@ -239,7 +240,7 @@ export class GameService {
       });
 
       if (!user) {
-        console.log('no user');
+        // console.log('no user');
         return;
       }
       achievement.NewHero = user.wins >= 1 ? true : false;

@@ -57,7 +57,7 @@ export class MessageService {
       });
       return message;
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       throw new BadRequestException(error);
     }
   }
@@ -129,7 +129,7 @@ export class MessageService {
   }
 
   async messageDelivered(id: number) {
-    console.log(id);
+    // console.log(id);
     try {
       const message = await this.prisma.message.update({
         where: { id },
@@ -139,7 +139,7 @@ export class MessageService {
       });
       return message ?? null;
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       throw new BadRequestException('Error occured while retreiving record');
     }
   }
