@@ -368,14 +368,22 @@ export class GameService {
 
   async getAchievements(id: string) {
     try {
-      const user = await this.prisma.user.findUnique({
-        where: { id },
-        select: { achievements: true },
+      const achievement = await this.prisma.achievement.findUnique({
+        where: { playerId: id },
+        select: {
+          freshman: true,
+          snowdedn: true,
+          NewHero: true,
+          Rak3ajbni: true,
+          Sbe3: true,
+          a9wedPonger: true,
+          GetAlifeBro: true,
+        },
       });
-      if (!user) {
-        throw new Error('invalid user id');
+      if (!achievement) {
+        throw new Error('achievement not found');
       }
-      return user.achievements;
+      return achievement;
     } catch (error) {
       throw new BadRequestException(error.message);
     }

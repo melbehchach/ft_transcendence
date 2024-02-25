@@ -32,6 +32,15 @@ export class AuthService {
           isAuthenticated: false,
         },
       });
+      await this.prisma.achievement.create({
+        data: {
+          player: {
+            connect: {
+              id: user.id
+            }
+          }
+        }
+      })
       return user;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
