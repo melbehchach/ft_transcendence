@@ -28,12 +28,12 @@ function UserCard({ setBlocker, setBlocked }: props) {
     imageStyle: "w-[13rem] h-[13rem] rounded-full object-cover",
     fontSize: "text-2xl font-bold",
     positiosn: true,
+    existStatos: true,
+    statos: profile.status,
   };
 
   useEffect(() => {
-    fetchData().then(() => {
-      fetchData(param.id);
-    });
+    fetchData(param.id);
   }, []);
 
   return (

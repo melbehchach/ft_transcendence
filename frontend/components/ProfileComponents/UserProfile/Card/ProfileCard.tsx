@@ -25,6 +25,7 @@ function ProfileCard({ setting, setSetting }: props) {
     imageStyle: "w-[13rem] h-[13rem] rounded-full object-cover",
     fontSize: "text-2xl font-bold",
     positiosn: true,
+    existStatos: false,
   };
 
   function closeSettings() {
