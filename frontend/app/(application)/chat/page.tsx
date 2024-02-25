@@ -81,7 +81,7 @@ const Chat = () => {
           >
             <input
               value={message}
-              className="w-full h-[60px] bg-transparent p-5"
+              className="w-[80%] h-[60px] bg-transparent p-5"
               onChange={(e) => setMessage(e.target.value)}
               placeholder="send message"
             ></input>

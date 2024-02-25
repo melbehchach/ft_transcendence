@@ -77,6 +77,9 @@ const CreateNewChat = ({ setSelectedChat }) => {
       <Button
         type="primary"
         content="Create"
+        disabled={
+          state.channelName < 3 || (state.password < 6 && state.type === 1)
+        }
         onClick={async () => {
           try {
             let params = {

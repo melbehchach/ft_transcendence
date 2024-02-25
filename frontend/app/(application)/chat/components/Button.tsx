@@ -9,18 +9,22 @@ const Button = ({
   type,
   icon,
   onClick,
+  disabled,
 }: {
   content: string;
   type?: string;
   icon?: IconDefinition;
   onClick?: () => void;
+  disabled?: boolean;
 }) => {
   return (
     <button
+      disabled={disabled}
       className={clsx(
         "border px-8 py-3 rounded-full text-nowrap min-w-[135px] flex items-center justify-center gap-2",
         {
           "bg-primary": type === "primary",
+          "opacity-50": disabled,
         }
       )}
       onClick={onClick}

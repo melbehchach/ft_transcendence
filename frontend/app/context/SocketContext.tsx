@@ -1,9 +1,10 @@
 "use client";
 import Cookies from "js-cookie";
+import { useParams, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
 import { useAuth } from "./AuthContext";
-import { useParams, useRouter } from "next/navigation";
+import { useChat } from "./ChatContext";
 
 const SocketContext = createContext(null);
 
@@ -14,6 +15,7 @@ const SocketContextProvider = ({ children }) => {
   const { fetchFriendsReqData, fetchFriendsData, fetchData } = useAuth();
   const param = useParams();
   const router = useRouter();
+  const { getAllChats } = useChat();
   useEffect(() => {
     const newSocket: Socket = io("http://localhost:3000/notifications", {
       auth: {
@@ -65,12 +67,22 @@ const SocketContextProvider = ({ children }) => {
       socket.on("redirect", (data) => {
         router.push(data.url);
       });
+      socket.on("Channel", (data) => {
+        getAllChats();
+      });
     }
   }, [socket]);
 
   return (
     <SocketContext.Provider
-      value={{ socket, sendMessage, joinRoom, leaveRoom, notifications, sender}}
+      value={{
+        socket,
+        sendMessage,
+        joinRoom,
+        leaveRoom,
+        notifications,
+        sender,
+      }}
     >
       {children}
     </SocketContext.Provider>
