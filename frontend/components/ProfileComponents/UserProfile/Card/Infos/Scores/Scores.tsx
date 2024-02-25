@@ -98,26 +98,26 @@ const Scores = () => {
   }
   
   return (
-    <div className="w-full h-[4rem] p-5 items-center flex justify-center rounded-[5px] gap-[0.5rem] border border-black border-solid">
+    <div className="w-[23rem] h-[4rem] items-center flex justify-center rounded-[10px] gap-[1.5rem] border border-black border-solid">
       <div className="flex flex-col gap-[0.2rem]">
-        <h6 className="flex justify-center text-bold font-bold text-lg">
+        <h6 className="flex justify-center text-bold font-bold text-xl">
           {loses + wins}
         </h6>
-        <p className="text-gray-500 text-sm">Games</p>
+        <p className="text-gray-500 text-base">Games</p>
       </div>
       <div className="flex flex-col gap-[0.2rem]">
         <h6 className="flex justify-center font-bold text-lg">
           {achievements}
         </h6>
-        <p className="text-gray-500 text-sm">Achievements</p>
+        <p className="text-gray-500 text-base">Achievements</p>
       </div>
       <div className="flex flex-col gap-[0.2rem]">
         <h6 className="flex justify-center font-bold text-lg">{loses}</h6>
-        <p className="text-gray-500 text-sm">Loses</p>
+        <p className="text-gray-500 text-base">Loses</p>
       </div>
       <div className="flex flex-col gap-[0.2rem]">
         <h6 className="flex justify-center font-bold text-lg">{wins}</h6>
-        <p className="text-gray-500 text-sm">Wins</p>
+        <p className="text-gray-500 text-base">Wins</p>
       </div>
     </div>
   );
