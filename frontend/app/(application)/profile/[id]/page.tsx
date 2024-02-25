@@ -35,7 +35,7 @@ export default function Page() {
           className={
             open
               ? "w-[3rem] h-[3rem] rounded-[10px] flex items-center justify-center bg-[#D9923B]"
-              : "w-[3rem] h-[3rem] rounded-[10px] flex items-center justify-center "
+              : "w-[3rem] h-[3rem] rounded-[10px] flex items-center justify-center hover:bg-primary/5"
           }
         >
           <button onClick={handleClick}>

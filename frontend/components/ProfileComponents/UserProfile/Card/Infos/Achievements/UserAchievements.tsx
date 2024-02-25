@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { AchievementsProps, achievementsObj } from "./Achievements.types";
 
-const Achievements = ({ achievementsArray }: AchievementsProps) => {
+const UserAchievements = ({ achievementsArray }: AchievementsProps) => {
   const array: achievementsObj[] = achievementsArray.filter(
     (achievements) => achievements.state
   );
@@ -28,4 +28,4 @@ const Achievements = ({ achievementsArray }: AchievementsProps) => {
   );
 };
 
-export default Achievements;
+export default UserAchievements;

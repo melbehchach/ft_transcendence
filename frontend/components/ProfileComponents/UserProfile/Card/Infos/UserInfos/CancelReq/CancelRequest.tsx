@@ -45,7 +45,7 @@ function CancelRequest({ card }: props) {
   const className1: string =
     "w-full h-[2.5rem] p-[1rem] flex items-center gap-3 text-white border border-gray-500 rounded-[8px]";
   const className2: string =
-    "w-[10rem] h-[3rem] bg-background flex justify-center items-center border border-gray-500 border-solid rounded-[25px] text-sm";
+    "w-full h-[3rem] bg-background flex justify-center items-center border border-gray-500 border-solid rounded-[25px] text-sm hover:bg-primary/5";
 
   return (
     <button className={card ? className1 : className2} onClick={postData}>

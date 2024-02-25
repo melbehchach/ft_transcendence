@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../../../app/context/AuthContext";
 import Avatar from "../../Avatar/Avatar";
 import { AvatarProps } from "../../types/Avatar.type";
-import Achievements from "./Infos/Achievements/Achievements";
+import Achievements from "./Infos/Achievements/UserAchievements";
 import achievementsData from "./Infos/Achievements/AchievementsData";
 import Scores from "./Infos/Scores/Scores";
 import FriendshipState from "./Infos/UserInfos/FriendshipSatate/FriendshipState";
@@ -11,9 +11,9 @@ import { useParams } from "next/navigation";
 type props = {
   setBlocker: any;
   setBlocked: any;
-}
+};
 
-function UserCard({setBlocker, setBlocked}: props) {
+function UserCard({ setBlocker, setBlocked }: props) {
   const {
     fetchData,
     state: { profile },
@@ -36,7 +36,6 @@ function UserCard({setBlocker, setBlocked}: props) {
       fetchData(param.id);
     });
   }, []);
-
 
   return (
     <div className="w-[22rem] h-full p-[0.5rem] text-white flex flex-col border border-black border-solid rounded-[15px]">

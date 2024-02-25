@@ -31,7 +31,7 @@ export default function NotificationBar({ notifications }: props) {
     } catch (error) {}
   }
 
-  const calculateTiem = (time: any) => {
+  const calculateTime = (time: any) => {
     let playMatch: any = new Date(time);
     let currentTime: any = new Date();
     let timeDifference = currentTime - playMatch;
@@ -53,27 +53,29 @@ export default function NotificationBar({ notifications }: props) {
         {notifications?.notifications
           .slice()
           .reverse()
-          .map((notification) => (
-            <li
-              className="flex flex-col gap-[0.2rem] border-b border-black p-[0.5rem]"
-              key={notification.id}
-              onClick={() => {
-                checkRead(notification.id);
-              }}
-            >
-              <div className="flex flex-row items-center gap-[0.3rem]">
-                {!notification.read && (
-                  <div className="w-[0.5rem] h-[0.5rem] rounded-full bg-[#D9923B]"></div>
-                )}
-                <h3 className={"text-base text-white"}>
-                  {notification.message}
-                </h3>
-              </div>
-              <p className="text-sm text-grey-500">
-                {calculateTiem(notification.createdAt)}
-              </p>
-            </li>
-          ))}
+          .map((notification) =>
+            notification.message.length ? (
+              <li
+                className="flex flex-col gap-[0.2rem] border-b border-black p-[0.5rem]"
+                key={notification.id}
+                onClick={() => {
+                  checkRead(notification.id);
+                }}
+              >
+                <div className="flex flex-row items-center gap-[0.3rem]">
+                  {!notification.read && (
+                    <div className="w-[0.5rem] h-[0.5rem] rounded-full bg-[#D9923B]"></div>
+                  )}
+                  <h3 className="text-base text-white">
+                    {notification.message}
+                  </h3>
+                </div>
+                <p className="text-sm text-grey-500">
+                  {calculateTime(notification.createdAt)}
+                </p>
+              </li>
+            ) : null
+          )}
       </ul>
     </div>
   );
