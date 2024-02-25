@@ -10,7 +10,7 @@ const SocketContext = createContext(null);
 const SocketContextProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [notifications, setNotifications] = useState<boolean>(false);
-  const [sender, setSender] = useState<string>("");
+  const [sender, setSender] = useState({});
   const { fetchFriendsReqData, fetchFriendsData, fetchData } = useAuth();
   const param = useParams();
   const router = useRouter();
@@ -59,10 +59,14 @@ const SocketContextProvider = ({ children }) => {
         fetchData();
       });
       socket.on("GameRequest", (data) => {
-        setNotifications(true);
-        setSender(data.sender);
+        console.log('socket conetxt', data);
+        if (data.data.receiverId === Cookies.get("USER_ID")) {
+          setNotifications(true);
+          setSender({senderId : data.data.senderId, sender : data.data.sender});
+        }
       });
       socket.on("redirect", (data) => {
+        console.log('redirect', data);
         router.push(data.url);
       });
     }
@@ -72,6 +76,7 @@ const SocketContextProvider = ({ children }) => {
     <SocketContext.Provider
       value={{ socket, sendMessage, joinRoom, leaveRoom, notifications, sender}}
     >
+      
       {children}
     </SocketContext.Provider>
   );

@@ -430,6 +430,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       } 
     }
-    console.log('disconnected', playerId);
+    // console.log('disconnected', playerId);
   }
 }

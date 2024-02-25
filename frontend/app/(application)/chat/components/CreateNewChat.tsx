@@ -28,7 +28,7 @@ export const newChannelActionTypes = {
 
 const newChannelReducer = (state, action) => {
   switch (action.type) {
-    case newChannelActionTypes.CHANNEL_NAME:
+    case newChannelActionTypes.CHANNEL_NAME: 
       return { ...state, channelName: action.payload };
     case newChannelActionTypes.CHANNEL_AVATAR:
       return { ...state, avatar: action.payload };

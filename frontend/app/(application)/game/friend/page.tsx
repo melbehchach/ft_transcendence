@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
 import ScoreBoard from "../../../../components/Game/scoreBoard";
-import InviteModal from "../../../../components/Game/InviteModal";
 import InviteMatch from "../../../../components/Game/inviteMatch";
 import GameRules from "../rules/page";
 import DeclineModal from "../issue/page";
+import ChallengeFriend from "../../../../components/Game/ChallengeFriend";
 
 const InviteFriendPage = () => {
   const [Playerscore, setPlayerScore] = useState(0);
@@ -17,7 +17,7 @@ const InviteFriendPage = () => {
   return (
     <>
       <div className="pl-[10%] bg-background h-screen w-screen justify-center ">
-        <InviteModal loading={loading} setLoading={setLoading} />
+        <ChallengeFriend />
         {rules ? (
           <GameRules setLoading={setLoading} setrules={setrules} />
         ) : null}

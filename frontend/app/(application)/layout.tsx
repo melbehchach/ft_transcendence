@@ -5,7 +5,9 @@ import { useAuth } from "../context/AuthContext";
 import "swiper/css";
 import SideBar from "../../components/ProfileComponents/SideBar/SideBar";
 import ProtectedRoute from "../../components/ProtectedRoute";
-import AcceptOrRefuse from "../../components/Game/AcceptOrRefuse";
+import AcceptOrRefuse from "../../components/Game/ChallengePopUp";
+import { useSocket } from "../context/SocketContext";
+import ChallengePopUp from "../../components/Game/ChallengePopUp";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState<string>("");
@@ -14,14 +16,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const locations = ["profile", "chat", "game"];
   const {
     fetchData,
-    notifications,
-    sender,
     fetchFriendsReqData,
     fetchFriendsData,
     fetchRecentGames,
     fetchNotifications,
     state: { profile },
   } = useAuth();
+
+  const { notifications, sender } = useSocket();
+
 
   useEffect(() => {
     if (locations.includes(location.split("/")[1])) {
@@ -38,15 +41,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     fetchFriendsData();
     // fetchNotifications();
   }, []);
-
   return (
     <ProtectedRoute>
       <div className="flex">
         <div className="flex flex-col h-screen bg-background border-r border-black w-[14rem]">
           <SideBar active={active} setSideBar={steOpen} />
         </div>
+        {notifications && <ChallengePopUp sender={sender} />}
         {profile && children}
-        {notifications ? <AcceptOrRefuse sender={sender} /> : null} 
       </div>
     </ProtectedRoute>
   );

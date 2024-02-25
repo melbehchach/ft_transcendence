@@ -18,10 +18,7 @@ export class GameController {
   constructor(private gameService: GameService) {}
 
   @Post(':id/send-game-request')
-  async sendGameRequest(
-    @Body() sender: GameRequestDTO,
-    @Param() receiver: GameRequestDTO,
-  ) {
+  async sendGameRequest(@Body() sender: GameRequestDTO,@Param() receiver: GameRequestDTO) {
     if (sender && receiver) {
       return this.gameService.sendGameRequest(sender.id, receiver.id);
     } else {
@@ -55,7 +52,6 @@ export class GameController {
 
   @Get('MatchHistory/:id')
   async getMatchHistory(@Param('id') param) {
-    console.log('heeeeeeey');
     if (param) {
       return this.gameService.getMatchHistory(param);
     } else {
