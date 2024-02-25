@@ -313,7 +313,15 @@ export class AuthService {
           TFAsecret: null,
         },
       });
-      if (!user) {
+      const achievementUpdate = await this.prisma.achievement.update({
+        where: {
+          playerId: id,
+        },
+        data: {
+          snowdedn: false,
+        },
+      });
+      if (!user || !achievementUpdate) {
         throw new Error('Failed to update record');
       }
       return { success: true };
