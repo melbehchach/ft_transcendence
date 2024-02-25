@@ -27,9 +27,11 @@ function reducer(state, action) {
 }
 
 function ProfilePage() {
+
   const {
     fetchData,
-    state: { friendRequests, friends, recentGames },
+    fetchRecentGames,
+    state: { friendRequests, friends, recentGames, user },
   } = useAuth();
 
   const [state, dispatch] = useReducer(reducer, {
@@ -44,6 +46,10 @@ function ProfilePage() {
     dispatch({ type: "newFriendsRq" });
   }
   const [setting, setSetting] = useState<boolean>(false);
+
+  useEffect(() => {
+    fetchRecentGames(user.id)
+  }, [])
 
   return (
     <div className="w-full h-full flex gap-[1.5rem]  p-[1rem] pt-[1.5rem]">
