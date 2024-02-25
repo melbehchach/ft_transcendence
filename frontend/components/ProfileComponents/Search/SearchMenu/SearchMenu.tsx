@@ -53,6 +53,7 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
   });
   const [searchValue, setSearchValue] = useState<string>("");
   const [searchUsersData, setSearchUsersData] = useState<ProfileData[]>([]);
+  const [searchChannelsData, setSearchChannelsData] = useState<any>([]);
   const [searchALLData, setSearchALLData] = useState<SearchDataFetch>({
     users: [],
     channels: [],
@@ -77,10 +78,12 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
           } else if (state.requestType === "USERS") {
             setSearchUsersData(response.data);
           }
+          else if (state.requestType === "CHANNELS") {
+            setSearchChannelsData(response.data);
+          }
         }
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("Tap to search");
     }
   }
 
@@ -94,6 +97,9 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
         });
       } else if (state.requestType === "USERS") {
         setSearchUsersData([]);
+      }
+      else if (state.requestType === "CHANNELS") {
+        setSearchChannelsData([]);
       }
     }
   }, [searchValue]);
@@ -113,14 +119,16 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
     dispatch({ type: "updateRequestType", payload: "CHANNELS" });
   }
 
-  function usesrData(): ProfileData[] {
-    let usersArray: ProfileData[];
+  function usesrData(): any {
+    let usersArray: any;
     if (state.requestType === "ALL") {
-      usersArray = searchALLData.users;
+      usersArray = searchALLData;
     } else if (state.requestType === "USERS") {
       usersArray = searchUsersData;
     }
-
+    else if (state.requestType === "CHANNELS") {
+      usersArray = searchChannelsData;
+    }
     return usersArray;
   }
 
@@ -177,7 +185,7 @@ function SearchMenu({ modal, closeModal }: searchMenuProps) {
         <div className="w-full h-full p-[1rem] pl-0">
           {state.all && <AllField usersData={usesrData} />}
           {state.users && <UsersField usersData={usesrData} />}
-          {state.channels && <ChannelsField />}
+          {state.channels && <ChannelsField usersData={usesrData} />}
         </div>
       </div>
     </div>
