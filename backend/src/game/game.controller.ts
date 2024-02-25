@@ -53,12 +53,12 @@ export class GameController {
     }
   }
 
-  @Get('MatchHistory')
-  async getMatchHistory(@Req() req: any) {
-    if (req.userID) {
-      return this.gameService.getMatchHistory(req.userID);
+  @Get('MatchHistory/:id')
+  async getMatchHistory(@Param('id') param) {
+    if (param) {
+      return this.gameService.getMatchHistory(param);
     } else {
-      throw new BadRequestException('Invalid user data.');
+      throw new BadRequestException('Invalid user data recent games.');
     }
   }
 
