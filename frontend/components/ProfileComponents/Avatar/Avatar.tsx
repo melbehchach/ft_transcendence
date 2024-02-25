@@ -1,8 +1,6 @@
 "use client";
 import { AvatarProps } from "../types/Avatar.type";
 
-
-
 export default function Avatar({ avatarObj }) {
   if (!avatarObj) {
     return null;
@@ -45,4 +43,3 @@ export default function Avatar({ avatarObj }) {
     </div>
   );
 }
-

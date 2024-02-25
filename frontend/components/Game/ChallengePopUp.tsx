@@ -5,10 +5,12 @@ import Lottie from "lottie-react";
 import PongAnimation from "../../public/img/PongAnimation.json";
 import Cookies from "js-cookie";
 import { useSocket } from "../../app/context/SocketContext";
+import { useAuth } from "../../app/context/AuthContext";
 
 
 export default function ChallengePopUp({ sender }: any) {
   const { setNotifications} = useSocket();
+  const { ChangeStatus } = useAuth();
   const handleAccept = () => {
     try {
      const res =  axios.post(`http://localhost:3000/game/accept/${Cookies.get("USER_ID")}`, {
