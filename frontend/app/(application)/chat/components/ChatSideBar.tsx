@@ -5,6 +5,7 @@ import UserAvatar from "../../../../components/UserAvatar";
 import { useAuth } from "../../../context/AuthContext";
 import { useChat } from "../../../context/ChatContext";
 import CreateNewChat from "./CreateNewChat";
+import ExplorChannels from "./ExplorChannels";
 import Search from "./Search";
 
 const ChatSideBar = ({
@@ -30,9 +31,10 @@ const ChatSideBar = ({
   }, []);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col side__bar--height min-w-[300px]">
       <Search />
       <div className="flex flex-col gap-4 p-4 gap-4">
+        <ExplorChannels setSelectedChat={setSelectedChat} />
         {/* <ChatButton icon={faCompass} onClick={() => {}}>
         <Typography
         content="Explore Channels"
@@ -45,17 +47,16 @@ const ChatSideBar = ({
           if (chat.name) {
             return (
               <button
-                className={clsx({
-                  "bg-textSecondary rounded-[10px] py-2":
-                    selectedChat === chat.id,
+                className={clsx("py-2", {
+                  "bg-textSecondary rounded-[10px]": selectedChat === chat.id,
                 })}
                 key={index}
                 onClick={() => setSelectedChat(chat.id)}
               >
-                <UserAvatar key={index} src={""} name={chat.name} />
+                <UserAvatar key={index} src={chat.image} name={chat.name} />
               </button>
             );
-          } else {
+          } else if (friends && chat.user1Id) {
             let friend = friends.find(
               (friend) =>
                 friend.id ===
@@ -64,9 +65,8 @@ const ChatSideBar = ({
             if (friend) {
               return (
                 <button
-                  className={clsx({
-                    "bg-textSecondary rounded-[10px] py-2":
-                      selectedChat === chat.id,
+                  className={clsx("py-2", {
+                    "bg-textSecondary rounded-[10px]": selectedChat === chat.id,
                   })}
                   key={index}
                   onClick={() => setSelectedChat(chat.id)}

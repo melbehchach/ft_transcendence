@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../../../app/context/AuthContext";
 import Avatar from "../../Avatar/Avatar";
 import { AvatarProps } from "../../types/Avatar.type";
-import Achievements from "./Infos/Achievements/Achievements";
-import achievementsData from "./Infos/Achievements/AchievementsData";
-import fakeData from "./Infos/Scores/RecordsData";
+import Achievements from "./Infos/Achievements/UserAchievements";
 import Scores from "./Infos/Scores/Scores";
 import FriendshipState from "./Infos/UserInfos/FriendshipSatate/FriendshipState";
 import { useParams } from "next/navigation";
@@ -12,9 +10,9 @@ import { useParams } from "next/navigation";
 type props = {
   setBlocker: any;
   setBlocked: any;
-}
+};
 
-function UserCard({setBlocker, setBlocked}: props) {
+function UserCard({ setBlocker, setBlocked }: props) {
   const {
     fetchData,
     state: { profile },
@@ -30,14 +28,13 @@ function UserCard({setBlocker, setBlocked}: props) {
     imageStyle: "w-[13rem] h-[13rem] rounded-full object-cover",
     fontSize: "text-2xl font-bold",
     positiosn: true,
+    existStatos: true,
+    statos: profile.status,
   };
 
   useEffect(() => {
-    fetchData().then(() => {
-      fetchData(param.id);
-    });
+    fetchData(param.id);
   }, []);
-
 
   return (
     <div className="w-[22rem] h-full p-[0.5rem] text-white flex flex-col border border-black border-solid rounded-[15px]">
@@ -46,8 +43,8 @@ function UserCard({setBlocker, setBlocked}: props) {
           <Avatar avatarObj={avatarObj} />
         </div>
         <FriendshipState setBlocker={setBlocker} setBlocked={setBlocked} />
-        <Scores myScoresArray={fakeData} />
-        <Achievements achievementsArray={achievementsData} />
+        <Scores />
+        <Achievements />
       </div>
     </div>
   );

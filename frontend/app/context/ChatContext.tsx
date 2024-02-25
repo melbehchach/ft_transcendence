@@ -34,6 +34,7 @@ const chatReducer = (state, action) => {
 };
 
 const ChatSocketContextProvider = ({ children }) => {
+  
   const [socket, setSocket] = useState(null);
   const [socketChannels, setSocketChannels] = useState(null);
   const [state, dispatch] = useReducer(chatReducer, initialeState);
@@ -52,7 +53,7 @@ const ChatSocketContextProvider = ({ children }) => {
         payload: r,
       });
 
-      let members = [];
+      let members = [...friends.friends.map((f) => f.id), user.id];
       r.forEach((channel) => {
         if (channel.Members) {
           channel.Members.forEach((element) => {
@@ -61,8 +62,7 @@ const ChatSocketContextProvider = ({ children }) => {
         }
       });
       members = [...new Set(members)];
-      let membersData = [];
-      console.log({ members, user });
+      let membersData = [...state.members];
       members.forEach(async (element) => {
         let friend;
         if (state.members.find((m) => m.id === element)) {
@@ -118,6 +118,41 @@ const ChatSocketContextProvider = ({ children }) => {
     }
   }
 
+  async function exploreChannels() {
+    try {
+      if (jwt_token) {
+        const channels = (
+          await axios.get("http://localhost:3000/channels/explore", {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          })
+        ).data;
+        return channels;
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+  async function getChannelByID(channelID: string) {
+    try {
+      if (jwt_token) {
+        const channels = (
+          await axios.get(`http://localhost:3000/channels/${channelID}`, {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          })
+        ).data;
+        return channels;
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+
   async function newChannel(
     params: {
       name: string;
@@ -146,15 +181,36 @@ const ChatSocketContextProvider = ({ children }) => {
       console.log("an error occured");
     }
   }
-  async function updateChannelAvatar(id, avatar) {
+  async function updateChannelAvatar(id, avatarFile) {
+    const formData = new FormData();
+    formData.append("avatar", avatarFile);
+    const jwt_token = Cookies.get("JWT_TOKEN");
     try {
       if (jwt_token) {
-        // let formDatat = new FormData();
-        // formDatat.append("avatar", avatar);
-        console.log(avatar);
-        const response = await axios.patch(
+        const formData = new FormData();
+        formData.append("avatar", avatarFile);
+        const response = await fetch(
           `http://localhost:3000/channels/${id}/editAvatar`,
-          avatar,
+          {
+            credentials: "include",
+            method: "PATCH",
+            body: formData,
+          }
+        );
+        if (!response.ok) {
+          alert("File upload failed.");
+        }
+        getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {}
+  }
+  async function updateChannelName(id, name) {
+    const jwt_token = Cookies.get("JWT_TOKEN");
+    try {
+      if (jwt_token) {
+        const response = await axios.patch(
+          `http://localhost:3000/channels/${id}/editName`,
+          { name },
           {
             headers: {
               Authorization: `Bearer ${jwt_token}`,
@@ -162,8 +218,43 @@ const ChatSocketContextProvider = ({ children }) => {
             withCredentials: true,
           }
         );
-        console.log(response);
-        // getAllChats();
+        getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {}
+  }
+  async function updateChannelType(id, type, password) {
+    const jwt_token = Cookies.get("JWT_TOKEN");
+    try {
+      if (jwt_token) {
+        const response = await axios.patch(
+          `http://localhost:3000/channels/${id}/editType`,
+          { type, password },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {}
+  }
+
+  async function joinChannel(id, pwd) {
+    try {
+      if (jwt_token) {
+        const response = await axios.post(
+          `http://localhost:3000/channels/${id}/join`,
+          { password: pwd },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        await getAllChats();
       } else throw new Error("bad req");
     } catch (error) {
       console.log("an error occured");
@@ -185,7 +276,8 @@ const ChatSocketContextProvider = ({ children }) => {
             withCredentials: true,
           }
         );
-        getAllChats();
+        console.log(response);
+        await getAllChats();
       } else throw new Error("bad req");
     } catch (error) {
       console.log("an error occured");
@@ -221,6 +313,137 @@ const ChatSocketContextProvider = ({ children }) => {
       } else throw new Error("bad req");
     } catch (error) {
       console.log("an error occured");
+    }
+  }
+
+  async function makeAdmin(channelId: string, id: string, makeAdmin: boolean) {
+    try {
+      if (jwt_token) {
+        const response = await axios.patch(
+          `http://localhost:3000/channels/${channelId}/makeAdmin`,
+          {
+            id,
+            makeAdmin,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        await getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+
+  async function mute(channelID: string, members: string[]) {
+    try {
+      if (jwt_token) {
+        const response = await axios.patch(
+          `http://localhost:3000/channels/${channelID}/mute`,
+          {
+            members,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        await getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+
+  async function ban(channelID: string, id) {
+    try {
+      if (jwt_token) {
+        const response = await axios.patch(
+          `http://localhost:3000/channels/${channelID}/ban`,
+          {
+            id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        await getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+
+  async function kick(channelId: string, members: string[]) {
+    try {
+      if (jwt_token) {
+        const response = await axios.patch(
+          `http://localhost:3000/channels/${channelId}/kickMembers`,
+          {
+            members,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        await getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+  async function addMembers(channelId: string, members: string[]) {
+    try {
+      if (jwt_token) {
+        const response = await axios.patch(
+          `http://localhost:3000/channels/${channelId}/addMembers`,
+          {
+            members,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        await getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {
+      alert(error.response.data.message);
+    }
+  }
+  async function unbanMember(channelId: string, id: string) {
+    try {
+      if (jwt_token) {
+        const response = await axios.patch(
+          `http://localhost:3000/channels/${channelId}/unban`,
+          {
+            id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        await getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {
+      alert(error.response.data.message);
     }
   }
 
@@ -269,6 +492,7 @@ const ChatSocketContextProvider = ({ children }) => {
   useEffect(() => {
     if (socket) {
       socket.on("directMessage", (data) => {
+        console.log(data);
         getAllChats();
       });
     }
@@ -276,13 +500,16 @@ const ChatSocketContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (socketChannels) {
-      console.log("loggggeeeeeeeeed");
       socketChannels.on("channelMessage", (data) => {
-        console.log(data);
         getAllChats();
       });
       socketChannels.on("directMessage", (data) => {
-        console.log(data);
+        getAllChats();
+      });
+      socketChannels.on("leaveRoom", (data) => {
+        getAllChats();
+      });
+      socketChannels.on("joinRoom", (data) => {
         getAllChats();
       });
     }
@@ -299,6 +526,18 @@ const ChatSocketContextProvider = ({ children }) => {
         joinRoom,
         leaveRoom,
         newChannel,
+        exploreChannels,
+        joinChannel,
+        makeAdmin,
+        mute,
+        kick,
+        ban,
+        getChannelByID,
+        updateChannelAvatar,
+        updateChannelName,
+        updateChannelType,
+        addMembers,
+        unbanMember,
       }}
     >
       {children}

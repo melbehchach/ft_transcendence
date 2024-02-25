@@ -32,6 +32,15 @@ export class AuthService {
           isAuthenticated: false,
         },
       });
+      await this.prisma.achievement.create({
+        data: {
+          player: {
+            connect: {
+              id: user.id
+            }
+          }
+        }
+      })
       return user;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -246,7 +255,15 @@ export class AuthService {
               TFAsecret: user.TFAtempSecret,
             },
           });
-          if (!userUpdate) {
+          const achievementUpdate = await this.prisma.achievement.update({
+            where: {
+              playerId: id,
+            },
+            data: {
+              snowdedn: true,
+            },
+          });
+          if (!userUpdate || !achievementUpdate) {
             throw new Error('Failed to update record');
           }
           return { enabled: true };

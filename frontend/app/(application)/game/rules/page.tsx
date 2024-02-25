@@ -3,10 +3,9 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import GameModalComponent from "../../../../components/Game/Modal";
 
-export default function GameRules() {
+export default function GameRules({setLoading, setrules}: any)  {
   const router = useRouter();
   const [counter, setCounter] = useState(5);
-
   useEffect(() => {
     if (counter > 0) {
       const timer = setTimeout(() => {
@@ -14,6 +13,8 @@ export default function GameRules() {
       }, 1000);
 
       return () => clearTimeout(timer);
+    } else if (counter === 0) {
+      setrules(false);
     }
   }, [counter, router]);
 
@@ -44,7 +45,7 @@ export default function GameRules() {
       <div className="flex content-center gap-5 justify-center">
         <div className="hidden md:block">{pongIcon}</div>
         <div className="flex flex-col justify-center">
-          {"First player to score FIVE wins the game"}
+          {"First player to score THREE wins the game"}
         </div>
       </div>
       <div className="flex content-center gap-5 justify-center">
@@ -59,7 +60,6 @@ export default function GameRules() {
       <div className="font-bold text-3xl lg:text-4xl"> {counter} </div>
     </div>
   );
-
   return (
     <>
       <GameModalComponent

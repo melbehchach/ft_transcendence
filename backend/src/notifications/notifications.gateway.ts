@@ -101,17 +101,19 @@ export class NotificationsGateway
   }
 
   handleAcceptEvent(senderId: string, receiverId: string, gameId: string) {
-    const senderSocket = this.socketMap.get(senderId);
-    if (senderSocket) {
-      this.server.to(senderSocket.id).emit('redirect', {
-        url: `/game/friend/${gameId}`,
-      });
+    if (this.clientsMap[senderId]) {
+      for (const client of this.clientsMap[senderId]) {
+        client.emit('AcceptGame', {
+          url: `/game/friend/${gameId}`,
+        });
+      }
     }
-    const receiverSocket = this.socketMap.get(receiverId);
-    if (receiverSocket) {
-      this.server.to(receiverSocket.id).emit('redirect', {
-        url: `/game/friend/${gameId}`,
-      });
+    if (this.clientsMap[receiverId]) {
+      for (const client of this.clientsMap[receiverId]) {
+        client.emit('AcceptGame', {
+          url: `/game/friend/${gameId}`,
+        });
+      }
     }
   }
 

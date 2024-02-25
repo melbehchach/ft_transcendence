@@ -6,12 +6,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Avatar from "../../../../components/Avatar";
 import Modal from "../../../../components/Modal";
 import Typography from "../../../../components/Typography";
 import UserAvatar from "../../../../components/UserAvatar";
 import { useAuth } from "../../../context/AuthContext";
+import { useChat } from "../../../context/ChatContext";
 import Button from "./Button";
 import { newChannelActionTypes } from "./CreateNewChat";
 import { RowWrapper } from "./SelectNewChat";
@@ -26,7 +27,11 @@ const NewChannelRow = ({
   alignStart?: boolean;
 }) => {
   return (
-    <div className="flex gap-16 items-center">
+    <div
+      className={clsx("flex gap-16 items-center", {
+        "items-baseline": label === "Channel Name",
+      })}
+    >
       {/* <div className="w-1/4 shrink-0"> */}
       <div className={clsx("w-1/4 shrink-0", { "self-start": alignStart })}>
         <Typography content={label} type="paragraphe" variant="body" />
@@ -36,31 +41,87 @@ const NewChannelRow = ({
   );
 };
 
-const NewChannel = ({ dispatch, state }) => {
+const NewChannel = ({
+  dispatch,
+  state,
+  channel,
+}: {
+  dispatch: any;
+  state: any;
+  channel?: any;
+}) => {
   const modalRef = useRef();
-
+  const [inputErrors, setInputErrors] = useState({
+    channelName: "",
+    password: "",
+  });
+  // const [channel, setChannel] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState<string>(
+    state.avatar ? state.avatar : ""
+  );
+  const {
+    getChannelByID,
+    unbanMember,
+    state: { members, allChats },
+  } = useChat();
+  const handleInputChange = (e, field) => {
+    const { value } = e.target;
+    // Validate input based on field
+    if (field === "channelName") {
+      if (value.length < 3) {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          channelName: "Channel Name must be at least 3 characters long",
+        }));
+      } else {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          channelName: "",
+        }));
+      }
+      dispatch({
+        type: newChannelActionTypes.CHANNEL_NAME,
+        payload: e.target.value,
+      });
+    } else if (field === "password") {
+      if (value.length < 6) {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          password: "Password must be at least 6 characters long",
+        }));
+      } else {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          password: "",
+        }));
+      }
+      dispatch({
+        type: newChannelActionTypes.UPDATE_PASSWORD,
+        payload: e.target.value,
+      });
+    }
+  };
   function openModel() {
     modalRef?.current?.showModal();
   }
   function closeModal() {
     modalRef?.current.close();
   }
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
 
     if (file) {
-      const reader = new FileReader();
-
-      reader.onloadend = () => {
-        dispatch({
-          type: newChannelActionTypes.CHANNEL_AVATAR,
-          payload: formData,
-        });
-        // setAvatar(reader.result);
-      };
-
-      // Read the selected image as a data URL
-      reader.readAsDataURL(file);
+      const maxFileSize = 1024 * 1024 * 5;
+      if (file.size > maxFileSize) {
+        alert("File is too large. Please upload a file smaller than 5 MB.");
+        return;
+      }
+      setPreviewUrl(URL.createObjectURL(file));
+      dispatch({
+        type: newChannelActionTypes.CHANNEL_AVATAR,
+        payload: file,
+      });
     }
   };
   const {
@@ -69,6 +130,12 @@ const NewChannel = ({ dispatch, state }) => {
       user,
     },
   } = useAuth();
+  useEffect(() => {
+    dispatch({
+      type: newChannelActionTypes.UPDATE_PASSWORD,
+      payload: "",
+    });
+  }, [state.type]);
   return (
     <>
       <NewChannelRow label="Channel Photo">
@@ -93,7 +160,7 @@ const NewChannel = ({ dispatch, state }) => {
           </label>
           {state.avatar && (
             <img
-              src={state.avatar}
+              src={previewUrl}
               alt="Avatar"
               className="w-full h-full object-cover rounded-full"
             />
@@ -101,17 +168,17 @@ const NewChannel = ({ dispatch, state }) => {
         </div>
       </NewChannelRow>
       <NewChannelRow label="Channel Name">
-        <input
-          value={state.channelName}
-          onChange={(e) =>
-            dispatch({
-              type: newChannelActionTypes.CHANNEL_NAME,
-              payload: e.target.value,
-            })
-          }
-          className="w-full border rounded-sm px-6 py-2 bg-transparent text-white rounded-md"
-          placeholder="Type The Channel Name"
-        />
+        <div className="flex flex-col gap-2 grow">
+          <input
+            value={state.channelName}
+            onChange={(e) => handleInputChange(e, "channelName")}
+            className="w-full border rounded-sm px-6 py-2 bg-transparent text-white rounded-md"
+            placeholder="Type The Channel Name"
+          />
+          {inputErrors.channelName && (
+            <span className="text-red-500">{inputErrors.channelName}</span>
+          )}
+        </div>
       </NewChannelRow>
       <NewChannelRow alignStart label="Channel Type">
         <div className="flex flex-col gap-4">
@@ -179,10 +246,21 @@ const NewChannel = ({ dispatch, state }) => {
         </div>
       </NewChannelRow>
       <NewChannelRow label="Channel Password">
-        <input
-          className="w-full border px-6 py-2 bg-transparent text-white rounded-md"
-          placeholder="Only if the channel is protected"
-        />
+        <div className="flex flex-col gap-2 grow">
+          <input
+            onChange={(e) => {
+              handleInputChange(e, "password");
+            }}
+            disabled={state.type !== 1}
+            value={state.password}
+            type="password"
+            className="w-full border px-6 py-2 bg-transparent text-white rounded-md"
+            placeholder="Only if the channel is protected"
+          />
+          {inputErrors.password && state.type === 1 && (
+            <span className="text-red-500">{inputErrors.password}</span>
+          )}
+        </div>
       </NewChannelRow>
       <NewChannelRow label="Channel Members">
         <>
@@ -195,7 +273,7 @@ const NewChannel = ({ dispatch, state }) => {
                 return (
                   <div key={key} className="ml-[-25px]">
                     <Avatar
-                      src={friends.find((friend) => friend.id === id).avatar}
+                      src={friends.find((friend) => friend.id === id)?.avatar}
                     />
                   </div>
                 );
@@ -209,7 +287,23 @@ const NewChannel = ({ dispatch, state }) => {
             onCancel={() => {}}
           >
             {friends.map((friend, index) => {
-              if (state.members.find((elem) => elem === friend.id))
+              if (
+                channel &&
+                channel.name &&
+                channel?.bannedMembers?.find((el) => el.id === friend.id)
+              ) {
+                return (
+                  <RowWrapper key={index}>
+                    <UserAvatar src={friend.avatar} name={friend.username} />
+                    <Button
+                      content="Unban"
+                      onClick={() => {
+                        unbanMember(channel.id, friend.id);
+                      }}
+                    />
+                  </RowWrapper>
+                );
+              } else if (state.members.find((elem) => elem === friend.id))
                 return (
                   <RowWrapper key={index}>
                     <UserAvatar src={friend.avatar} name={friend.username} />

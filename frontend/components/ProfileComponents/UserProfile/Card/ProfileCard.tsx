@@ -3,18 +3,16 @@ import { useAuth } from "../../../../app/context/AuthContext";
 import { AvatarProps } from "../../types/Avatar.type";
 import Avatar from "../../Avatar/Avatar";
 import Scores from "./Infos/Scores/Scores";
-import Achievements from "./Infos/Achievements/Achievements";
+import Achievements from "./Infos/Achievements/UserAchievements";
 import ProfileSettings from "./ProfileSettings/ProfileSettings";
 import SettingIcon from "./ProfileSettings/SettingIcon";
-import fakeData from "./Infos/Scores/RecordsData";
-import achievementsData from "./Infos/Achievements/AchievementsData";
 
 type props = {
   setting: boolean;
-  setSetting: any;  
-}
+  setSetting: any;
+};
 
-function ProfileCard({setting, setSetting}: props) {
+function ProfileCard({ setting, setSetting }: props) {
   const {
     state: { user },
   } = useAuth();
@@ -27,6 +25,7 @@ function ProfileCard({setting, setSetting}: props) {
     imageStyle: "w-[13rem] h-[13rem] rounded-full object-cover",
     fontSize: "text-2xl font-bold",
     positiosn: true,
+    existStatos: false,
   };
 
   function closeSettings() {
@@ -34,7 +33,7 @@ function ProfileCard({setting, setSetting}: props) {
   }
 
   return (
-    <div className="w-[22rem] h-full p-[0.5rem] text-white flex flex-col border border-black border-solid rounded-[15px]">
+    <div className="w-[25rem] h-full p-[0.5rem] text-white flex flex-col gap-[0.5rem] border border-black border-solid rounded-[15px] ">
       <button
         className={!setting ? "place-self-end" : "hidden"}
         onClick={() => setSetting(true)}
@@ -42,12 +41,12 @@ function ProfileCard({setting, setSetting}: props) {
         <SettingIcon />
       </button>
       {!setting ? (
-        <div className="w-full h-full flex flex-col justify-center items-center gap-[1rem]">
+        <div className="flex h-full flex-col gap-[1rem]  overflow-hidden">
           <div className="w-full flex justify-center items-center">
             <Avatar avatarObj={avatarObj} />
           </div>
-          <Scores myScoresArray={fakeData} />
-          <Achievements achievementsArray={achievementsData} />
+          <Scores />
+          <Achievements />
         </div>
       ) : (
         <ProfileSettings openSettings={closeSettings} />

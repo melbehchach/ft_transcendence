@@ -29,18 +29,13 @@ export class GameService {
         },
       });
 
-      if (
-        !sender ||
-        !receiver ||
-        receiver?.friends?.length === 0 ||
-        receiver?.status === userStatus.OFFLINE
-      ) {
+      if (!sender || !receiver || receiver?.friends?.length === 0) {
         throw new Error('Internal Server Error: cannotSendGameRequest');
       }
       this.notificationsGateway.handleNotificationEvent(
         NotificationType.GameRequest,
         receiverId,
-        `${sender.username} wants to challenge you.`,
+        {receiverId, senderId, sender: sender.username},
       );
     } catch (error) {
       throw new BadRequestException('Invalid sender or receiver data.');
@@ -65,6 +60,7 @@ export class GameService {
         receiverId,
         game.id,
       );
+      // console.log('FROM GAME SERVICE'); 
       return game;
     } catch (error) {
       console.log(error);
@@ -243,18 +239,6 @@ export class GameService {
         },
       });
 
-      if (!achievement) {
-        achievement = await this.prisma.achievement.create({
-          data: {
-            playerId: winnerId,
-            NewHero: false,
-            Rak3ajbni: false,
-            Sbe3: false,
-            a9wedPonger: false,
-            GetAlifeBro: false,
-          },
-        });
-      }
       if (!user) {
         console.log('no user');
         return;
@@ -373,14 +357,22 @@ export class GameService {
 
   async getAchievements(id: string) {
     try {
-      const user = await this.prisma.user.findUnique({
-        where: { id },
-        select: { achievements: true },
+      const achievement = await this.prisma.achievement.findUnique({
+        where: { playerId: id },
+        select: {
+          freshman: true,
+          snowdedn: true,
+          NewHero: true,
+          Rak3ajbni: true,
+          Sbe3: true,
+          a9wedPonger: true,
+          GetAlifeBro: true,
+        },
       });
-      if (!user) {
-        throw new Error('invalid user id');
+      if (!achievement) {
+        throw new Error('achievement not found');
       }
-      return user.achievements;
+      return achievement;
     } catch (error) {
       throw new BadRequestException(error.message);
     }

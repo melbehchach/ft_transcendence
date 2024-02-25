@@ -1,6 +1,5 @@
 "use client";
 import axios from "axios";
-import { profile } from "console";
 import Cookies from "js-cookie";
 import React, { createContext, useContext, useReducer } from "react";
 
@@ -15,6 +14,8 @@ type AuthContext = {
   friends: any;
   tfa: "idle" | true | false;
   recentGames: any;
+  notifications: any;
+  achievements: any;
 };
 
 const initialeState: AuthContext = {
@@ -26,6 +27,8 @@ const initialeState: AuthContext = {
   friends: null,
   tfa: "idle",
   recentGames: null,
+  notifications: null,
+  achievements: null,
 };
 
 const actionTypes = {
@@ -38,6 +41,8 @@ const actionTypes = {
   LOAD_FRIEND_REQUESTS: "LOAD_FRIEND_REQUESTS",
   LOAD_FRIENDS: "LOAD_FRIENDS",
   RECENT_GAMES: "RECENT_GAMES",
+  NOTIFICATIONS: "NOTIFICATIONS",
+  ACHIEVEMENTS: "ACHIEVEMENTS",
 };
 
 const authReducer = (state, action) => {
@@ -72,6 +77,12 @@ const authReducer = (state, action) => {
     }
     case actionTypes.RECENT_GAMES: {
       return { ...state, recentGames: action.payload.recentGames };
+    }
+    case actionTypes.NOTIFICATIONS: {
+      return { ...state, notifications: action.payload.notifications };
+    }
+    case actionTypes.ACHIEVEMENTS: {
+      return { ...state, achievements: action.payload.achievements };
     }
     default:
       return state;
@@ -114,10 +125,10 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {}
   }
 
-  async function fetchRecentGames() {
+  async function fetchRecentGames(id: string) {
     try {
       if (jwt_token) {
-        let url: string = "http://localhost:3000/game/MatchHistory";
+        let url: string = "http://localhost:3000/game/MatchHistory/" + id;
         const response = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${jwt_token}`,
@@ -127,6 +138,42 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch({
           type: actionTypes.RECENT_GAMES,
           payload: { recentGames: response.data },
+        });
+      } else throw new Error("bad req");
+    } catch (error) {}
+  }
+
+  async function fetchAchievements(id: string) {
+    try {
+      if (jwt_token) {
+        let url: string = "http://localhost:3000/game/achievements/" + id;
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${jwt_token}`,
+          },
+          withCredentials: true,
+        });
+        dispatch({
+          type: actionTypes.ACHIEVEMENTS,
+          payload: { achievements: response.data },
+        });
+      } else throw new Error("bad req");
+    } catch (error) {}
+  }
+
+  async function fetchNotifications() {
+    try {
+      if (jwt_token) {
+        let url: string = "http://localhost:3000/notifications/get/all";
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${jwt_token}`,
+          },
+          withCredentials: true,
+        });
+        dispatch({
+          type: actionTypes.NOTIFICATIONS,
+          payload: { notifications: response.data },
         });
       } else throw new Error("bad req");
     } catch (error) {}
@@ -228,6 +275,57 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const AcceptGameRequest = async () => {
+    if (jwt_token) {
+      await axios
+        .post(`http://localhost:3000/game/accept/${Cookies.get("USER_ID")}`,)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
+  const RefuseGameRequest = async () => {
+    if (jwt_token) {
+      await axios
+        .post(`http://localhost:3000/game/refuse/${Cookies.get("USER_ID")}`,)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
+  const GameRequest = async (id: string) => {
+    if (jwt_token) {
+      await axios
+        .post(
+          `http://localhost:3000/game/${id}/send-game-request`,
+          {
+            id: Cookies.get("USER_ID"),
+          },
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+          }
+        )
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((error) => {
+          console.log(error.response.data);
+        });
+    }
+  };
+
   const logout = () => {
     dispatch({ type: actionTypes.LOGOUT });
   };
@@ -244,6 +342,9 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         fetchFriendsData,
         getUserInfo,
         fetchRecentGames,
+        fetchNotifications,
+        fetchAchievements,
+        GameRequest,
       }}
     >
       {children}

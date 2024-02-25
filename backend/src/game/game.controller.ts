@@ -18,10 +18,7 @@ export class GameController {
   constructor(private gameService: GameService) {}
 
   @Post(':id/send-game-request')
-  async sendGameRequest(
-    @Body() sender: GameRequestDTO,
-    @Param() receiver: GameRequestDTO,
-  ) {
+  async sendGameRequest(@Body() sender: GameRequestDTO,@Param() receiver: GameRequestDTO) {
     if (sender && receiver) {
       return this.gameService.sendGameRequest(sender.id, receiver.id);
     } else {
@@ -53,12 +50,12 @@ export class GameController {
     }
   }
 
-  @Get('MatchHistory')
-  async getMatchHistory(@Req() req: any) {
-    if (req.userID) {
-      return this.gameService.getMatchHistory(req.userID);
+  @Get('MatchHistory/:id')
+  async getMatchHistory(@Param('id') param) {
+    if (param) {
+      return this.gameService.getMatchHistory(param);
     } else {
-      throw new BadRequestException('Invalid user data.');
+      throw new BadRequestException('Invalid user data recent games.');
     }
   }
 

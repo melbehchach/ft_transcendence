@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import GameModalComponent from "../../../../components/Game/Modal";
 import PongAnimation from "../../../../public/img/PongAnimation.json";
 import Lottie from "lottie-react";
+import DeclineGame from "../decline/page";
 
 export default function DeclineModal() {
   const router = useRouter();
@@ -13,7 +14,9 @@ export default function DeclineModal() {
       <Lottie className="mb-5 rounded-lg" animationData={PongAnimation} />
     </div>
   );
-
+  setTimeout(() => {
+    router.push("/game/decline");
+  }, 5000);
   return (
     <>
       <GameModalComponent

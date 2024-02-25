@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState} from "react";
 import { Socket, io } from "socket.io-client";
 import cookie from "js-cookie";
-import Countdown from "./countdown";
 import { Player, Net } from "../../types";
+import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useAuth } from "../../app/context/AuthContext";
 
 const canvasWidth = 1080;
 const canvasHeight = 720;
@@ -68,39 +69,23 @@ let net: Net = {
   color: "white",
 };
 
+
 export default function RandomMatch({
   setOpponentScore,
   setPlayerScore,
-  setLoading,
   setPlayerAvatar,
   setOpponnetAvatr,
+  setLoading,
+  setrules,
+  setIssue,
+  issue,
 }: any) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
-  const [theme, setTheme] = useState("");
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await axios
-        .get(`http://localhost:3000/user/profile`, {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-            Accept: "application/json",
-          },
-        })
-        .then((res) => {
-          setTheme(res.data.gameTheme);
-        })
-        .catch((error) => {
-          console.log("Error", error);
-        });
-    };
-    fetchData();
-  }, []);
-
+  const {state:{user}} = useAuth();
+  const router = useRouter();
   const upadateTotalWinsAndLoses = async (
     winnerId: string,
     loserId: string
@@ -121,7 +106,7 @@ export default function RandomMatch({
         }
       )
       .then((res) => {
-        console.log("res", res);
+        // console.log("res", res);
       })
       .catch((error) => {
         console.log("ending game error");
@@ -144,14 +129,12 @@ export default function RandomMatch({
   };
   const [ballY, setBallY] = useState(canvasHeight / 2);
   const [ballX, setBallX] = useState(canvasWidth / 2);
-  const [countdown, setCountdown] = useState(0);
-  const [startCountDown, setStartCountDown] = useState(false);
   let room = "";
 
   const render = () => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
-    if (theme === "Retro") {
+    if (user.gameTheme === "Retro") {
       drawTable(context, canvas, canvasHeight, canvasWidth, "#000");
       drawRect(
         context,
@@ -171,7 +154,7 @@ export default function RandomMatch({
       );
       drawNet(context, canvas, net.x, net.y, net.width, net.height, net.color);
       drawBall(context, ballX, ballY, "white");
-    } else if (theme === "Blue") {
+    } else if (user.gameTheme === "Blue") {
       drawTable(context, canvas, canvasHeight, canvasWidth, "#056CF2");
       drawRect(
         context,
@@ -191,7 +174,7 @@ export default function RandomMatch({
       );
       drawNet(context, canvas, net.x, net.y, net.width, net.height, net.color);
       drawBall(context, ballX, ballY, "white");
-    } else if (theme === "Gray") {
+    } else if (user.gameTheme === "Gray") {
       drawTable(context, canvas, canvasHeight, canvasWidth, "#4D5960");
       drawRect(
         context,
@@ -221,7 +204,7 @@ export default function RandomMatch({
     };
     gameLoop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countdown, playerY, openentY, ballX, ballY, startCountDown]);
+  }, [playerY, openentY, ballX, ballY]);
 
   const keyPress = (e: any) => {
     if (e.keyCode === 38) {
@@ -263,84 +246,88 @@ export default function RandomMatch({
 
   useEffect(() => {
     if (socket) {
-      socket.on("RandomMatch", (data: any) => {
-        if (data.player === cookie.get("USER_ID")) {
-          setPlayerAvatar(data.playerAvatr);
-          setOpponnetAvatr(data.opponentAvatar);
-          setPlayerY(data.playerY);
-          setOpenentY(data.opponentY);
-          room = data.room;
-        } else {
-          setPlayerAvatar(data.opponentAvatar);
-          setOpponnetAvatr(data.playerAvatr);
-          setPlayerY(data.opponentY);
-          setOpenentY(data.playerY);
-          room = data.room;
-        }
-      });
-      socket.on("PlayerMoved", (data: any) => {
-        if (data.player === cookie.get("USER_ID")) {
-          setPlayerY(data.playerY);
-          setOpenentY(data.opponentY);
-        } else {
-          setOpenentY(data.playerY);
-          setPlayerY(data.opponentY);
-        }
-      });
-      socket.on("BallMoved", (data: any) => {
-        if (data.player === cookie.get("USER_ID")) {
-          setBallX(data.x);
-        } else {
-          setBallX(canvasWidth - data.x);
-        }
-        setBallY(data.y);
-      });
-      socket.on("updateScore", (data: any) => {
-        if (data.player === cookie.get("USER_ID")) {
-          setPlayerScore(data.playerScore);
-          setOpponentScore(data.opponentScore);
-        } else {
-          setPlayerScore(data.opponentScore);
-          setOpponentScore(data.playerScore);
-        }
-      });
+        socket.on("RandomMatch", (data: any) => {
+          if (data.player === cookie.get("USER_ID")) {
+            setPlayerAvatar(data.playerAvatr);
+            setOpponnetAvatr(data.opponentAvatar);
+            setPlayerY(data.playerY);
+            setOpenentY(data.opponentY);
+            room = data.room;
+          } else {
+            setPlayerAvatar(data.opponentAvatar);
+            setOpponnetAvatr(data.playerAvatr);
+            setPlayerY(data.opponentY);
+            setOpenentY(data.playerY);
+            room = data.room;
+          }
+        });
+        socket.on("PlayerMoved", (data: any) => {
+          if (data.player === cookie.get("USER_ID")) {
+            setPlayerY(data.playerY);
+            setOpenentY(data.opponentY);
+          } else {
+            setOpenentY(data.playerY);
+            setPlayerY(data.opponentY);
+          }
+        });
       socket.on("CheckingWinner", (data: any) => {
-        if (data.player === cookie.get("USER_ID") && data.playerScore === 5) {
-          console.log("Winner");
+        if (data.player === cookie.get("USER_ID") && data.playerScore === 3) {
+          router.push("/game/win");
           upadateTotalWinsAndLoses(data.player, data.opponent);
-        } else if (
+        } if (
           data.opponent === cookie.get("USER_ID") &&
-          data.opponentScore === 5
+          data.opponentScore === 3
         ) {
-          console.log("Winner");
+          router.push("/game/win");
           upadateTotalWinsAndLoses(data.opponent, data.player);
+        }
+        if (data.player === cookie.get("USER_ID") && data.playerScore < 3){
+          router.push("/game");
+        } if (data.opponent === cookie.get("USER_ID") && data.opponentScore < 3){
+          router.push("/game");
         }
       });
       socket.on("gameStart", () => {
         setLoading(false);
+        setrules(true);
+        setTimeout(() => {
+            socket.on("BallMoved", (data: any) => {
+              if (data.player === cookie.get("USER_ID")) {
+                setBallX(data.x);
+              } else {
+                setBallX(canvasWidth - data.x);
+              }
+              setBallY(data.y);
+            });
+            socket.on("updateScore", (data: any) => {
+              if (data.player === cookie.get("USER_ID")) {
+                setPlayerScore(data.playerScore);
+                setOpponentScore(data.opponentScore);
+              } else {
+                setPlayerScore(data.opponentScore);
+                setOpponentScore(data.playerScore);
+              }
+            });
+        }, 5000);         
       });
-      socket.on("UnexpectedWinner", (data: any) => {
-        if (data.winner === cookie.get("USER_ID")) {
-          setPlayerScore(data.score);
-          // push the player to deashboard game to start a new game
-        }
+      socket.on("PlayerDisconnected", (data: any) => {
+        setIssue(true);
+        socket.off("BallMoved");
+        socket.off("updateScore");
+      });
+      socket.on("OpponentDisconnected", (data: any) => {
+        setIssue(true);
+        socket.off("BallMoved");
+        socket.off("updateScore");
       });
       socket.on("SubmiteScore", (data: any) => {
         socket.emit("GameIsOver", { data });
-      });
-      socket.on("startCountDown", (data: any) => {
-        setStartCountDown(true);
-        setCountdown(3);
-      });
-      socket.on("updateCountDown", (data: any) => {
-        setCountdown(data);
       });
     }
   }, [socket]);
 
   return (
     <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-      {countdown > 0 && <Countdown />}
       <canvas
         className="w-full h-full"
         ref={canvasRef}

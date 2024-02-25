@@ -11,7 +11,7 @@ import { GameService } from './game.service';
 import { Server, Socket } from 'socket.io';
 import { GameType } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
-import { BadRequestException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: '*',
@@ -41,14 +41,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  private startCountDown(room: string) {
-    this.server.to(room).emit('startCountDown');
-  }
-
-  private updateCountDown(room: string, count: number) {
-    this.server.to(room).emit('updateCountDown', count);
-  }
-
   @SubscribeMessage('InviteFriend')
   async createInviteMatch(socket: Socket, payload: any): Promise<void> {
     try {
@@ -58,7 +50,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         socket: this.mapSocketToPlayer.get(playerId),
         x: 10,
         y: this.canvasHeight / 2 - 75,
-        score: 0,
+        score: -1, // score is -1 to indicate that the game is not started yet
         width: 20,
         velocityY: 0,
         height: 150,
@@ -67,8 +59,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.gameQueue2.push(ObjectPlayer);
       }
       if (this.gameQueue2.length >= 2) {
-        const player = this.gameQueue2.shift(); // player 1
-        const opponent = this.gameQueue2.shift(); // player 2
+        const player = this.gameQueue2.shift();
+        const opponent = this.gameQueue2.shift();
         const room = payload.room;
         opponent.x = this.canvasWidth - 30;
         player.socket.join(room);
@@ -91,24 +83,42 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           },
         };
         this.MapGames.set(room, gameState);
-        try {
-          await this.prisma.game.update({
-            where: {
-              id: room,
-            },
-            data: {
-              Player: {
-                connect: { id: player.id },
+        const playerDb = await this.prisma.user.findUnique({
+          where: { id: player.id },
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          },
+        });
+        const opponentDb = await this.prisma.user.findUnique({
+          where: { id: opponent.id },
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          },
+        });
+        if (playerDb && opponentDb) {
+          try {
+            await this.prisma.game.create({
+              data: {
+                id: room,
+                Player: {
+                  connect: { id: player.id },
+                },
+                Opponent: {
+                  connect: { id: opponent.id },
+                },
+                playerScore: gameState.player1Obj.score,
+                opponentScore: gameState.player2Obj.score,
+                type: GameType.RandomMatch,
               },
-              Opponent: {
-                connect: { id: opponent.id },
-              },
-              playerScore: gameState.player1Obj.score,
-              opponentScore: gameState.player2Obj.score,
-              type: GameType.FriendMatch,
-            },
-          });
-        } catch (error) {}
+            });
+          } catch (error) {
+            console.error(error);
+          }
+        }
         const gameRoom = this.MapGames.get(room);
         this.server.to(gameRoom.roomName).emit('InviteFriend', {
           player: gameRoom.player1Obj.id,
@@ -118,6 +128,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           room: gameRoom.roomName,
           playerScore: gameRoom.player1Obj.score,
           opponentScore: gameRoom.player2Obj.score,
+          playerAvatr: playerDb?.avatar,
+          opponentAvatar: opponentDb?.avatar,
         });
       }
     } catch (error) {}
@@ -126,14 +138,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('RandomMatch')
   async createRandomMatch(socket: Socket, ...args: any[]): Promise<void> {
     try {
-      let count = 3;
       const playeId: string = socket.handshake.auth.token;
       const ObjectPlayer = {
         id: playeId,
         socket: this.mapSocketToPlayer.get(playeId),
         x: 10,
         y: this.canvasHeight / 2 - 75,
-        score: 0,
+        score: -1,
         width: 20,
         velocityY: 0,
         height: 150,
@@ -142,18 +153,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.gameQueue.push(ObjectPlayer);
       }
       if (this.gameQueue.length >= 2) {
-        const player = this.gameQueue.shift(); // player 1
-        const opponent = this.gameQueue.shift(); // player 2
+        const player = this.gameQueue.shift();
+        const opponent = this.gameQueue.shift();
         const room = uuidv4();
         opponent.x = this.canvasWidth - 30;
-        this.startCountDown(room);
-        const intervalId = setInterval(async () => {
-          count--;
-          this.updateCountDown(room, count);
-          if (count === 0) {
-            clearInterval(intervalId);
-          }
-        }, 1000);
         player.socket.join(room);
         opponent.socket.join(room);
         this.server.to(room).emit('gameStart', {});
@@ -262,7 +265,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     let collidePoint = ball.y - (playerdetected.y + playerdetected.height / 2);
     collidePoint = collidePoint / (playerdetected.height / 2);
     const angleRad = (Math.PI / 4) * collidePoint;
-    const direction = ball.x < this.canvasWidth / 2 ? 1 : -1; // Change direction based on ball's position
+    const direction = ball.x < this.canvasWidth / 2 ? 1 : -1;
     ball.velocityX = direction * ball.speed * Math.cos(angleRad);
     ball.velocityY = ball.speed * Math.sin(angleRad);
     ball.speed += 0.1;
@@ -339,7 +342,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async GameOver(room: string): Promise<void> {
     const gameRoom = this.MapGames.get(room);
-    if (gameRoom.player1Obj.score === 5 || gameRoom.player2Obj.score === 5) {
+    if (gameRoom.player1Obj.score === 3 || gameRoom.player2Obj.score === 3) {
       await this.prisma.game.updateMany({
         where: {
           id: room,
@@ -350,7 +353,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         },
       });
       const winnerId =
-        gameRoom.player1Obj.score === 5
+        gameRoom.player1Obj.score === 3
           ? gameRoom.player1Obj.id
           : gameRoom.player2Obj.id;
       this.server.to(room).emit('SubmiteScore', {
@@ -363,6 +366,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
     }
   }
+
 
   @SubscribeMessage('GameIsOver')
   submiteScore(client: Socket, payload: any): void {
@@ -377,6 +381,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
     gameRoom.player1Obj.socket.leave(payload.data.room);
     gameRoom.player2Obj.socket.leave(payload.data.room);
+    this.MapGames.delete(payload.data.room);
+    this.MapRoomToPlayers.delete(payload.data.room);
   }
 
   startInterval(socket: Socket) {
@@ -393,70 +399,55 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.playerInterval.set(playerId, intervalId);
   }
 
+  findRoomByPlayerId(playerId: string) : string {
+    let room = '';
+    this.MapRoomToPlayers.forEach((players, key) => {
+      if (players.some((player) => player.id === playerId)) {
+        room = key;
+      }
+    });
+    return room;
+  }
+
   async handleDisconnect(socket: Socket): Promise<void> {
     const playerId: string = socket.handshake.auth.token;
-    if (playerId) {
-      this.mapSocketToPlayer.delete(playerId);
-      this.gameQueue = this.gameQueue.filter(
-        (player) => player.id !== playerId,
-      );
-      this.mapPlayers.delete(playerId);
-      if (this.playerInterval.has(playerId)) {
-        clearInterval(this.playerInterval.get(playerId));
-        this.playerInterval.delete(playerId);
-      }
-
-      let roomName;
-      for (const [room, players] of this.MapRoomToPlayers.entries()) {
-        if (players.some((p: any) => p.id === playerId)) {
-          roomName = room;
-          break;
+    const roomName = this.findRoomByPlayerId(playerId);
+    if (roomName){
+      const gameRoom = this.MapGames.get(roomName);
+      if (gameRoom.player1Obj.id === playerId && gameRoom.player1Obj.score !== 3) {
+        this.server.to(roomName).emit('PlayerDisconnected', {
+          player : gameRoom.player1Obj.id,
+        });
+        try {
+          await this.prisma.game.delete({
+            where: {
+              id: roomName,
+            },
+          });
+        } catch (error) {
+          new BadGatewayException('Error deleting the record');
         }
-      }
-      if (roomName) {
-        const gameRoom = this.MapGames.get(roomName);
-        if (gameRoom) {
-          if (gameRoom.player1Obj.id === playerId) {
-            gameRoom.player2Obj.score = 5;
-            await this.prisma.game.updateMany({
-              where: {
-                id: roomName,
-              },
-              data: {
-                playerScore: gameRoom.player1Obj.score,
-                opponentScore: gameRoom.player2Obj.score,
-              },
-            });
-            this.resetBall(roomName);
-            this.server
-              .to(gameRoom.player2Obj.socket.id)
-              .emit('UnexpectedWinner', {
-                winner: gameRoom.player2Obj.id,
-                score: gameRoom.player2Obj.score,
-              });
-          } else if (gameRoom.player2Obj.id === playerId) {
-            gameRoom.player1Obj.score = 5;
-            this.resetBall(roomName);
-            await this.prisma.game.updateMany({
-              where: {
-                id: roomName,
-              },
-              data: {
-                playerScore: gameRoom.player1Obj.score,
-                opponentScore: gameRoom.player2Obj.score,
-              },
-            });
-            this.server
-              .to(gameRoom.player1Obj.socket.id)
-              .emit('UnexpectedWinner', {
-                winner: gameRoom.player1Obj.id,
-                score: gameRoom.player1Obj.score,
-              });
-          }
-          this.MapRoomToPlayers.delete(roomName);
-          this.MapGames.delete(roomName);
+      } else if (gameRoom.player2Obj.id === playerId && gameRoom.player2Obj.score !== 3) {
+        this.server.to(roomName).emit('OpponentDisconnected', {
+          opponent : gameRoom.player2Obj.id,
+        });
+        try {
+          await this.prisma.game.delete({
+            where: {
+              id: roomName,
+            },
+          });
+        } catch (error) {
+          new BadGatewayException('Error deleting the record');
         }
-      }
+        this.MapGames.delete(roomName);
+        this.MapRoomToPlayers.delete(roomName);
+        if (this.playerInterval.has(playerId)) {
+          clearInterval(this.playerInterval.get(playerId));
+          this.playerInterval.delete(playerId);
+        }
+      } 
     }
+    // console.log('disconnected', playerId);
   }
 }

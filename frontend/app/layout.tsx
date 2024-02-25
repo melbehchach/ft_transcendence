@@ -21,9 +21,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthContextProvider>
-          <SocketContextProvider>
-            <ChatSocketContextProvider>{children}</ChatSocketContextProvider>
-          </SocketContextProvider>
+          <ChatSocketContextProvider>
+            <SocketContextProvider>{children}</SocketContextProvider>
+          </ChatSocketContextProvider>
         </AuthContextProvider>
       </body>
     </html>

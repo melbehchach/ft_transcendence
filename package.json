@@ -3,6 +3,7 @@
     "axios": "^1.6.7",
     "bufferutil": "^4.0.8",
     "engine.io-client": "^6.5.3",
+    "i": "^0.3.7",
     "js-cookie": "^3.0.5",
     "next": "^14.1.0",
     "next-qrcode": "^2.5.1",
