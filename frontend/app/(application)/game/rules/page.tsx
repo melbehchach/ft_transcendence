@@ -45,7 +45,7 @@ export default function GameRules({setLoading, setrules}: any)  {
       <div className="flex content-center gap-5 justify-center">
         <div className="hidden md:block">{pongIcon}</div>
         <div className="flex flex-col justify-center">
-          {"First player to score FIVE wins the game"}
+          {"First player to score THREE wins the game"}
         </div>
       </div>
       <div className="flex content-center gap-5 justify-center">
