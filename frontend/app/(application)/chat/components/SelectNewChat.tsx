@@ -35,11 +35,14 @@ const SelectNewChat = ({
       await newChat(friend.id);
     } catch (e) {
     } finally {
+      // if (chatID)
       let chatID = allChats.find(
         (chat) =>
-          (chat.user1Id === user.id && chat.user2Id === friend.id) ||
+          (!chat.name &&
+            chat.user1Id === user.id &&
+            chat.user2Id === friend.id) ||
           (chat.user2Id === user.id && chat.user1Id === friend.id)
-      ).id;
+      )?.id;
       setSelectedChat(chatID);
       closeModal();
     }

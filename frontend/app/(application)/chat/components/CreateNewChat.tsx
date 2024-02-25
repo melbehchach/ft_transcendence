@@ -12,15 +12,18 @@ import SelectNewChat from "./SelectNewChat";
 
 const initialeState = {
   avatar: "",
-  channelName: null,
+  channelName: "",
   type: 0,
   members: [],
+  password: "",
 };
 export const newChannelActionTypes = {
   CHANNEL_NAME: "CHANNEL_NAME",
   CHANNEL_AVATAR: "CHANNEL_AVATAR",
   CHANNEL_TYPE: "CHANNEL_TYPE",
   UPDATE_MEMBERS: "UPDATE_MEMBERS",
+  CLEAR_CHANNEL: "CLEAR_CHANNEL",
+  UPDATE_PASSWORD: "UPDATE_PASSWORD",
 };
 
 const newChannelReducer = (state, action) => {
@@ -39,6 +42,10 @@ const newChannelReducer = (state, action) => {
         };
       else return { ...state, members: [...state.members, action.payload] };
     }
+    case newChannelActionTypes.UPDATE_PASSWORD:
+      return { ...state, password: action.payload };
+    case newChannelActionTypes.CLEAR_CHANNEL:
+      return initialeState;
     default:
       return state;
   }
@@ -71,15 +78,24 @@ const CreateNewChat = ({ setSelectedChat }) => {
         type="primary"
         content="Create"
         onClick={async () => {
-          let params = {
-            name: state.channelName,
-            type: "PUBLIC",
-            password: "",
-            Members: state.members,
-          };
-          let id = await newChannel(params, state.avatar);
-          setSelectedChat(id);
-          closeModal();
+          try {
+            let params = {
+              name: state.channelName,
+              type:
+                state.type === 0
+                  ? "PUBLIC"
+                  : state.type === 1
+                  ? "PROTECTED"
+                  : "PRIVATE",
+              password: state.password,
+              Members: state.members,
+            };
+            newChannel(params, state.avatar).then((result) => {
+              setSelectedChat(result);
+            });
+            closeModal();
+            dispatch({ type: newChannelActionTypes.CLEAR_CHANNEL });
+          } catch {}
         }}
       />
     </>

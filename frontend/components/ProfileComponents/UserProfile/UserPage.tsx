@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { useAuth } from "../../../app/context/AuthContext";
 import UserCard from "./Card/UserCard";
-import RecentGames from "./RecentGames/RecentGames";
+import RecentGames from "./RecentGames/UserRecentGames";
 import Friends from "./Friends/ProfileFriends";
 import ProfileFriends from "./Friends/ProfileFriends";
 import { useParams } from "next/navigation";
+import UserRecentGames from "./RecentGames/UserRecentGames";
 
 type props = {
   blocker: any;
@@ -20,7 +21,7 @@ function UserPage() {
   const [blocked, setBlocked] = useState(false);
   const {
     fetchData,
-    state: { profile, user },
+    state: { profile, user, recentGames },
   } = useAuth();
 
   useEffect(() => {
@@ -63,12 +64,12 @@ function UserPage() {
             </h1>
             <div className="w-full">
               {/* <Swiper spaceBetween={10} slidesPerView={3}>
-              {db.map((item, index) => (
-                <SwiperSlide className="!w-fit" key={index}>
-                  <RecentGames />
-                </SwiperSlide>
-              ))}
-            </Swiper> */}
+                {recentGames?.map((item, index) => (
+                  <SwiperSlide className="!w-fit" key={index}>
+                    <UserRecentGames player={item} />
+                  </SwiperSlide>
+                ))}
+              </Swiper> */}
             </div>
           </div>
           <div className="w-full h-[25rem] flex flex-col gap-[1rem]">
@@ -77,7 +78,7 @@ function UserPage() {
             </div>
             {profile?.friends && (
               <div className="h-full gap-[1rem] z-0">
-                <Swiper spaceBetween={10} slidesPerView={3} >
+                <Swiper spaceBetween={10} slidesPerView={3}>
                   {profile?.friends.map((item, index) => (
                     <SwiperSlide className="!w-fit !h-full" key={index}>
                       {item.id != user.id && <ProfileFriends item={item} />}

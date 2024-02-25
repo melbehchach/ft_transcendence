@@ -180,6 +180,14 @@ const NewChannel = ({ dispatch, state }) => {
       </NewChannelRow>
       <NewChannelRow label="Channel Password">
         <input
+          onChange={(e) => {
+            dispatch({
+              type: newChannelActionTypes.UPDATE_PASSWORD,
+              payload: e.target.value,
+            });
+          }}
+          value={state.password}
+          type="password"
           className="w-full border px-6 py-2 bg-transparent text-white rounded-md"
           placeholder="Only if the channel is protected"
         />

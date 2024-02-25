@@ -2,9 +2,10 @@ import React, { useEffect, useReducer, useState } from "react";
 import { useAuth } from "../../../app/context/AuthContext";
 import { Swiper, SwiperSlide } from "swiper/react";
 import ProfileCard from "./Card/ProfileCard";
-import RecentGames from "./RecentGames/RecentGames";
 import FriendsRequest from "./FriendsRequest/FriendsRequest";
 import UserFriends from "./Friends/UserFriends";
+import UserRecentGames from "./RecentGames/UserRecentGames";
+import ProfileRecentGames from "./RecentGames/ProfileRecentGames";
 
 function reducer(state, action) {
   switch (action.type) {
@@ -26,6 +27,11 @@ function reducer(state, action) {
 }
 
 function ProfilePage() {
+  const {
+    fetchData,
+    state: { friendRequests, friends, recentGames },
+  } = useAuth();
+
   const [state, dispatch] = useReducer(reducer, {
     friends: true,
     friendsRq: false,
@@ -39,10 +45,6 @@ function ProfilePage() {
   }
   const [setting, setSetting] = useState<boolean>(false);
 
-  const {
-    state: { friendRequests, friends, recentGames },
-  } = useAuth();
-
   return (
     <div className="w-screen h-full flex gap-[1.5rem] p-[1rem] pt-[1.5rem]">
       <ProfileCard setting={setting} setSetting={setSetting} />
@@ -55,7 +57,7 @@ function ProfilePage() {
             <Swiper spaceBetween={10} slidesPerView={3}>
               {recentGames?.map((item, index) => (
                 <SwiperSlide className="!w-fit" key={index}>
-                  <RecentGames player={item} />
+                  <ProfileRecentGames player={item} />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -63,8 +65,13 @@ function ProfilePage() {
         </div>
         <div className="w-full h-[25rem] flex flex-col gap-[1rem]">
           <div className=" flex gap-[2rem] text-white font-semibold text-3xl border-gray-500 border-b">
-            <button onClick={handleFriendsClick}>Friends</button>
-            <button onClick={handleFriendsrR}>Friends Requests</button>
+            <button
+              className={state.friends ? "w-fit border-black border-b-8" : ""}
+              onClick={handleFriendsClick}
+            >
+              Friends
+            </button>
+            <button className={state.friendsRq ? "w-fit border-black border-b-8" : ""} onClick={handleFriendsrR}>Friends Requests</button>
           </div>
           {state.friends && (
             <div className="h-full gap-[1rem] z-0">
