@@ -268,6 +268,17 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       alert("Failed To Signin");
     }
   }
+
+  const ChangeStatus = async (status: string) => {
+    if (jwt_token){
+     const res = await axios.patch(`http://localhost:3000/user/status/update`, {status: status}, {
+        headers: {
+          Authorization: `Bearer ${jwt_token}`,
+        },
+        withCredentials: true,
+      })
+    };
+  };
   const getUserInfo = (id) => {
     if (id === state.user.id) return state.user;
     else {
@@ -345,6 +356,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         fetchNotifications,
         fetchAchievements,
         GameRequest,
+        ChangeStatus,
       }}
     >
       {children}

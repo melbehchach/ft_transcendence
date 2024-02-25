@@ -88,7 +88,7 @@ export default function InviteMatch({
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
-  const {state:{user}} = useAuth();
+  const {state:{user}, ChangeStatus} = useAuth();
   const router = useRouter();
   const Player: Player = {
     x: 10,
@@ -257,12 +257,14 @@ export default function InviteMatch({
           setPlayerY(data.playerY);
           setOpenentY(data.opponentY);
           room = data.room;
+          ChangeStatus();
         } else {
           setPlayerAvatar(data.opponentAvatar);
           setOpponnetAvatr(data.playerAvatr);
           setPlayerY(data.opponentY);
           setOpenentY(data.playerY);
           room = data.room;
+          ChangeStatus();
         }
       });
       socket.on("PlayerMoved", (data: any) => {

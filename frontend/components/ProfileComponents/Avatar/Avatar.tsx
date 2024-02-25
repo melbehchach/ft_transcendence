@@ -1,8 +1,6 @@
 "use client";
 import { AvatarProps } from "../types/Avatar.type";
 
-
-
 export default function Avatar({ avatarObj }) {
   if (!avatarObj) {
     return null;
@@ -35,8 +33,13 @@ export default function Avatar({ avatarObj }) {
             offline
           </div>
         )}
+        {avatarObj.existStatos && avatarObj.statos === "PLAYING" && (
+          <div className="flex flex-row justify-center items-center gap-[0.1rem]">
+            <div className="w-[10px] h-[10px] bg-red-500 rounded-full text-orange-300"></div>
+            playing
+          </div>
+        )}
       </div>
     </div>
   );
 }
-

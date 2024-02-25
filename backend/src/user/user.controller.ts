@@ -55,6 +55,7 @@ export class UserController {
 
   @Patch('status/update')
   async updateUserStatus(@Req() req) {
+    console.log(req.user, req.body.status, userStatus);
     if (!req.user || !req.body.status || !isEnum(req.body.status, userStatus)) {
       throw new BadRequestException('BadRequest');
     }
