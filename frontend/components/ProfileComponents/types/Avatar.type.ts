@@ -5,7 +5,7 @@ export type AvatarProps = {
     userName: any;
     imageStyle: string;
     fontSize: string;
-    positiosn: boolean
+    positiosn: boolean;
 }
 
 

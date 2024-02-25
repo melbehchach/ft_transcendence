@@ -11,7 +11,7 @@ import NewChannel from "./NewChannel";
 import SelectNewChat from "./SelectNewChat";
 
 const initialeState = {
-  avatar: "",
+  avatar: null,
   channelName: "",
   type: 0,
   members: [],
@@ -62,6 +62,7 @@ const CreateNewChat = ({ setSelectedChat }) => {
   }
   const {
     newChannel,
+    updateChannelAvatar,
     state: { allChats },
   } = useChat();
   const {
@@ -77,6 +78,9 @@ const CreateNewChat = ({ setSelectedChat }) => {
       <Button
         type="primary"
         content="Create"
+        disabled={
+          state.channelName < 3 || (state.password < 6 && state.type === 1)
+        }
         onClick={async () => {
           try {
             let params = {
@@ -91,10 +95,11 @@ const CreateNewChat = ({ setSelectedChat }) => {
               Members: state.members,
             };
             newChannel(params, state.avatar).then((result) => {
+              updateChannelAvatar(result, state.avatar)
               setSelectedChat(result);
+              dispatch({ type: newChannelActionTypes.CLEAR_CHANNEL });
             });
             closeModal();
-            dispatch({ type: newChannelActionTypes.CLEAR_CHANNEL });
           } catch {}
         }}
       />

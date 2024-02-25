@@ -20,7 +20,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     fetchFriendsData,
     fetchRecentGames,
     fetchNotifications,
-    state: { profile },
+    state: { profile, user },
   } = useAuth();
 
   const { notifications, sender } = useSocket();
@@ -36,7 +36,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     fetchData();
-    fetchRecentGames();
+    // fetchRecentGames(user?.id);
     fetchFriendsReqData();
     fetchFriendsData();
     // fetchNotifications();

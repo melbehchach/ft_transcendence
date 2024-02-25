@@ -125,10 +125,10 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {}
   }
 
-  async function fetchRecentGames() {
+  async function fetchRecentGames(id: string) {
     try {
       if (jwt_token) {
-        let url: string = "http://localhost:3000/game/MatchHistory";
+        let url: string = "http://localhost:3000/game/MatchHistory/" + id;
         const response = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${jwt_token}`,

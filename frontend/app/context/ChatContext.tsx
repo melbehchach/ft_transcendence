@@ -134,6 +134,23 @@ const ChatSocketContextProvider = ({ children }) => {
       console.log("an error occured");
     }
   }
+  async function getChannelByID(channelID: string) {
+    try {
+      if (jwt_token) {
+        const channels = (
+          await axios.get(`http://localhost:3000/channels/${channelID}`, {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          })
+        ).data;
+        return channels;
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
 
   async function newChannel(
     params: {
@@ -163,28 +180,49 @@ const ChatSocketContextProvider = ({ children }) => {
       console.log("an error occured");
     }
   }
-  async function updateChannelAvatar(id, avatar) {
+  async function updateChannelAvatar(id, avatarFile) {
+    const formData = new FormData();
+    formData.append("avatar", avatarFile);
+    const jwt_token = Cookies.get("JWT_TOKEN");
     try {
       if (jwt_token) {
-        // let formDatat = new FormData();
-        // formDatat.append("avatar", avatar);
-        console.log(avatar);
-        const response = await axios.patch(
+        const formData = new FormData();
+        formData.append("avatar", avatarFile);
+        const response = await fetch(
           `http://localhost:3000/channels/${id}/editAvatar`,
-          avatar,
           {
-            headers: {
-              Authorization: `Bearer ${jwt_token}`,
-            },
-            withCredentials: true,
+            credentials: "include",
+            method: "PATCH",
+            body: formData,
           }
         );
-        console.log(response);
-        // getAllChats();
+        if (!response.ok) {
+          alert("File upload failed.");
+        }
+        getAllChats();
       } else throw new Error("bad req");
-    } catch (error) {
-      console.log("an error occured");
-    }
+    } catch (error) { }
+    // try {
+    //   if (jwt_token) {
+    //     // let formDatat = new FormData();
+    //     // formDatat.append("avatar", avatar);
+    //     console.log(avatar);
+    //     const response = await axios.patch(
+    //       `http://localhost:3000/channels/${id}/editAvatar`,
+    //       avatar,
+    //       {
+    //         headers: {
+    //           Authorization: `Bearer ${jwt_token}`,
+    //         },
+    //         withCredentials: true,
+    //       }
+    //     );
+    //     console.log(response);
+    //     // getAllChats();
+    //   } else throw new Error("bad req");
+    // } catch (error) {
+    //   console.log("an error occured");
+    // }
   }
   async function joinChannel(id, pwd) {
     try {
@@ -261,6 +299,95 @@ const ChatSocketContextProvider = ({ children }) => {
     }
   }
 
+  async function makeAdmin(channelId: string, id: string, makeAdmin: boolean) {
+    try {
+      if (jwt_token) {
+        const response = await axios.patch(
+          `http://localhost:3000/channels/${channelId}/makeAdmin`,
+          {
+            id,
+            makeAdmin,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        await getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+
+  async function mute(channelID: string, members: string[]) {
+    try {
+      if (jwt_token) {
+        const response = await axios.patch(
+          `http://localhost:3000/channels/${channelID}/mute`,
+          {
+            members,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        await getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+
+  async function ban(channelID: string, id) {
+    try {
+      if (jwt_token) {
+        const response = await axios.patch(
+          `http://localhost:3000/channels/${channelID}/ban`,
+          {
+            id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        await getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+
+  async function kick(channelId: string, members: string[]) {
+    try {
+      if (jwt_token) {
+        const response = await axios.patch(
+          `http://localhost:3000/channels/${channelId}/kickMembers`,
+          {
+            members,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        await getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {
+      console.log("an error occured");
+    }
+  }
+
   useEffect(() => {
     const newSocket: Socket = io("http://localhost:3000/direct-messages", {
       auth: {
@@ -314,24 +441,16 @@ const ChatSocketContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (socketChannels) {
-      // console.log("loggggeeeeeeeeed");
       socketChannels.on("channelMessage", (data) => {
-        console.log({ evenet: "channelMessage", data });
         getAllChats();
       });
       socketChannels.on("directMessage", (data) => {
-        console.log({ evenet: "directMessage", data });
-        // console.log(data);
         getAllChats();
       });
       socketChannels.on("leaveRoom", (data) => {
-        // console.log(data);
-        console.log({ evenet: "leaveRoom", data });
         getAllChats();
       });
       socketChannels.on("joinRoom", (data) => {
-        // console.log(data);
-        console.log({ evenet: "joinRoom", data });
         getAllChats();
       });
     }
@@ -350,6 +469,12 @@ const ChatSocketContextProvider = ({ children }) => {
         newChannel,
         exploreChannels,
         joinChannel,
+        makeAdmin,
+        mute,
+        kick,
+        ban,
+        getChannelByID,
+        updateChannelAvatar
       }}
     >
       {children}

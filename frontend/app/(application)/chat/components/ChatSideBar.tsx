@@ -53,7 +53,7 @@ const ChatSideBar = ({
                 key={index}
                 onClick={() => setSelectedChat(chat.id)}
               >
-                <UserAvatar key={index} src={""} name={chat.name} />
+                <UserAvatar key={index} src={chat.image} name={chat.name} />
               </button>
             );
           } else if (friends && chat.user1Id) {

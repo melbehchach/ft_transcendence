@@ -6,7 +6,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Avatar from "../../../../components/Avatar";
 import Modal from "../../../../components/Modal";
 import Typography from "../../../../components/Typography";
@@ -26,7 +26,11 @@ const NewChannelRow = ({
   alignStart?: boolean;
 }) => {
   return (
-    <div className="flex gap-16 items-center">
+    <div
+      className={clsx("flex gap-16 items-center", {
+        "items-baseline": label === "Channel Name",
+      })}
+    >
       {/* <div className="w-1/4 shrink-0"> */}
       <div className={clsx("w-1/4 shrink-0", { "self-start": alignStart })}>
         <Typography content={label} type="paragraphe" variant="body" />
@@ -38,30 +42,73 @@ const NewChannelRow = ({
 
 const NewChannel = ({ dispatch, state }) => {
   const modalRef = useRef();
-
+  const [inputErrors, setInputErrors] = useState({
+    channelName: "",
+    password: "",
+  });
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const handleInputChange = (e, field) => {
+    const { value } = e.target;
+    // Validate input based on field
+    if (field === "channelName") {
+      if (value.length < 3) {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          channelName: "Channel Name must be at least 3 characters long",
+        }));
+      } else {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          channelName: "",
+        }));
+      }
+      dispatch({
+        type: newChannelActionTypes.CHANNEL_NAME,
+        payload: e.target.value,
+      });
+    } else if (field === "password") {
+      if (value.length < 6) {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          password: "Password must be at least 6 characters long",
+        }));
+      } else {
+        setInputErrors((prevErrors) => ({
+          ...prevErrors,
+          password: "",
+        }));
+      }
+      dispatch({
+        type: newChannelActionTypes.UPDATE_PASSWORD,
+        payload: e.target.value,
+      });
+    }
+  };
   function openModel() {
     modalRef?.current?.showModal();
   }
   function closeModal() {
     modalRef?.current.close();
   }
+  useEffect(() => {console.log(state)}, [state])
   const handleFileChange = (event) => {
     const file = event.target.files[0];
 
-    if (file) {
-      const reader = new FileReader();
-
-      reader.onloadend = () => {
+      if (file) {
+        const maxFileSize = 1024 * 1024 * 5;
+        if (file.size > maxFileSize) {
+          alert(
+            "File is too large. Please upload a file smaller than 5 MB."
+          );
+          return;
+        }
+        setPreviewUrl(URL.createObjectURL(file));
+        console.log(file)
         dispatch({
           type: newChannelActionTypes.CHANNEL_AVATAR,
-          payload: formData,
+          payload: file,
         });
-        // setAvatar(reader.result);
-      };
-
-      // Read the selected image as a data URL
-      reader.readAsDataURL(file);
-    }
+      }
   };
   const {
     state: {
@@ -69,6 +116,12 @@ const NewChannel = ({ dispatch, state }) => {
       user,
     },
   } = useAuth();
+  useEffect(() => {
+    dispatch({
+      type: newChannelActionTypes.UPDATE_PASSWORD,
+      payload: "",
+    });
+  }, [state.type]);
   return (
     <>
       <NewChannelRow label="Channel Photo">
@@ -93,7 +146,7 @@ const NewChannel = ({ dispatch, state }) => {
           </label>
           {state.avatar && (
             <img
-              src={state.avatar}
+              src={previewUrl}
               alt="Avatar"
               className="w-full h-full object-cover rounded-full"
             />
@@ -101,17 +154,17 @@ const NewChannel = ({ dispatch, state }) => {
         </div>
       </NewChannelRow>
       <NewChannelRow label="Channel Name">
-        <input
-          value={state.channelName}
-          onChange={(e) =>
-            dispatch({
-              type: newChannelActionTypes.CHANNEL_NAME,
-              payload: e.target.value,
-            })
-          }
-          className="w-full border rounded-sm px-6 py-2 bg-transparent text-white rounded-md"
-          placeholder="Type The Channel Name"
-        />
+        <div className="flex flex-col gap-2 grow">
+          <input
+            value={state.channelName}
+            onChange={(e) => handleInputChange(e, "channelName")}
+            className="w-full border rounded-sm px-6 py-2 bg-transparent text-white rounded-md"
+            placeholder="Type The Channel Name"
+          />
+          {inputErrors.channelName && (
+            <span className="text-red-500">{inputErrors.channelName}</span>
+          )}
+        </div>
       </NewChannelRow>
       <NewChannelRow alignStart label="Channel Type">
         <div className="flex flex-col gap-4">
@@ -179,18 +232,21 @@ const NewChannel = ({ dispatch, state }) => {
         </div>
       </NewChannelRow>
       <NewChannelRow label="Channel Password">
-        <input
-          onChange={(e) => {
-            dispatch({
-              type: newChannelActionTypes.UPDATE_PASSWORD,
-              payload: e.target.value,
-            });
-          }}
-          value={state.password}
-          type="password"
-          className="w-full border px-6 py-2 bg-transparent text-white rounded-md"
-          placeholder="Only if the channel is protected"
-        />
+        <div className="flex flex-col gap-2 grow">
+          <input
+            onChange={(e) => {
+              handleInputChange(e, "password");
+            }}
+            disabled={state.type !== 1}
+            value={state.password}
+            type="password"
+            className="w-full border px-6 py-2 bg-transparent text-white rounded-md"
+            placeholder="Only if the channel is protected"
+          />
+          {inputErrors.password && state.type === 1 && (
+            <span className="text-red-500">{inputErrors.password}</span>
+          )}
+        </div>
       </NewChannelRow>
       <NewChannelRow label="Channel Members">
         <>

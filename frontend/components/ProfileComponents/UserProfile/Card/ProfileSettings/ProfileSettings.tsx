@@ -13,7 +13,6 @@ type settingsProps = {
 };
 
 function ProfileSettings({ openSettings }: settingsProps) {
-  // const { fetchData } = useAuth();
   const [name, setName] = useState("");
   const [theme, setTheme] = useState("");
   const [secret, steSecret] = useState("");
@@ -50,7 +49,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
           goolgleTFA();
         } else setTfaCheck(true);
       } else throw new Error();
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async function goolgleTFA() {
@@ -68,7 +67,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
         );
         steSecret(response.data.secret);
       } else throw new Error("bad req");
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async function updateUsername() {
@@ -89,7 +88,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
         );
         fetchData();
       } else throw new Error("bad req");
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async function updateTheme() {
@@ -110,7 +109,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
         );
         fetchData();
       } else throw new Error("bad req");
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async function sendCode() {
@@ -134,7 +133,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
           setTfaCheck(false);
         } else setTfaCheck(true);
       } else throw new Error("bad req");
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async function remove2FA() {
@@ -155,7 +154,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
         setCodeChecker(true);
         goolgleTFA();
       } else throw new Error("bad req");
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async function handleSubmit() {
@@ -179,7 +178,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
         }
         fetchData();
       } else throw new Error("bad req");
-    } catch (error) {}
+    } catch (error) { }
   }
 
   function handleClick() {
@@ -200,7 +199,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
     if (event.key === "Enter") {
       event.preventDefault();
       sendCode();
-      setTimeout(() => {}, 300);
+      setTimeout(() => { }, 300);
       setCode("");
     }
   }
@@ -211,13 +210,13 @@ function ProfileSettings({ openSettings }: settingsProps) {
 
   useEffect(() => {
     tfaChecker();
-    setTimeout(() => {}, 300);
+    setTimeout(() => { }, 300);
   }, []);
 
   return (
-    <div className="w-[21rem] h-full flex flex-col ">
+    <div className="w-[23rem] h-full relative flex flex-col p-[0.5rem]">
       <h1 className="w-full font-semibold text-3xl">Settings</h1>
-      <div className="w-full h-full flex justify-center flex-col gap-[1.5rem] ">
+      <div className="w-full h-full flex justify-start flex-col gap-[1.5rem] p-[0.5rem] overflow-auto">
         <ProfileAvatar
           avatarFile={avatarFile}
           setAvatar={setAvatar}
@@ -277,21 +276,25 @@ function ProfileSettings({ openSettings }: settingsProps) {
             </div>
           )}
         </div>
-        <div className="w-full relative flex flex-row">
-          <button
-            type="button"
-            className="w-[8rem] h-[2.5rem]  bg-[#D9923B] flex justify-center items-center rounded-[20px] text-sm "
-            onClick={handleClick}
-          >
-            Save
-          </button>
-          <button
-            type="button"
-            className="w-[8rem] h-[2.5rem] absolute right-0 flex justify-center items-center border border-gray-500 border-solid rounded-[20px] text-sm "
-            onClick={handleClick}
-          >
-            Discrad
-          </button>
+        <div className="w-full h-full flex flex-row p-[0.5rem] gap-[4rem] relative justify-end">
+          <div className="absolute bottom-0 left-0">
+            <button
+              type="button"
+              className="w-[8rem] h-[2.5rem] bg-[#D9923B] flex justify-center items-center rounded-[20px] text-sm"
+              onClick={handleClick}
+            >
+              Save
+            </button>
+          </div>
+          <div className="absolute bottom-0">
+            <button
+              type="button"
+              className="w-[8rem] h-[2.5rem] flex justify-center items-center border border-gray-500 rounded-[20px] text-sm"
+              onClick={handleClick}
+            >
+              Discard
+            </button>
+          </div>
         </div>
       </div>
     </div>

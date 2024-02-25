@@ -24,7 +24,8 @@ const ChatBody = ({ selectedChat }) => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [allChats]);
+  }, [messages]);
+
   return (
     <div
       ref={containerRef}

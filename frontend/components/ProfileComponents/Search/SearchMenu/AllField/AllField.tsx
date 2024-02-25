@@ -7,27 +7,27 @@ import { AvatarProps, ProfileData } from "../../../types/Avatar.type";
 // import NoImage from "../NoImage.svg"
 
 type ModalSearch = {
-  usersData: () => ProfileData[];
+  usersData: any;
 };
 
 function AllField({ usersData }: ModalSearch) {
   const router = useRouter();
-  const users: ProfileData[] = usersData();
+  const all: any = usersData();
 
-  const {
-    state: { user },
-  } = useAuth();
+  // const {
+  //   state: { user },
+  // } = useAuth();
 
   let avatarObj: AvatarProps = {
     src: "",
     userName: "",
-    imageStyle: "rounded-full",
+    imageStyle: "w-[4rem] h-[4rem] rounded-full",
     fontSize: "text-base",
     positiosn: false,
   };
 
   function handleClick(id: string) {
-    if (user.id != id) router.push(`/profile/${id}`);
+    if (all.id != id) router.push(`/profile/${id}`);
   }
 
   // To prevenet errors of testing acounts in DB (bob...)
@@ -39,9 +39,9 @@ function AllField({ usersData }: ModalSearch) {
   }
 
   return (
-    <div className="w-full text-white flex flex-col gap-[1.5rem]">
-      {users.length > 0 ? (
-        users.map((user) => (
+    <div className="w-full text-white relative flex flex-col gap-[1.5rem]">
+      {all.users?.length > 0 && (
+        all.users.map((user) => (
           <div className="relative flex " key={user.id}>
             <div className="w-[4rem]">
               <Avatar
@@ -60,8 +60,28 @@ function AllField({ usersData }: ModalSearch) {
             </button>
           </div>
         ))
-      ) : (
-        <></>
+      )}
+      {all.channels?.length > 0 && (
+        all.channels.map((channel) => (
+          <div className="w-fit h-fit flex flex-row items-center" key={channel.id}>
+            <Avatar
+              avatarObj={{
+                ...avatarObj,
+                src: checkForAvatr(channel.image),
+                userName: channel.name,
+              }}
+            />
+            <div className="absolute right-0">
+              <button
+                type="button"
+                className=" w-[12rem] h-[2.5rem] rounded-[25px] flex justify-center items-center bg-[#D9923B] text-sm"
+                onClick={() => handleClick(channel.id)}
+              >
+                Go to Channel
+              </button>
+            </div>
+          </div>
+        ))
       )}
     </div>
   );
