@@ -424,6 +424,27 @@ const ChatSocketContextProvider = ({ children }) => {
       alert(error.response.data.message);
     }
   }
+  async function unbanMember(channelId: string, id: string) {
+    try {
+      if (jwt_token) {
+        const response = await axios.patch(
+          `http://localhost:3000/channels/${channelId}/unban`,
+          {
+            id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        );
+        await getAllChats();
+      } else throw new Error("bad req");
+    } catch (error) {
+      alert(error.response.data.message);
+    }
+  }
 
   useEffect(() => {
     const newSocket: Socket = io("http://localhost:3000/direct-messages", {
@@ -515,6 +536,7 @@ const ChatSocketContextProvider = ({ children }) => {
         updateChannelName,
         updateChannelType,
         addMembers,
+        unbanMember,
       }}
     >
       {children}

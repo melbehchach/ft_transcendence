@@ -63,7 +63,8 @@ const ManageChatBar = ({ chat }) => {
               <>
                 <div key={index} className="flex justify-between items-center">
                   <UserAvatar src={mem.avatar} name={mem.username} />
-                  {user.id === owner.id && (
+                  {(user.id === owner.id ||
+                    channel.admins.find((e) => e.id === user.id)) && (
                     <>
                       <div className="dropdown bg-transparent">
                         <div tabIndex={0} role="button" className="">
@@ -89,26 +90,41 @@ const ManageChatBar = ({ chat }) => {
                             }}
                           >
                             <Typography
-                              content="Make admine"
+                              content="Remove admine"
                               type="paragraphe"
                               variant="body2"
                             />
                           </li>
-                          <li className="w-[200px]">
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              mute(chat.id, [mem.id]);
+                            }}
+                          >
                             <Typography
                               content="Mute"
                               type="paragraphe"
                               variant="body2"
                             />
                           </li>
-                          <li className="w-[200px]">
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              kick(chat.id, [mem.id]);
+                            }}
+                          >
                             <Typography
                               content="Kick"
                               type="paragraphe"
                               variant="body2"
                             />
                           </li>
-                          <li className="w-[200px]">
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              ban(chat.id, mem.id);
+                            }}
+                          >
                             <Typography
                               content="Ban"
                               type="paragraphe"
@@ -140,71 +156,73 @@ const ManageChatBar = ({ chat }) => {
             <>
               <div key={index} className="flex justify-between items-center">
                 <UserAvatar src={mem.avatar} name={mem.username} />
-                {user.id === owner.id && owner.id !== mem.id && (
-                  <>
-                    <div className="dropdown bg-transparent">
-                      <div tabIndex={0} role="button" className="">
-                        <FontAwesomeIcon
-                          icon={faEllipsisVertical}
-                          className="w-6 h-6 text-white rounded-full"
-                        />
+                {(user.id === owner.id ||
+                  channel.admins.find((e) => e.id === user.id)) &&
+                  owner.id !== mem.id && (
+                    <>
+                      <div className="dropdown bg-transparent">
+                        <div tabIndex={0} role="button" className="">
+                          <FontAwesomeIcon
+                            icon={faEllipsisVertical}
+                            className="w-6 h-6 text-white rounded-full"
+                          />
+                        </div>
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box pos w-fit"
+                        >
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              makeAdmin(chat.id, mem.id, true);
+                            }}
+                          >
+                            <Typography
+                              content="Make admine"
+                              type="paragraphe"
+                              variant="body2"
+                            />
+                          </li>
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              mute(chat.id, [mem.id]);
+                            }}
+                          >
+                            <Typography
+                              content="Mute"
+                              type="paragraphe"
+                              variant="body2"
+                            />
+                          </li>
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              kick(chat.id, [mem.id]);
+                            }}
+                          >
+                            <Typography
+                              content="Kick"
+                              type="paragraphe"
+                              variant="body2"
+                            />
+                          </li>
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              ban(chat.id, mem.id);
+                            }}
+                          >
+                            <Typography
+                              content="Ban"
+                              type="paragraphe"
+                              variant="body2"
+                            />
+                          </li>
+                        </ul>
                       </div>
-                      <ul
-                        tabIndex={0}
-                        className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box pos w-fit"
-                      >
-                        <li
-                          className="w-[200px]"
-                          onClick={() => {
-                            makeAdmin(chat.id, mem.id, true);
-                          }}
-                        >
-                          <Typography
-                            content="Make admine"
-                            type="paragraphe"
-                            variant="body2"
-                          />
-                        </li>
-                        <li
-                          className="w-[200px]"
-                          onClick={() => {
-                            mute(chat.id, [mem.id]);
-                          }}
-                        >
-                          <Typography
-                            content="Mute"
-                            type="paragraphe"
-                            variant="body2"
-                          />
-                        </li>
-                        <li
-                          className="w-[200px]"
-                          onClick={() => {
-                            kick(chat.id, [mem.id]);
-                          }}
-                        >
-                          <Typography
-                            content="Kick"
-                            type="paragraphe"
-                            variant="body2"
-                          />
-                        </li>
-                        <li
-                          className="w-[200px]"
-                          onClick={() => {
-                            ban(chat.id, mem.id);
-                          }}
-                        >
-                          <Typography
-                            content="Ban"
-                            type="paragraphe"
-                            variant="body2"
-                          />
-                        </li>
-                      </ul>
-                    </div>
-                  </>
-                )}
+                    </>
+                  )}
               </div>
             </>
           );
