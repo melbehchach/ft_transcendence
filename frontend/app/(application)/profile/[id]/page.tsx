@@ -12,11 +12,13 @@ export default function Page() {
   const {
     fetchData,
     fetchNotifications,
+    fetchAchievements,
     state: { notifications },
   } = useAuth();
 
   useEffect(() => {
     fetchData(params.id);
+    fetchAchievements(params.id);
   }, []);
 
   const [open, setOpen] = useState(false);

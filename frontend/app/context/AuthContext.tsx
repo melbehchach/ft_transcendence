@@ -16,6 +16,7 @@ type AuthContext = {
   tfa: "idle" | true | false;
   recentGames: any;
   notifications: any;
+  achievements: any;
 };
 
 const initialeState: AuthContext = {
@@ -28,6 +29,7 @@ const initialeState: AuthContext = {
   tfa: "idle",
   recentGames: null,
   notifications: null,
+  achievements: null,
 };
 
 const actionTypes = {
@@ -41,6 +43,7 @@ const actionTypes = {
   LOAD_FRIENDS: "LOAD_FRIENDS",
   RECENT_GAMES: "RECENT_GAMES",
   NOTIFICATIONS: "NOTIFICATIONS",
+  ACHIEVEMENTS: "ACHIEVEMENTS",
 };
 
 const authReducer = (state, action) => {
@@ -78,6 +81,9 @@ const authReducer = (state, action) => {
     }
     case actionTypes.NOTIFICATIONS: {
       return { ...state, notifications: action.payload.notifications };
+    }
+    case actionTypes.ACHIEVEMENTS: {
+      return { ...state, achievements: action.payload.achievements };
     }
     default:
       return state;
@@ -133,6 +139,24 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch({
           type: actionTypes.RECENT_GAMES,
           payload: { recentGames: response.data },
+        });
+      } else throw new Error("bad req");
+    } catch (error) {}
+  }
+
+  async function fetchAchievements(id: string) {
+    try {
+      if (jwt_token) {
+        let url: string = "http://localhost:3000/game/achievements/" + id;
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${jwt_token}`,
+          },
+          withCredentials: true,
+        });
+        dispatch({
+          type: actionTypes.ACHIEVEMENTS,
+          payload: { achievements: response.data },
         });
       } else throw new Error("bad req");
     } catch (error) {}
@@ -269,6 +293,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         getUserInfo,
         fetchRecentGames,
         fetchNotifications,
+        fetchAchievements,
       }}
     >
       {children}
