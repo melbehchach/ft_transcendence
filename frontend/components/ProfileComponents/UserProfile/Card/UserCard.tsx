@@ -3,7 +3,6 @@ import { useAuth } from "../../../../app/context/AuthContext";
 import Avatar from "../../Avatar/Avatar";
 import { AvatarProps } from "../../types/Avatar.type";
 import Achievements from "./Infos/Achievements/UserAchievements";
-// import achievementsData from "./Infos/Achievements/AchievementsData";
 import Scores from "./Infos/Scores/Scores";
 import FriendshipState from "./Infos/UserInfos/FriendshipSatate/FriendshipState";
 import { useParams } from "next/navigation";
