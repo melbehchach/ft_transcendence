@@ -70,7 +70,7 @@ const Chat = () => {
     <NoneSelected />
   ) : (
     <div className="w-3/4 grow">
-      <ChatHeader headerInfo={headerInfo} />
+      <ChatHeader headerInfo={headerInfo} chat={chat} />
       {/* <div className="flex"> */}
       <div className="flex">
         <div className="flex w-full flex-col">

@@ -19,7 +19,7 @@ const ManageChatBar = ({ chat }) => {
     mute,
     kick,
     ban,
-    state: { members },
+    state: { members, allChats },
   } = useChat();
   async function fetchOwnerData() {
     fetchData(chat.owner.id, true).then((res) => setOwner(res));
@@ -31,10 +31,7 @@ const ManageChatBar = ({ chat }) => {
   useEffect(() => {
     fetchOwnerData();
     fetchChannelData();
-  }, [chat]);
-  useEffect(() => {
-    console.log({ channel });
-  }, [channel]);
+  }, [chat, allChats]);
 
   if (!owner || !channel) return;
   return (
@@ -82,7 +79,13 @@ const ManageChatBar = ({ chat }) => {
                           <li
                             className="w-[200px]"
                             onClick={() => {
-                              makeAdmin(chat.id, mem.id, true);
+                              makeAdmin(
+                                chat.id,
+                                mem.id,
+                                !channel.admins.find(
+                                  (elem) => elem.id === mem.id
+                                )
+                              );
                             }}
                           >
                             <Typography
@@ -131,13 +134,13 @@ const ManageChatBar = ({ chat }) => {
             colorVariant="secondary"
           />
         </div>
-        {chat.Members.map((m, index) => {
+        {channel.Members.map((m, index) => {
           let mem = members.find((elem) => elem.id === m.id);
           return (
             <>
               <div key={index} className="flex justify-between items-center">
                 <UserAvatar src={mem.avatar} name={mem.username} />
-                {user.id === owner.id && (
+                {user.id === owner.id && owner.id !== mem.id && (
                   <>
                     <div className="dropdown bg-transparent">
                       <div tabIndex={0} role="button" className="">
@@ -162,21 +165,36 @@ const ManageChatBar = ({ chat }) => {
                             variant="body2"
                           />
                         </li>
-                        <li className="w-[200px]">
+                        <li
+                          className="w-[200px]"
+                          onClick={() => {
+                            mute(chat.id, [mem.id]);
+                          }}
+                        >
                           <Typography
                             content="Mute"
                             type="paragraphe"
                             variant="body2"
                           />
                         </li>
-                        <li className="w-[200px]">
+                        <li
+                          className="w-[200px]"
+                          onClick={() => {
+                            kick(chat.id, [mem.id]);
+                          }}
+                        >
                           <Typography
                             content="Kick"
                             type="paragraphe"
                             variant="body2"
                           />
                         </li>
-                        <li className="w-[200px]">
+                        <li
+                          className="w-[200px]"
+                          onClick={() => {
+                            ban(chat.id, mem.id);
+                          }}
+                        >
                           <Typography
                             content="Ban"
                             type="paragraphe"

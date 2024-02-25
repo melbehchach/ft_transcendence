@@ -46,7 +46,9 @@ const NewChannel = ({ dispatch, state }) => {
     channelName: "",
     password: "",
   });
-  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [previewUrl, setPreviewUrl] = useState<string>(
+    state.avatar ? state.avatar : ""
+  );
   const handleInputChange = (e, field) => {
     const { value } = e.target;
     // Validate input based on field
@@ -90,25 +92,22 @@ const NewChannel = ({ dispatch, state }) => {
   function closeModal() {
     modalRef?.current.close();
   }
-  useEffect(() => {console.log(state)}, [state])
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
 
-      if (file) {
-        const maxFileSize = 1024 * 1024 * 5;
-        if (file.size > maxFileSize) {
-          alert(
-            "File is too large. Please upload a file smaller than 5 MB."
-          );
-          return;
-        }
-        setPreviewUrl(URL.createObjectURL(file));
-        console.log(file)
-        dispatch({
-          type: newChannelActionTypes.CHANNEL_AVATAR,
-          payload: file,
-        });
+    if (file) {
+      const maxFileSize = 1024 * 1024 * 5;
+      if (file.size > maxFileSize) {
+        alert("File is too large. Please upload a file smaller than 5 MB.");
+        return;
       }
+      setPreviewUrl(URL.createObjectURL(file));
+      dispatch({
+        type: newChannelActionTypes.CHANNEL_AVATAR,
+        payload: file,
+      });
+    }
   };
   const {
     state: {
@@ -259,7 +258,7 @@ const NewChannel = ({ dispatch, state }) => {
                 return (
                   <div key={key} className="ml-[-25px]">
                     <Avatar
-                      src={friends.find((friend) => friend.id === id).avatar}
+                      src={friends.find((friend) => friend.id === id)?.avatar}
                     />
                   </div>
                 );
