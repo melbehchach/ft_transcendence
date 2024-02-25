@@ -62,11 +62,9 @@ const ManageChatBar = ({ chat }) => {
           </div>
           {channel.admins?.map((m, index) => {
             let mem = members.find((elem) => elem.id === m.id);
-            console.log({ mem });
-            // if (mem.id === user.id) return;
             return (
               <>
-                <div className="flex justify-between items-center">
+                <div key={index} className="flex justify-between items-center">
                   <UserAvatar src={mem.avatar} name={mem.username} />
                   {user.id === owner.id && (
                     <>
@@ -135,10 +133,9 @@ const ManageChatBar = ({ chat }) => {
         </div>
         {chat.Members.map((m, index) => {
           let mem = members.find((elem) => elem.id === m.id);
-          // if (mem.id === user.id) return;
           return (
             <>
-              <div className="flex justify-between items-center">
+              <div key={index} className="flex justify-between items-center">
                 <UserAvatar src={mem.avatar} name={mem.username} />
                 {user.id === owner.id && (
                   <>

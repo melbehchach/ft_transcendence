@@ -45,7 +45,7 @@ const Chat = () => {
   const headerInfo = useMemo(() => {
     if (selectedChat) {
       if (chat?.name) {
-        return { name: chat.name, avatar: "" };
+        return { name: chat.name, avatar: chat.image };
       } else {
         let friend = friends.find(
           (friend) =>

@@ -180,28 +180,49 @@ const ChatSocketContextProvider = ({ children }) => {
       console.log("an error occured");
     }
   }
-  async function updateChannelAvatar(id, avatar) {
+  async function updateChannelAvatar(id, avatarFile) {
+    const formData = new FormData();
+    formData.append("avatar", avatarFile);
+    const jwt_token = Cookies.get("JWT_TOKEN");
     try {
       if (jwt_token) {
-        // let formDatat = new FormData();
-        // formDatat.append("avatar", avatar);
-        console.log(avatar);
-        const response = await axios.patch(
+        const formData = new FormData();
+        formData.append("avatar", avatarFile);
+        const response = await fetch(
           `http://localhost:3000/channels/${id}/editAvatar`,
-          avatar,
           {
-            headers: {
-              Authorization: `Bearer ${jwt_token}`,
-            },
-            withCredentials: true,
+            credentials: "include",
+            method: "PATCH",
+            body: formData,
           }
         );
-        console.log(response);
-        // getAllChats();
+        if (!response.ok) {
+          alert("File upload failed.");
+        }
+        getAllChats();
       } else throw new Error("bad req");
-    } catch (error) {
-      console.log("an error occured");
-    }
+    } catch (error) { }
+    // try {
+    //   if (jwt_token) {
+    //     // let formDatat = new FormData();
+    //     // formDatat.append("avatar", avatar);
+    //     console.log(avatar);
+    //     const response = await axios.patch(
+    //       `http://localhost:3000/channels/${id}/editAvatar`,
+    //       avatar,
+    //       {
+    //         headers: {
+    //           Authorization: `Bearer ${jwt_token}`,
+    //         },
+    //         withCredentials: true,
+    //       }
+    //     );
+    //     console.log(response);
+    //     // getAllChats();
+    //   } else throw new Error("bad req");
+    // } catch (error) {
+    //   console.log("an error occured");
+    // }
   }
   async function joinChannel(id, pwd) {
     try {
@@ -453,6 +474,7 @@ const ChatSocketContextProvider = ({ children }) => {
         kick,
         ban,
         getChannelByID,
+        updateChannelAvatar
       }}
     >
       {children}

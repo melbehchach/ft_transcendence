@@ -46,7 +46,7 @@ const NewChannel = ({ dispatch, state }) => {
     channelName: "",
     password: "",
   });
-
+  const [previewUrl, setPreviewUrl] = useState<string>("");
   const handleInputChange = (e, field) => {
     const { value } = e.target;
     // Validate input based on field
@@ -90,23 +90,25 @@ const NewChannel = ({ dispatch, state }) => {
   function closeModal() {
     modalRef?.current.close();
   }
+  useEffect(() => {console.log(state)}, [state])
   const handleFileChange = (event) => {
     const file = event.target.files[0];
 
-    if (file) {
-      const reader = new FileReader();
-
-      reader.onloadend = () => {
+      if (file) {
+        const maxFileSize = 1024 * 1024 * 5;
+        if (file.size > maxFileSize) {
+          alert(
+            "File is too large. Please upload a file smaller than 5 MB."
+          );
+          return;
+        }
+        setPreviewUrl(URL.createObjectURL(file));
+        console.log(file)
         dispatch({
           type: newChannelActionTypes.CHANNEL_AVATAR,
-          payload: formData,
+          payload: file,
         });
-        // setAvatar(reader.result);
-      };
-
-      // Read the selected image as a data URL
-      reader.readAsDataURL(file);
-    }
+      }
   };
   const {
     state: {
@@ -144,7 +146,7 @@ const NewChannel = ({ dispatch, state }) => {
           </label>
           {state.avatar && (
             <img
-              src={state.avatar}
+              src={previewUrl}
               alt="Avatar"
               className="w-full h-full object-cover rounded-full"
             />
