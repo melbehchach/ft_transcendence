@@ -106,7 +106,7 @@ export default function RandomMatch({
         }
       )
       .then((res) => {
-        console.log("res", res);
+        // console.log("res", res);
       })
       .catch((error) => {
         console.log("ending game error");
@@ -300,7 +300,6 @@ export default function RandomMatch({
               setBallY(data.y);
             });
             socket.on("updateScore", (data: any) => {
-              console.log("player", data.playerScore, "opponent", data.opponentScore);
               if (data.player === cookie.get("USER_ID")) {
                 setPlayerScore(data.playerScore);
                 setOpponentScore(data.opponentScore);

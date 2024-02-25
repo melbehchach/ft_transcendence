@@ -6,6 +6,7 @@ import Lottie from "lottie-react";
 const WaitaingModal = ({loading} : any) => {
   const router = useRouter();
   if (! loading) return
+
   return (
     <>
       <div className="h-screen fixed inset-0 backdrop-blur-sm bg-black/60 flex justify-center items-center z-30">

@@ -12,9 +12,6 @@ export default function WinnerGame() {
       <Lottie className="mb-5 rounded-lg" animationData={WinnerAnimation} />
     </div>
   );
-  setTimeout(() => {
-    router.push("/game/decline");
-  }, 5000);
   return (
     <>
       <GameModalComponent
@@ -23,6 +20,7 @@ export default function WinnerGame() {
         content={content}
         cancelCallback={cancelCallback}
         btn1="Exit"
+        btn1Callback={cancelCallback}
         btn2={null}
         btn2Callback={null}
       ></GameModalComponent>
