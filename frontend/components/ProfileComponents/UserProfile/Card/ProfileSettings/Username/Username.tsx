@@ -18,7 +18,7 @@ function Username({ name, setName }: props) {
           type="text"
           placeholder="new username"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => { if (e.target.value.length < 10) { setName(e.target.value) } }}
         />
       </form>
     </div>
