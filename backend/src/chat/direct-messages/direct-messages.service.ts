@@ -68,7 +68,7 @@ export class DirectMessagesService {
       delete chat?.myself.password;
       return chat;
     } catch (error) {
-      console.log(error.message);
+      // console.log(error.message);
       throw new BadRequestException(error.message);
     }
   }
@@ -124,7 +124,7 @@ export class DirectMessagesService {
       }
       return chat;
     } catch (error) {
-      console.log(error.message);
+      // console.log(error.message);
       throw new BadRequestException(error.message);
     }
   }

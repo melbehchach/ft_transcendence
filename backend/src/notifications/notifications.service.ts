@@ -64,7 +64,7 @@ export class NotificationsService {
           },
         },
       });
-      console.log(notification);
+      // console.log(notification);
       if (!notification) {
         throw new Error('Failed to retrieve record');
       }

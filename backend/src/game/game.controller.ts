@@ -83,6 +83,7 @@ export class GameController {
   @Get('getWins/:id')
   async getWins(@Param() param: any) {
     if (param.id) {
+      // console.log(param.id);
       return this.gameService.getPlayerWins(param.id);
     } else {
       throw new BadRequestException('Invalid user data.');

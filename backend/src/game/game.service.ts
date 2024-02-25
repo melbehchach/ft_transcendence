@@ -69,7 +69,7 @@ export class GameService {
       );
       return game;
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   }
 
@@ -77,7 +77,7 @@ export class GameService {
     try {
       this.notificationsGateway.handleDeclineEvent(senderId, receiverId);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   }
 
@@ -238,7 +238,7 @@ export class GameService {
         });
       }
       if (!user) {
-        console.log('no user');
+        // console.log('no user');
         return;
       }
       achievement.NewHero = user.wins >= 1 ? true : false;

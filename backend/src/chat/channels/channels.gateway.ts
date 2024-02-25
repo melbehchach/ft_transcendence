@@ -95,7 +95,7 @@ export class ChannelsGateway
   newRoom(channelId: string, channelName: string, members: string[]) {
     try {
       if (!members || members.length === 0) {
-        console.log(`Failed to make room: empty members list`);
+        // console.log(`Failed to make room: empty members list`);
         return null;
       }
       for (const index in members) {
@@ -108,7 +108,7 @@ export class ChannelsGateway
       }
       return { msg: 'OK' };
     } catch (error) {
-      console.log(`Failed to create room: ${error.message}`);
+      // console.log(`Failed to create room: ${error.message}`);
       throw new WsException('Failed to create room');
     }
   }
@@ -122,7 +122,7 @@ export class ChannelsGateway
         });
       }
     } catch (error) {
-      console.log(`Failed to joinRomm ${channelName}`);
+      // console.log(`Failed to joinRomm ${channelName}`);
       throw new WsException('Failed to joinRomm');
     }
   }
@@ -136,7 +136,7 @@ export class ChannelsGateway
         });
       }
     } catch (error) {
-      console.log(`Failed to leaveRoom ${channelName}`);
+      // console.log(`Failed to leaveRoom ${channelName}`);
       throw new WsException('Failed to leaveRoom');
     }
   }
@@ -183,7 +183,7 @@ export class ChannelsGateway
         });
       });
     } catch (error) {
-      console.log(`Failed to send message: ${error.message}`);
+      // console.log(`Failed to send message: ${error.message}`);
       throw new WsException(`Faild To Send Message: ${error.message}`);
     }
   }
