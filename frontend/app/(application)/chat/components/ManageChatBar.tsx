@@ -78,7 +78,7 @@ const ManageChatBar = ({ chat }) => {
                           </div>
                           <ul
                             tabIndex={0}
-                            className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box pos w-fit"
+                            className="dropdown-content z-[1] menu p-2 shadow bg-gray-600 rounded-box pos w-fit"
                           >
                             <li
                               className="w-[200px]"
@@ -171,7 +171,7 @@ const ManageChatBar = ({ chat }) => {
                           </div>
                           <ul
                             tabIndex={0}
-                            className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box pos w-fit"
+                            className="dropdown-content z-[1] menu p-2 shadow bg-gray-600 rounded-box pos w-fit"
                           >
                             <li
                               className="w-[200px]"
