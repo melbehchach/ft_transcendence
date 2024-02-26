@@ -409,7 +409,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return room;
   }
 
-  async handleDisconnect(socket: Socket): Promise<void> {
+  async handleDisconnect(socket: Socket) {
     const playerId: string = socket.handshake.auth.token;
     const roomName = this.findRoomByPlayerId(playerId);
     if (roomName){
@@ -448,6 +448,20 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       } 
     }
+    try {
+      const updatedUser = await this.prisma.user.update({
+        where: {
+          id: playerId,
+        },
+        data: {
+          status: 'ONLINE',
+        },
+      });
+      return updatedUser;
+    } catch (error) {
+      throw new BadGatewayException('Error updating the record');
+    }
+    
     // console.log('disconnected', playerId);
   }
 }

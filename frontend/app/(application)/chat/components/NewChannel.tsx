@@ -135,7 +135,8 @@ const NewChannel = ({
       type: newChannelActionTypes.UPDATE_PASSWORD,
       payload: "",
     });
-  }, [state.type]);
+  }, [state?.type]);
+  if (!state) return;
   return (
     <>
       <NewChannelRow label="Channel Photo">

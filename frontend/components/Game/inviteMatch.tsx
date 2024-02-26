@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Socket, io } from "socket.io-client";
 import cookie from "js-cookie";
@@ -10,7 +10,8 @@ import { useAuth } from "../../app/context/AuthContext";
 
 const canvasWidth = 1080;
 const canvasHeight = 720;
-const p = "PLAYING"
+
+const p = "PLAYING";
 // draw the table
 const drawTable = (
   context: any,
@@ -71,8 +72,6 @@ let net: Net = {
   color: "white",
 };
 
-
-
 export default function InviteMatch({
   setOpponentScore,
   setPlayerScore,
@@ -88,7 +87,11 @@ export default function InviteMatch({
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
-  const {state:{user}, changeStatus} = useAuth();
+  // const {state:{user}} = useAuth();
+  const {
+    state: { user },
+    changeStatus,
+  } = useAuth();
   const router = useRouter();
   const Player: Player = {
     x: 10,
@@ -127,9 +130,7 @@ export default function InviteMatch({
           },
         }
       )
-      .then((res) => {
-        // console.log("res", res);
-      })
+      .then((res) => {})
       .catch((error) => {
         console.log("ending game error");
       });
@@ -256,15 +257,14 @@ export default function InviteMatch({
           setOpponnetAvatr(data.opponentAvatar);
           setPlayerY(data.playerY);
           setOpenentY(data.opponentY);
-          changeStatus({status : "PLAYING"});
+          changeStatus({ status: "PLAYING" });
           room = data.room;
-          
         } else {
           setPlayerAvatar(data.opponentAvatar);
           setOpponnetAvatr(data.playerAvatr);
           setPlayerY(data.opponentY);
           setOpenentY(data.playerY);
-          changeStatus({status : "PLAYING"});
+          changeStatus({ status: "PLAYING" });
           room = data.room;
         }
       });
@@ -281,55 +281,63 @@ export default function InviteMatch({
         if (data.player === cookie.get("USER_ID") && data.playerScore === 3) {
           router.push("/game/win");
           upadateTotalWinsAndLoses(data.player, data.opponent);
-          changeStatus({status : "ONLINE"});
-        } if (
+          changeStatus({ status: "ONLINE" });
+          // } if (
+        }
+        if (
           data.opponent === cookie.get("USER_ID") &&
           data.opponentScore === 3
         ) {
           router.push("/game/win");
           upadateTotalWinsAndLoses(data.opponent, data.player);
-          changeStatus({status : "ONLINE"});
+          changeStatus({ status: "ONLINE" });
         }
-        if (data.player === cookie.get("USER_ID") && data.playerScore < 3){
+        if (data.player === cookie.get("USER_ID") && data.playerScore < 3) {
           router.push("/game");
-          changeStatus({status : "ONLINE"});
-        } if (data.opponent === cookie.get("USER_ID") && data.opponentScore < 3){
+        }
+        if (data.opponent === cookie.get("USER_ID") && data.opponentScore < 3) {
           router.push("/game");
-          changeStatus({status : "ONLINE"});
+          changeStatus({ status: "ONLINE" });
+        }
+        if (data.opponent === cookie.get("USER_ID") && data.opponentScore < 3) {
+          router.push("/game");
+          changeStatus({ status: "ONLINE" });
         }
       });
       socket.on("gameStartInvite", () => {
         setLoading(false);
         setrules(true);
         setTimeout(() => {
-            socket.on("BallMoved", (data: any) => {
-              if (data.player === cookie.get("USER_ID")) {
-                setBallX(data.x);
-              } else {
-                setBallX(canvasWidth - data.x);
-              }
-              setBallY(data.y);
-            });
-            socket.on("updateScore", (data: any) => {
-              if (data.player === cookie.get("USER_ID")) {
-                setPlayerScore(data.playerScore);
-                setOpponentScore(data.opponentScore);
-              } else {
-                setPlayerScore(data.opponentScore);
-                setOpponentScore(data.playerScore);
-              }
-            });
-        }, 5000);         
+          socket.on("BallMoved", (data: any) => {
+            if (data.player === cookie.get("USER_ID")) {
+              setBallX(data.x);
+            } else {
+              setBallX(canvasWidth - data.x);
+            }
+            setBallY(data.y);
+          });
+          socket.on("updateScore", (data: any) => {
+            if (data.player === cookie.get("USER_ID")) {
+              setPlayerScore(data.playerScore);
+              setOpponentScore(data.opponentScore);
+            } else {
+              setPlayerScore(data.opponentScore);
+              setOpponentScore(data.playerScore);
+            }
+          });
+        }, 5000);
       });
       socket.on("PlayerDisconnected", (data: any) => {
         setIssue(true);
         socket.off("BallMoved");
         socket.off("updateScore");
+        changeStatus({ status: "ONLINE" });
       });
       socket.on("OpponentDisconnected", (data: any) => {
         setIssue(true);
         socket.off("BallMoved");
         socket.off("updateScore");
+        changeStatus({ status: "ONLINE" });
       });
       socket.on("SubmiteScore", (data: any) => {
         socket.emit("GameIsOver", { data });

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import { Socket, io } from "socket.io-client";
 import cookie from "js-cookie";
 import { Player, Net } from "../../types";
@@ -69,7 +69,6 @@ let net: Net = {
   color: "white",
 };
 
-
 export default function RandomMatch({
   setOpponentScore,
   setPlayerScore,
@@ -84,7 +83,9 @@ export default function RandomMatch({
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
-  const {state:{user}, changeStatus} = useAuth();
+  const {
+    state: { user },
+  } = useAuth();
   const router = useRouter();
   const upadateTotalWinsAndLoses = async (
     winnerId: string,
@@ -105,9 +106,7 @@ export default function RandomMatch({
           },
         }
       )
-      .then((res) => {
-        // console.log("res", res);
-      })
+      .then((res) => {})
       .catch((error) => {
         console.log("ending game error");
       });
@@ -246,50 +245,46 @@ export default function RandomMatch({
 
   useEffect(() => {
     if (socket) {
-        socket.on("RandomMatch", (data: any) => {
-          if (data.player === cookie.get("USER_ID")) {
-            setPlayerAvatar(data.playerAvatr);
-            setOpponnetAvatr(data.opponentAvatar);
-            setPlayerY(data.playerY);
-            setOpenentY(data.opponentY);
-            room = data.room;
-            changeStatus({status : "PLAYING"});
-          } else {
-            setPlayerAvatar(data.opponentAvatar);
-            setOpponnetAvatr(data.playerAvatr);
-            setPlayerY(data.opponentY);
-            setOpenentY(data.playerY);
-            room = data.room;
-            changeStatus({status : "PLAYING"});
-          }
-        });
-        socket.on("PlayerMoved", (data: any) => {
-          if (data.player === cookie.get("USER_ID")) {
-            setPlayerY(data.playerY);
-            setOpenentY(data.opponentY);
-          } else {
-            setOpenentY(data.playerY);
-            setPlayerY(data.opponentY);
-          }
-        });
+      socket.on("RandomMatch", (data: any) => {
+        if (data.player === cookie.get("USER_ID")) {
+          setPlayerAvatar(data.playerAvatr);
+          setOpponnetAvatr(data.opponentAvatar);
+          setPlayerY(data.playerY);
+          setOpenentY(data.opponentY);
+          room = data.room;
+        } else {
+          setPlayerAvatar(data.opponentAvatar);
+          setOpponnetAvatr(data.playerAvatr);
+          setPlayerY(data.opponentY);
+          setOpenentY(data.playerY);
+          room = data.room;
+        }
+      });
+      socket.on("PlayerMoved", (data: any) => {
+        if (data.player === cookie.get("USER_ID")) {
+          setPlayerY(data.playerY);
+          setOpenentY(data.opponentY);
+        } else {
+          setOpenentY(data.playerY);
+          setPlayerY(data.opponentY);
+        }
+      });
       socket.on("CheckingWinner", (data: any) => {
         if (data.player === cookie.get("USER_ID") && data.playerScore === 3) {
           upadateTotalWinsAndLoses(data.player, data.opponent);
-          changeStatus({status : "ONLINE"});
-          router.push("/game/win");
-        } if (
+        }
+        if (
           data.opponent === cookie.get("USER_ID") &&
           data.opponentScore === 3
         ) {
           upadateTotalWinsAndLoses(data.opponent, data.player);
-          changeStatus({status : "ONLINE"});
+          changeStatus({ status: "ONLINE" });
           router.push("/game/win");
         }
-        if (data.player === cookie.get("USER_ID") && data.playerScore < 3){
-          changeStatus({status : "ONLINE"});
+        if (data.player === cookie.get("USER_ID") && data.playerScore < 3) {
           router.push("/game");
-        } if (data.opponent === cookie.get("USER_ID") && data.opponentScore < 3){
-          changeStatus({status : "ONLINE"});
+        }
+        if (data.opponent === cookie.get("USER_ID") && data.opponentScore < 3) {
           router.push("/game");
         }
       });
@@ -297,39 +292,45 @@ export default function RandomMatch({
         setLoading(false);
         setrules(true);
         setTimeout(() => {
-            socket.on("BallMoved", (data: any) => {
-              if (data.player === cookie.get("USER_ID")) {
-                setBallX(data.x);
-              } else {
-                setBallX(canvasWidth - data.x);
-              }
-              setBallY(data.y);
-            });
-            socket.on("updateScore", (data: any) => {
-              if (data.player === cookie.get("USER_ID")) {
-                setPlayerScore(data.playerScore);
-                setOpponentScore(data.opponentScore);
-              } else {
-                setPlayerScore(data.opponentScore);
-                setOpponentScore(data.playerScore);
-              }
-            });
-        }, 5000);         
+          socket.on("BallMoved", (data: any) => {
+            if (data.player === cookie.get("USER_ID")) {
+              setBallX(data.x);
+            } else {
+              setBallX(canvasWidth - data.x);
+            }
+            setBallY(data.y);
+          });
+          socket.on("updateScore", (data: any) => {
+            if (data.player === cookie.get("USER_ID")) {
+              setPlayerScore(data.playerScore);
+              setOpponentScore(data.opponentScore);
+            } else {
+              setPlayerScore(data.opponentScore);
+              setOpponentScore(data.playerScore);
+            }
+          });
+        }, 5000);
       });
       socket.on("PlayerDisconnected", (data: any) => {
+        console.log("hello");
         setIssue(true);
         socket.off("BallMoved");
         socket.off("updateScore");
+        changeStatus({ status: "ONLINE" });
       });
       socket.on("OpponentDisconnected", (data: any) => {
+        console.log("bye");
         setIssue(true);
         socket.off("BallMoved");
         socket.off("updateScore");
+        changeStatus({ status: "ONLINE" });
       });
       socket.on("SubmiteScore", (data: any) => {
         socket.emit("GameIsOver", { data });
       });
     }
+
+    return;
   }, [socket]);
 
   return (

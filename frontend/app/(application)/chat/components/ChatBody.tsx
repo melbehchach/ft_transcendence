@@ -31,10 +31,11 @@ const ChatBody = ({ selectedChat }) => {
       ref={containerRef}
       className="grow p-8 flex flex-col gap-4 main-height"
     >
-      {messages.map((message, key) => (
-        // <div>{message.body + "" + key}</div>
-        <Message key={key} message={message} />
-      ))}
+      {messages &&
+        messages.map((message, key) => (
+          // <div>{message.body + "" + key}</div>
+          <Message key={key} message={message} />
+        ))}
     </div>
   );
 };

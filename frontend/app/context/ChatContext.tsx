@@ -34,7 +34,6 @@ const chatReducer = (state, action) => {
 };
 
 const ChatSocketContextProvider = ({ children }) => {
-  
   const [socket, setSocket] = useState(null);
   const [selectedChat, setSelectedChat] = useState("");
   const [socketChannels, setSocketChannels] = useState(null);
@@ -258,6 +257,7 @@ const ChatSocketContextProvider = ({ children }) => {
         await getAllChats();
       } else throw new Error("bad req");
     } catch (error) {
+      alert(error.response.data.message);
       console.log("an error occured");
     }
   }
@@ -277,7 +277,6 @@ const ChatSocketContextProvider = ({ children }) => {
             withCredentials: true,
           }
         );
-        console.log(response);
         await getAllChats();
       } else throw new Error("bad req");
     } catch (error) {
@@ -478,22 +477,9 @@ const ChatSocketContextProvider = ({ children }) => {
   //   return user;
   // };
 
-  const joinRoom = (roomName) => {
-    if (socket) {
-      socket.emit("join room", roomName);
-    }
-  };
-
-  const leaveRoom = (roomName) => {
-    if (socket) {
-      socket.emit("leave room", roomName);
-    }
-  };
-
   useEffect(() => {
     if (socket) {
       socket.on("directMessage", (data) => {
-        console.log(data);
         getAllChats();
       });
     }
@@ -508,6 +494,7 @@ const ChatSocketContextProvider = ({ children }) => {
         getAllChats();
       });
       socketChannels.on("leaveRoom", (data) => {
+        setSelectedChat("");
         getAllChats();
       });
       socketChannels.on("joinRoom", (data) => {
@@ -524,8 +511,6 @@ const ChatSocketContextProvider = ({ children }) => {
         getAllChats,
         newChat,
         sendMessage,
-        joinRoom,
-        leaveRoom,
         newChannel,
         exploreChannels,
         joinChannel,

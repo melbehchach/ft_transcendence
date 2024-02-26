@@ -143,15 +143,15 @@ const ExplorChannels = ({ setSelectedChat }) => {
             variant="secondaryTitle"
           />
         )}
-        {channels.map((channel) => {
+        {channels.map((channel, key) => {
           return (
-            <>
+            <div key={key}>
               <Channel
                 channel={channel}
                 closeModal={closeModal}
                 setSelectedChat={setSelectedChat}
               />
-            </>
+            </div>
           );
         })}
       </Modal>
