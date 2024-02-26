@@ -271,9 +271,6 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   async function changeStatus({ status }) {
-    // if (! statos || statos === "PLAYING") {
-    //   statos = "PLAYING";
-    // }
     try {
       if (jwt_token) {
         const res = await axios.patch(
@@ -289,9 +286,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           }
         );
       } else throw new Error("bad req");
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   }
   const getUserInfo = (id) => {
     if (id === state.user.id) return state.user;

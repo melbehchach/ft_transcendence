@@ -13,7 +13,8 @@ const SocketContextProvider = ({ children }) => {
   const [status, setStatus] = useState(null);
   const [notifications, setNotifications] = useState<boolean>(false);
   const [sender, setSender] = useState({});
-  const { fetchFriendsReqData, fetchFriendsData, fetchData } = useAuth();
+  const { fetchFriendsReqData, fetchFriendsData, fetchData, changeStatus } =
+    useAuth();
   const param = useParams();
   const router = useRouter();
   const { getAllChats, setSelectedChat } = useChat();
@@ -39,24 +40,6 @@ const SocketContextProvider = ({ children }) => {
       statusSocket.disconnect();
     };
   }, []);
-
-  // const sendMessage = (message) => {
-  //   if (socket) {
-  //     socket.emit("chat message", message);
-  //   }
-  // };
-
-  // const joinRoom = (roomName) => {
-  //   if (socket) {
-  //     socket.emit("join room", roomName);
-  //   }
-  // };
-
-  // const leaveRoom = (roomName) => {
-  //   if (socket) {
-  //     socket.emit("leave room", roomName);
-  //   }
-  // };
 
   useEffect(() => {
     if (socket) {
@@ -88,6 +71,9 @@ const SocketContextProvider = ({ children }) => {
     if (status) {
       status.on("statusUpdate", (data) => {
         fetchData();
+        if (param.id) {
+          fetchData(param.id);
+        }
       });
     }
   }, [socket]);

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {  usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import "swiper/css";
 import SideBar from "../../components/ProfileComponents/SideBar/SideBar";
@@ -24,7 +24,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const { notifications, sender } = useSocket();
 
-
   useEffect(() => {
     if (locations.includes(location.split("/")[1])) {
       setActive(location.split("/")[1]);
@@ -35,10 +34,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     fetchData();
-    // fetchRecentGames(user?.id);
     fetchFriendsReqData();
     fetchFriendsData();
-    // fetchNotifications();
   }, []);
   return (
     <ProtectedRoute>

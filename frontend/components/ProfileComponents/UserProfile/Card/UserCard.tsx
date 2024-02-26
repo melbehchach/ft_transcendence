@@ -26,7 +26,7 @@ function UserCard({ setBlocker, setBlocked, id }: props) {
     src: profile?.avatar,
     width: 100,
     height: 100,
-    userName: profile.username,
+    userName: profile?.username,
     imageStyle: "w-[13rem] h-[13rem] rounded-full object-cover",
     fontSize: "text-2xl font-bold",
     positiosn: true,
@@ -35,24 +35,38 @@ function UserCard({ setBlocker, setBlocked, id }: props) {
   };
 
   useEffect(() => {
-    fetchData(param.id ? param.id : id ? id : undefined);
-  }, [profile]);
+    if (id) {
+      fetchData(id);
+    } else {
+      fetchData(param.id);
+    }
+  }, [id]);
 
   return (
-    <div className="w-[22rem] h-full p-[0.5rem] text-white flex flex-col border border-black border-solid rounded-[15px]">
-      <div className="w-full h-full flex flex-col justify-center items-center gap-[1rem]">
-        <div className="w-full flex justify-center items-center">
-          <Avatar avatarObj={avatarObj} />
-        </div>
-
-        <FriendshipState
-          setBlocker={setBlocker}
-          setBlocked={setBlocked}
-          id={param.id ? param.id : id ? id : undefined}
+    <div className="w-[25rem] h-full p-[0.5rem]  gap-[1rem] text-white flex flex-col border border-black border-solid rounded-[15px]">
+      <div className="w-full flex justify-center items-center">
+        <Avatar
+          avatarObj={{
+            src: profile?.avatar,
+            width: 100,
+            height: 100,
+            userName: profile?.username,
+            imageStyle: "w-[13rem] h-[13rem] rounded-full object-cover",
+            fontSize: "text-2xl font-bold",
+            positiosn: true,
+            existStatos: true,
+            statos: profile?.status,
+          }}
         />
-        <Scores />
-        <Achievements />
       </div>
+
+      <FriendshipState
+        setBlocker={setBlocker}
+        setBlocked={setBlocked}
+        id={param.id ? param.id : id ? id : undefined}
+      />
+      <Scores />
+      <Achievements />
     </div>
   );
 }

@@ -32,7 +32,6 @@ const withAuth = (WrappedComponent: React.ComponentType<any>) => {
             });
           });
         });
-        // router.push("/profile");
       } else if (!isAuthenticated) {
         router.push("/auth/login");
       }

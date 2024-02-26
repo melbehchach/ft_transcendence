@@ -76,6 +76,7 @@ function ProfileRecentGames({ player }: Props) {
     imageStyle: "w-[4rem] h-[4rem] rounded-full object-cover",
     fontSize: "text-sm",
     positiosn: true,
+    existStatos: false,
   };
 
   return (
