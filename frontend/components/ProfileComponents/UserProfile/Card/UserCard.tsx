@@ -22,17 +22,17 @@ function UserCard({ setBlocker, setBlocked, id }: props) {
 
   const param = useParams();
 
-  const avatarObj: AvatarProps = {
-    src: profile?.avatar,
-    width: 100,
-    height: 100,
-    userName: profile?.username,
-    imageStyle: "w-[13rem] h-[13rem] rounded-full object-cover",
-    fontSize: "text-2xl font-bold",
-    positiosn: true,
-    existStatos: true,
-    statos: profile?.status,
-  };
+  // const avatarObj: AvatarProps = {
+  //   src: profile?.avatar,
+  //   width: 100,
+  //   height: 100,
+  //   userName: profile?.username,
+  //   imageStyle: "w-[13rem] h-[13rem] rounded-full object-cover",
+  //   fontSize: "text-2xl font-bold",
+  //   positiosn: true,
+  //   existStatos: true,
+  //   statos: profile?.status,
+  // };
 
   useEffect(() => {
     if (id) {
