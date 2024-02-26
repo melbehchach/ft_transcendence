@@ -10,8 +10,8 @@ import ChannelsField from "./ChannlesField/ChannelsField";
 import SearchIcon from "../SearchIcon";
 
 type searchMenuProps = {
-  modal: boolean;
-  closeModal: () => void;
+  modal?: boolean;
+  closeModal?: () => void;
 };
 
 function reducer(state: any, action: any) {

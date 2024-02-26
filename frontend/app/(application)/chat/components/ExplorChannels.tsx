@@ -45,6 +45,7 @@ const Channel = ({ channel, setSelectedChat, closeModal }) => {
               content={channel.name}
               type="header"
               variant="secondaryTitle"
+              style="whitespace-nowrap text-ellipsis overflow-hidden w-[300px] max-w-full"
             />
           </div>
           <div className="flex gap-4 justify-between">
@@ -53,6 +54,7 @@ const Channel = ({ channel, setSelectedChat, closeModal }) => {
               type="paragraphe"
               variant="body2"
               colorVariant="secondary"
+              
             />
             <div className="flex gap-1 items-center">
               {channel.type === "PUBLIC" ? (

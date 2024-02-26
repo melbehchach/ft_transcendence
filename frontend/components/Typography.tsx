@@ -11,14 +11,16 @@ const Header = ({
   variant,
   colorVariant,
   content,
+  style,
 }: {
   variant: string;
   colorVariant: string;
   content: string;
+  style?: React.CSSProperties;
 }) => {
   return (
     <h1
-      className={clsx("font-inter text-text", {
+      className={clsx(`font-inter text-text ${style}`, {
         "text-title font-bold": variant === "primaryTitle",
         "text-body font-normal leading-[25px]": variant === "secondaryTitle",
         "text-textSecondary": colorVariant === "secondary",
@@ -39,14 +41,16 @@ const Paragraphe = ({
   variant,
   colorVariant,
   content,
+  style,
 }: {
   variant: string;
   colorVariant: string;
   content: string;
+  style?: React.CSSProperties;
 }) => {
   return (
     <p
-      className={clsx("font-inter text-text", {
+      className={clsx(`font-inter text-text ${style}`, {
         "text-body font-normal leading-[25px] text-nowrap": variant === "body",
         "text-sm font-normal break-all": variant === "body2",
         "text-textSecondary": colorVariant === "secondary",
@@ -62,16 +66,19 @@ const Typography = ({
   variant,
   colorVariant = "default",
   content,
+  style,
 }: {
   type: string;
   variant: string;
   colorVariant?: string;
   content: string;
+  style?: React.CSSProperties;
 }) => {
   switch (type) {
     case "header":
       return (
         <Header
+          style={style}
           variant={variant}
           colorVariant={colorVariant}
           content={content}
@@ -80,6 +87,7 @@ const Typography = ({
     case "paragraphe":
       return (
         <Paragraphe
+          style={style}
           variant={variant}
           colorVariant={colorVariant}
           content={content}
