@@ -129,8 +129,8 @@ const Chat = () => {
           </form>
           {/* </div> */}
         </div>
-        {chat?.name && (
-          <div className=" h-full border-l border-black manage_bar-height min-w-[300px] ">
+        {chat?.name ? (
+          <div className=" h-full border-l border-black manage_bar-height min-w-[250px] ">
             <ManageChatBar chat={chat} />
           </div>
         ): (<div className="mt-[81px]"><UserCard setBlocker={setBlocker} setBlocked={setBlocked} id={(user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id)}/></div>)}
