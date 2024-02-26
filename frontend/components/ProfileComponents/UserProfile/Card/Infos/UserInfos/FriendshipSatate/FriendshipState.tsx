@@ -73,7 +73,7 @@ function FriendshipState({setBlocker, setBlocked, id}: props) {
       )}
       {buttonType === "challenge" && profile.id != user.id && (
         <div className="flex justify-center flex-row gap-2">
-          <ChallengeFriend isFriendCard={false} />
+          <ChallengeFriend isFriendCard={false}  id={param.id ? param.id : id ? id : undefined}/>
           <MessageFriend isFriendCard={false} />
           <BlockUser isFriend={true} setBlocker={setBlocker} id={param.id ? param.id : id ? id : undefined} />
         </div>

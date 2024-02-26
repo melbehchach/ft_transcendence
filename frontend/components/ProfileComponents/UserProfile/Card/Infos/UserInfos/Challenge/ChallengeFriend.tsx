@@ -6,20 +6,31 @@ import { useParams } from "next/navigation";
 
 type props = {
   isFriendCard: boolean;
+  id: string;
 };
 
-function ChallengeFriend({ isFriendCard }: props) {
+function ChallengeFriend({ isFriendCard, id }: props) {
   const param = useParams();
   const {
     state: {
-      friends: { friends },
+      friends,
       user,
     },
     GameRequest,
   } = useAuth();
 
   function handleClick() {
-    GameRequest(param.id);
+    if (id) {
+      friends.friends.map((friend, index) => {
+        GameRequest(id);
+      })
+    }
+    else if (param.id){
+      GameRequest(param.id);
+    }
+    else {
+      GameRequest();
+    }
   }
   const className1: string =
     "w-full h-[2.5rem] p-[1rem] flex items-center gap-3 text-white border border-gray-500 rounded-[8px] hover:bg-primary/5";
