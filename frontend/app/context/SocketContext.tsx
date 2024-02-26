@@ -16,7 +16,7 @@ const SocketContextProvider = ({ children }) => {
   const { fetchFriendsReqData, fetchFriendsData, fetchData } = useAuth();
   const param = useParams();
   const router = useRouter();
-  const { getAllChats } = useChat();
+  const { getAllChats, setSelectedChat } = useChat();
   useEffect(() => {
     const newSocket: Socket = io("http://localhost:3000/notifications", {
       auth: {
@@ -67,6 +67,7 @@ const SocketContextProvider = ({ children }) => {
       socket.on("Block", (data) => {
         fetchFriendsData();
         fetchData();
+        setSelectedChat("");
       });
       socket.on("unBlock", (data) => {
         fetchData();
@@ -101,7 +102,6 @@ const SocketContextProvider = ({ children }) => {
         status,
       }}
     >
-      
       {children}
     </SocketContext.Provider>
   );

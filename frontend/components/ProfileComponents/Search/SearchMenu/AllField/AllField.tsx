@@ -34,12 +34,7 @@ function AllField({ usersData }: ModalSearch) {
     state: { allChats },
   } = useChat();
   function handleClickCahnnels(id: string) {
-    console.log("id", id);
-    console.log("allChats", allChats);
-    getChannelByID(id).then((res) => {
-      console.log("res", res);
-      // setChannel(res);
-    });;
+    getChannelByID(id).then((res) => {});
     if (allChats.find((chat) => chat.id === id)) {
       router.push(`/chat`);
       setSelectedChat(id);
@@ -49,7 +44,6 @@ function AllField({ usersData }: ModalSearch) {
   function handleClick(id: string) {
     if (all.id != id) router.push(`/profile/${id}`);
   }
-
 
   // To prevenet errors of testing acounts in DB (bob...)
   function checkForAvatr(avatar: string): string {

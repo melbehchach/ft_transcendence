@@ -270,12 +270,12 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
-  async function changeStatus({status}) {
+  async function changeStatus({ status }) {
     // if (! statos || statos === "PLAYING") {
     //   statos = "PLAYING";
     // }
     try {
-        if (jwt_token) {
+      if (jwt_token) {
         const res = await axios.patch(
           "http://localhost:3000/user/status/update",
           {
@@ -287,15 +287,12 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
             },
             withCredentials: true,
           }
-        ); 
-      } 
-      else throw new Error("bad req"); 
-    }
-    catch (error) {
+        );
+      } else throw new Error("bad req");
+    } catch (error) {
       console.log(error);
     }
   }
-
   const getUserInfo = (id) => {
     if (id === state.user.id) return state.user;
     else {
@@ -345,8 +342,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
             },
           }
         )
-        .then((res) => {
-        })
+        .then((res) => {})
         .catch((error) => {
           console.log(error.response.data);
         });

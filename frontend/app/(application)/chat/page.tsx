@@ -42,18 +42,14 @@ const Chat = () => {
   } = useChat();
   const {
     fetchData,
-    state: {
-      friends,
-      user,
-      profile,
-    },
+    state: { friends, user, profile },
   } = useAuth();
 
   const chat = useMemo(() => {
     return allChats.find((chat) => chat.id === selectedChat);
   }, [friends?.friends, selectedChat]);
   const headerInfo = useMemo(() => {
-    if (selectedChat) {
+    if (selectedChat && chat) {
       if (chat?.name) {
         return { name: chat.name, avatar: chat.image };
       } else {
@@ -63,10 +59,14 @@ const Chat = () => {
             (user.id !== chat.user2Id ? chat.user2Id : chat.user1Id)
         );
         if (!friend) {
-          setSelectedChat("")
-          return {}
+          setSelectedChat("");
+          return {};
         }
-        return { name: friends?.friend?.username, avatar: friends?.friend?.avatar, id: friends?.friend?.id };
+        return {
+          name: friend.username,
+          avatar: friend.avatar,
+          id: friend.id,
+        };
       }
     }
     return null;
@@ -94,49 +94,72 @@ const Chat = () => {
 
   useEffect(() => {
     // fetchData(user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id);
-    if (user.blockedByUsers.find((elem) => elem.id === (user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id))) {
+    if (
+      user.blockedByUsers.find(
+        (elem) =>
+          elem.id === (user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id)
+      )
+    ) {
       setBlocked(true);
     }
-    if (user.blockedUsers.find((elem) => elem.id === (user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id))) {
+    if (
+      user.blockedUsers.find(
+        (elem) =>
+          elem.id === (user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id)
+      )
+    ) {
       setBlocker(true);
     }
     if (allChats.find((chat) => chat.id === selectedChat)?.name)
       fetchChannelData();
   }, [selectedChat, allChats]);
-  const content = !selectedChat ? (
-    <NoneSelected />
-  ) : (
-    <div className="w-3/4 grow">
-      <ChatHeader headerInfo={headerInfo} chat={chat} />
-      {/* <div className="flex"> */}
-      <div className="flex">
-        <div className="flex w-full flex-col">
-          <ChatBody selectedChat={selectedChat} />
-          <form
-            onSubmit={submitMessage}
-            className="w-full flex relative border-t border-black"
-          >
-            <input
-              disabled={isDisabled}
-              value={message}
-              className="w-[80%] h-[60px] bg-transparent p-5 text-gray-50"
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="send message"
-            ></input>
-            <button type="submit" className="absolute inset-y-1/4 right-10 text-white">
-              send
-            </button>
-          </form>
-          {/* </div> */}
-        </div>
-        {chat?.name ? (
-          <div className=" h-full border-l border-black manage_bar-height min-w-[250px] ">
-            <ManageChatBar chat={chat} />
+
+  const content =
+    !selectedChat || !headerInfo ? (
+      <NoneSelected />
+    ) : (
+      <div className="w-3/4 grow">
+        {headerInfo && <ChatHeader headerInfo={headerInfo} chat={chat} />}
+        {/* <div className="flex"> */}
+        <div className="flex">
+          <div className="flex w-full flex-col">
+            <ChatBody selectedChat={selectedChat} />
+            <form
+              onSubmit={submitMessage}
+              className="w-full flex relative border-t border-black"
+            >
+              <input
+                disabled={isDisabled}
+                value={message}
+                className="w-[80%] h-[60px] bg-transparent p-5 text-gray-50"
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="send message"
+              ></input>
+              <button
+                type="submit"
+                className="absolute inset-y-1/4 right-10 text-white"
+              >
+                send
+              </button>
+            </form>
+            {/* </div> */}
           </div>
-        ): (<div className="mt-[81px]"><UserCard setBlocker={setBlocker} setBlocked={setBlocked} id={(user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id)}/></div>)}
+          {chat?.name ? (
+            <div className=" h-full border-l border-black manage_bar-height min-w-[250px] ">
+              <ManageChatBar chat={chat} />
+            </div>
+          ) : (
+            <div className="mt-[81px]">
+              <UserCard
+                setBlocker={setBlocker}
+                setBlocked={setBlocked}
+                id={user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id}
+              />
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
   return (
     <>
       <div className="grow w-[300px] max-w-[300px] border-r border-black">
@@ -145,7 +168,7 @@ const Chat = () => {
           setSelectedChat={setSelectedChat}
         />
       </div>
-      {content}
+      {!selectedChat ? <NoneSelected /> : content}
     </>
   );
 };

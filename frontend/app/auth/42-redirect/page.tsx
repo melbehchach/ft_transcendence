@@ -25,7 +25,6 @@ async function getPreAuthData() {
       const res = await response.json();
       return res.user;
     } else {
-      // console.log("Failed to fetch user data");
       return null;
     }
   } catch (e) {

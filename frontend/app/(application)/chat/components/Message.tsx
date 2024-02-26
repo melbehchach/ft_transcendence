@@ -31,7 +31,6 @@ const Message = ({ message }) => {
     state: { members, allChats },
   } = useChat();
 
-  // console.log(message);
   const sender = useMemo(() => {
     return members.find((member) => member.id === message.senderId);
   }, [members, allChats]);

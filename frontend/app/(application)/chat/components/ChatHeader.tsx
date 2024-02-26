@@ -10,13 +10,11 @@ import Button from "./Button";
 import { newChannelActionTypes, newChannelReducer } from "./CreateNewChat";
 import NewChannel from "./NewChannel";
 
-const ChatHeader = ({ headerInfo: { avatar, name }, chat }) => {
+const ChatHeader = ({ headerInfo, chat }) => {
+  const { avatar, name } = headerInfo;
   const modalRef = useRef();
   const {
-    state: {
-      friends: { friends },
-      user,
-    },
+    state: { user },
   } = useAuth();
   const [state, dispatch] = useReducer(
     newChannelReducer,
@@ -55,18 +53,19 @@ const ChatHeader = ({ headerInfo: { avatar, name }, chat }) => {
   useEffect(() => {
     if (chat.name) {
       let c = allChats.find((cha) => chat.id === cha.id);
-      dispatch({
-        type: newChannelActionTypes.UPDATE_STATE,
-        payload: {
-          avatar: c.image,
-          channelName: c.name,
-          type: c.type === "PUBLIC" ? 0 : c.type === "PROTECTED" ? 1 : 2,
-          members: c.Members.filter((elem) => elem.id !== user.id).map(
-            (elem) => elem.id
-          ),
-          password: c?.password,
-        },
-      });
+      if (c)
+        dispatch({
+          type: newChannelActionTypes.UPDATE_STATE,
+          payload: {
+            avatar: c.image,
+            channelName: c.name,
+            type: c.type === "PUBLIC" ? 0 : c.type === "PROTECTED" ? 1 : 2,
+            members: c.Members.filter((elem) => elem.id !== user.id).map(
+              (elem) => elem.id
+            ),
+            password: c?.password,
+          },
+        });
     }
   }, [chat, allChats, channel]);
   const NewChannelActions =
@@ -101,17 +100,17 @@ const ChatHeader = ({ headerInfo: { avatar, name }, chat }) => {
               //   (chat.type === "PROTECTED" && state.type !== 1) ||
               //   (chat.type === "PRIVATE" && state.type !== 2)
               // )
-                arr.push(
-                  updateChannelType(
-                    chat.id,
-                    state.type === 0
-                      ? "PUBLIC"
-                      : state.type === 1
-                      ? "PROTECTED"
-                      : "PRIVATE",
-                    state.password
-                  )
-                );
+              arr.push(
+                updateChannelType(
+                  chat.id,
+                  state.type === 0
+                    ? "PUBLIC"
+                    : state.type === 1
+                    ? "PROTECTED"
+                    : "PRIVATE",
+                  state.password
+                )
+              );
               arr.push(updateChannelAvatar(chat.id, state.avatar));
               if (kickedMembers.length !== 0)
                 arr.push(
@@ -123,7 +122,7 @@ const ChatHeader = ({ headerInfo: { avatar, name }, chat }) => {
               if (addMembers.length !== 0)
                 arr.push(addMembers(chat.id, newMembers));
               Promise.all(arr).then(() => {
-                getAllChats()
+                getAllChats();
               });
               closeModal();
             } catch {}
@@ -140,13 +139,11 @@ const ChatHeader = ({ headerInfo: { avatar, name }, chat }) => {
   return (
     <div className="w-full border-b border-black py-4 fixed">
       <div className="flex items-center w-[300px]">
-        {
-          channel?.name ? (
-            <UserAvatar src={channel?.image} name={channel?.name} />
-          ) : (
-            <UserAvatar src={avatar} name={name} />
-          )
-        }
+        {channel?.name ? (
+          <UserAvatar src={channel?.image} name={channel?.name} />
+        ) : (
+          <UserAvatar src={avatar} name={name} />
+        )}
         {chat?.name && user.id === chat.owner.id && (
           <div>
             <div className="dropdown bg-transparent">
