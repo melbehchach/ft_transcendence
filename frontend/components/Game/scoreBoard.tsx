@@ -1,6 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Avatar from '../ProfileComponents/Avatar/Avatar';
 
 
 
@@ -17,13 +18,20 @@ export default function ScoreBoard({
     <>
       <div className="flex justify-between items-center p-5 ml-0 my-5  mr-40">
         <div className="flex items-center justify-center gap-1 ">
-          <Image
-            className="rounded-full"
-            src={playerAvatar}
-            width={55}
-            height={55}
-            alt="Friend's picture"
-          />
+        <Avatar
+                    avatarObj={{
+                      src: playerAvatar,
+                      width: 100,
+                      height: 100,
+                      userName: "",
+                      imageStyle: "w-[4rem] h-[4rem] rounded-full object-cover",
+                      fontSize: "text-base text-white",
+                      positiosn: false,
+                      existStatos: false,
+                    }}
+                  />
+
+
           <span className="mx-2 text-text text-center text-5xl font-bold">
             {playerScore}
           </span>
@@ -71,13 +79,25 @@ export default function ScoreBoard({
           <span className="mx-2 text-text text-center text-5xl font-bold">
             {opponentScore}
           </span>
-          <Image
+          <Avatar
+                    avatarObj={{
+                      src: OpponentAvatar,
+                      width: 100,
+                      height: 100,
+                      userName: "",
+                      imageStyle: "w-[4rem] h-[4rem] rounded-full object-cover",
+                      fontSize: "text-base text-white",
+                      positiosn: false,
+                      existStatos: false,
+                    }}
+                  />
+          {/* <Image
             className="rounded-full"
             src={OpponentAvatar}
             width={55}
             height={55}
             alt="Friend's picture"
-          />
+          /> */}
         </div>
       </div>
     </>

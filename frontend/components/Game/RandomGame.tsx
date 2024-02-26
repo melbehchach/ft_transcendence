@@ -84,7 +84,7 @@ export default function RandomMatch({
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
-  const {state:{user}, ChangeStatus} = useAuth();
+  const {state:{user}, changeStatus} = useAuth();
   const router = useRouter();
   const upadateTotalWinsAndLoses = async (
     winnerId: string,
@@ -253,14 +253,14 @@ export default function RandomMatch({
             setPlayerY(data.playerY);
             setOpenentY(data.opponentY);
             room = data.room;
-            ChangeStatus("PLAYING");
+            changeStatus({status : "PLAYING"});
           } else {
             setPlayerAvatar(data.opponentAvatar);
             setOpponnetAvatr(data.playerAvatr);
             setPlayerY(data.opponentY);
             setOpenentY(data.playerY);
             room = data.room;
-            ChangeStatus("PLAYING");
+            changeStatus({status : "PLAYING"});
           }
         });
         socket.on("PlayerMoved", (data: any) => {
@@ -274,23 +274,23 @@ export default function RandomMatch({
         });
       socket.on("CheckingWinner", (data: any) => {
         if (data.player === cookie.get("USER_ID") && data.playerScore === 3) {
-          router.push("/game/win");
           upadateTotalWinsAndLoses(data.player, data.opponent);
-          ChangeStatus("ONLINE");
+          changeStatus({status : "ONLINE"});
+          router.push("/game/win");
         } if (
           data.opponent === cookie.get("USER_ID") &&
           data.opponentScore === 3
         ) {
-          router.push("/game/win");
           upadateTotalWinsAndLoses(data.opponent, data.player);
-          ChangeStatus("ONLINE");
+          changeStatus({status : "ONLINE"});
+          router.push("/game/win");
         }
         if (data.player === cookie.get("USER_ID") && data.playerScore < 3){
+          changeStatus({status : "ONLINE"});
           router.push("/game");
-          ChangeStatus("ONLINE");
         } if (data.opponent === cookie.get("USER_ID") && data.opponentScore < 3){
+          changeStatus({status : "ONLINE"});
           router.push("/game");
-          ChangeStatus("ONLINE");
         }
       });
       socket.on("gameStart", () => {

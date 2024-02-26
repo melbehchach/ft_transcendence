@@ -7,6 +7,7 @@ import { useChat } from "../../../context/ChatContext";
 import CreateNewChat from "./CreateNewChat";
 import ExplorChannels from "./ExplorChannels";
 import Search from "./Search";
+import SearchBar from "../../../../components/ProfileComponents/Search/SearchBar";
 
 const ChatSideBar = ({
   selectedChat,
@@ -22,7 +23,7 @@ const ChatSideBar = ({
   const {
     state: {
       user,
-      friends: { friends },
+      friends,
     },
   } = useAuth();
 
@@ -31,9 +32,10 @@ const ChatSideBar = ({
   }, []);
 
   return (
-    <div className="flex flex-col side__bar--height min-w-[300px]">
-      <Search />
-      <div className="flex flex-col gap-4 p-4 gap-4">
+    <div className="flex flex-col side__bar--height w-[300px] max-w-[300px]">
+      {/* <Search /> */}
+      <SearchBar />
+      <div className="flex flex-col gap-4 p-4">
         <ExplorChannels setSelectedChat={setSelectedChat} />
         {/* <ChatButton icon={faCompass} onClick={() => {}}>
         <Typography
@@ -56,8 +58,8 @@ const ChatSideBar = ({
                 <UserAvatar key={index} src={chat.image} name={chat.name} />
               </button>
             );
-          } else if (friends && chat.user1Id) {
-            let friend = friends.find(
+          } else if (friends?.friends && chat.user1Id) {
+            let friend = friends?.friends.find(
               (friend) =>
                 friend.id ===
                 (user.id !== chat.user2Id ? chat.user2Id : chat.user1Id)

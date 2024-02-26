@@ -17,7 +17,7 @@ const ChatBody = ({ selectedChat }) => {
     if (allChats) {
       let chat = allChats.find((chat) => chat.id === selectedChat);
       if (chat?.name) return chat.Messages;
-      else return chat.messages;
+      else return chat?.messages;
     }
     return [];
   }, [allChats, selectedChat]);

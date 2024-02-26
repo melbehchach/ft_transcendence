@@ -1,7 +1,7 @@
 "use client";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import InviteMatch from "../../../../../components/Game/InviteMatch";
+import InviteMatch from "../../../../../components/Game/inviteMatch";
 import ScoreBoard from "../../../../../components/Game/scoreBoard";
 import GameRules from "../../rules/page";
 import DeclineModal from "../../issue/page";

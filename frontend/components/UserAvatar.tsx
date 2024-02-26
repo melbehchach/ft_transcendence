@@ -11,6 +11,7 @@ const UserAvatar = ({ src, name }: { src?: string; name?: string }) => {
         type="paragraphe"
         variant="body"
         content={name ? name : "Jangoli"}
+        style="text-left whitespace-nowrap text-ellipsis overflow-hidden w-[200px] max-w-full"
       />
     </div>
   );

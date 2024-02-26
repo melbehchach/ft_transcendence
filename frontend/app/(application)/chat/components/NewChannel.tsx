@@ -57,7 +57,7 @@ const NewChannel = ({
   });
   // const [channel, setChannel] = useState(null);
   const [previewUrl, setPreviewUrl] = useState<string>(
-    state.avatar ? state.avatar : ""
+    state && state.avatar ? state.avatar : ""
   );
   const {
     getChannelByID,
