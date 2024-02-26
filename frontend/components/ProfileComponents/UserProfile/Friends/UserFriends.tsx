@@ -16,7 +16,11 @@ const UserFriends = ({ item }: props) => {
     fetchFriendsData,
     state: { friends },
   } = useAuth();
+
   const router = useRouter();
+
+  // const [id, setId] = useState("");
+
   const avatarObj: AvatarProps = {
     src: item.avatar,
     width: 100,
@@ -25,6 +29,7 @@ const UserFriends = ({ item }: props) => {
     imageStyle: "rounded-t-[15px] w-[15.9rem] h-[11rem] object-cover",
     fontSize: "text-base text-white",
     positiosn: true,
+    existStatos: false
   };
 
   function handleClick() {
@@ -44,7 +49,7 @@ const UserFriends = ({ item }: props) => {
         <Avatar avatarObj={avatarObj} />
       </div>
       <div className="w-full h-full flex flex-col items-center gap-3 p-[0.5rem]">
-        <ChallengeFriend isFriendCard={true} />
+        <ChallengeFriend isFriendCard={true} id={item.id}/>
         <MessageFriend isFriendCard={true} />
       </div>
     </div>

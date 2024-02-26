@@ -72,13 +72,13 @@ function ProfilePage() {
         <div className="w-full h-[25rem] flex flex-col gap-[1rem]">
           <div className=" flex gap-[2rem] text-white font-semibold text-3xl border-gray-500 border-b">
             <button
-              className={state.friends ? "text-orange-400" : "text-white"}
+              className={state.friends ? "text-orange-300" : "text-white"}
               onClick={handleFriendsClick}
             >
               Friends
             </button>
             <button
-              className={state.friendsRq ? "text-orange-400" : "text-white"}
+              className={state.friendsRq ? "text-orange-300" : "text-white"}
               onClick={handleFriendsrR}
             >
               Friends Requests
