@@ -17,13 +17,13 @@ function GameTheme({them, setTheme}) {
     <div className="flex flex-col justify-center gap-[0.5rem] text-xl font-light">
     <h1>Game theme: </h1>
     <div className="flex flex-row gap-[1.2rem]">
-      <button onClick={() => handleClick("Retro")}>
+      <button className={them === "Retro" ? "border-4 border-orange-300" : ""} onClick={() => handleClick("Retro")}>
         <DarkTheme />
       </button>
-      <button onClick={() => handleClick("Blue")}>
+      <button className={them === "Blue" ? "border-4 border-orange-300" : ""} onClick={() => handleClick("Blue")}>
         <LightTheme />
       </button>
-      <button onClick={() => handleClick("Gray")}>
+      <button className={them === "Gray" ? "border-4 border-orange-300" : ""} onClick={() => handleClick("Gray")}>
         <GrayTheme />
       </button>
     </div>

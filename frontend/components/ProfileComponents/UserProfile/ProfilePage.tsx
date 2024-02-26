@@ -27,7 +27,7 @@ function reducer(state, action) {
 }
 
 function ProfilePage() {
-
+  const [dataLoaded, setDataLoaded] = useState(false);
   const {
     fetchData,
     fetchRecentGames,
@@ -48,8 +48,8 @@ function ProfilePage() {
   const [setting, setSetting] = useState<boolean>(false);
 
   useEffect(() => {
-    fetchRecentGames(user.id)
-  }, [])
+    fetchRecentGames(user.id);
+  }, []);
 
   return (
     <div className="w-full h-full flex gap-[1.5rem]  p-[1rem] pt-[1.5rem]">
@@ -72,12 +72,17 @@ function ProfilePage() {
         <div className="w-full h-[25rem] flex flex-col gap-[1rem]">
           <div className=" flex gap-[2rem] text-white font-semibold text-3xl border-gray-500 border-b">
             <button
-              className={state.friends ? "w-fit border-black border-b-8" : ""}
+              className={state.friends ? "text-orange-300" : "text-white"}
               onClick={handleFriendsClick}
             >
               Friends
             </button>
-            <button className={state.friendsRq ? "w-fit border-black border-b-8" : ""} onClick={handleFriendsrR}>Friends Requests</button>
+            <button
+              className={state.friendsRq ? "text-orange-300" : "text-white"}
+              onClick={handleFriendsrR}
+            >
+              Friends Requests
+            </button>
           </div>
           {state.friends && (
             <div className="h-full gap-[1rem] z-0">

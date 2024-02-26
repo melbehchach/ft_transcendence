@@ -8,9 +8,10 @@ import BlockIcon from "./BlockIcon";
 type props = {
   isFriend: boolean;
   setBlocker: any;
+  id?: string;
 };
 
-function BlockUser({ isFriend, setBlocker }: props) {
+function BlockUser({ isFriend, setBlocker, id }: props) {
   const param = useParams();
   const { fetchFriendsData, fetchData } = useAuth();
 
@@ -44,7 +45,7 @@ function BlockUser({ isFriend, setBlocker }: props) {
   }
 
   function blockUser() {
-    blockSate(param.id);
+    blockSate(param.id ? param.id : id ? id : undefined);
   }
 
   const className1: string =

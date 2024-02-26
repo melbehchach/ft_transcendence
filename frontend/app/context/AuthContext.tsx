@@ -1,5 +1,6 @@
 "use client";
 import axios from "axios";
+import { stat } from "fs";
 import Cookies from "js-cookie";
 import React, { createContext, useContext, useReducer } from "react";
 
@@ -268,6 +269,33 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       alert("Failed To Signin");
     }
   }
+
+  async function changeStatus({status}) {
+    // if (! statos || statos === "PLAYING") {
+    //   statos = "PLAYING";
+    // }
+    try {
+        if (jwt_token) {
+        const res = await axios.patch(
+          "http://localhost:3000/user/status/update",
+          {
+            status,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            withCredentials: true,
+          }
+        ); 
+      } 
+      else throw new Error("bad req"); 
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
   const getUserInfo = (id) => {
     if (id === state.user.id) return state.user;
     else {
@@ -278,7 +306,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const AcceptGameRequest = async () => {
     if (jwt_token) {
       await axios
-        .post(`http://localhost:3000/game/accept/${Cookies.get("USER_ID")}`,)
+        .post(`http://localhost:3000/game/accept/${Cookies.get("USER_ID")}`)
         .then((res) => {
           console.log(res);
         })
@@ -291,7 +319,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const RefuseGameRequest = async () => {
     if (jwt_token) {
       await axios
-        .post(`http://localhost:3000/game/refuse/${Cookies.get("USER_ID")}`,)
+        .post(`http://localhost:3000/game/refuse/${Cookies.get("USER_ID")}`)
         .then((res) => {
           console.log(res);
         })
@@ -318,7 +346,6 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           }
         )
         .then((res) => {
-          console.log(res);
         })
         .catch((error) => {
           console.log(error.response.data);
@@ -344,6 +371,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         fetchRecentGames,
         fetchNotifications,
         fetchAchievements,
+        changeStatus,
         GameRequest,
       }}
     >

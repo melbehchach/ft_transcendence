@@ -22,7 +22,7 @@ const SelectNewChat = ({
   const {
     state: {
       user,
-      friends: { friends },
+      friends
     },
   } = useAuth();
   const {
@@ -68,7 +68,7 @@ const SelectNewChat = ({
           }}
         />
       </RowWrapper>
-      {friends.map((friend, index) => {
+      {friends?.friends.map((friend, index) => {
         return (
           <RowWrapper key={index}>
             <UserAvatar src={friend.avatar} name={friend.username} />

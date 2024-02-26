@@ -11,6 +11,7 @@ type props = {
 const ProfileFriends = ({ item }: props) => {
   const {
     fetchFriendsData,
+    fetchData,
     state: { user, loading },
   } = useAuth();
   const router = useRouter();

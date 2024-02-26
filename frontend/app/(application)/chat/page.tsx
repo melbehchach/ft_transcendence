@@ -7,6 +7,7 @@ import ChatBody from "./components/ChatBody";
 import ChatHeader from "./components/ChatHeader";
 import ChatSideBar from "./components/ChatSideBar";
 import ManageChatBar from "./components/ManageChatBar";
+import UserCard from "../../../components/ProfileComponents/UserProfile/Card/UserCard";
 
 const NoneSelected = () => {
   return (
@@ -28,37 +29,48 @@ const NoneSelected = () => {
 };
 
 const Chat = () => {
-  const [selectedChat, setSelectedChat] = useState("");
+  // const [selectedChat, setSelectedChat] = useState("");
   const [isDisabled, setIsDisabled] = useState(false);
+  const [blocker, setBlocker] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const {
     sendMessage,
     getChannelByID,
+    setSelectedChat,
+    selectedChat,
     state: { allChats },
   } = useChat();
   const {
+    fetchData,
     state: {
-      friends: { friends },
+      friends,
       user,
+      profile,
     },
   } = useAuth();
+
   const chat = useMemo(() => {
     return allChats.find((chat) => chat.id === selectedChat);
-  }, [friends, selectedChat]);
+  }, [friends?.friends, selectedChat]);
   const headerInfo = useMemo(() => {
     if (selectedChat) {
       if (chat?.name) {
         return { name: chat.name, avatar: chat.image };
       } else {
-        let friend = friends.find(
+        let friend = friends?.friends.find(
           (friend) =>
             friend.id ===
             (user.id !== chat.user2Id ? chat.user2Id : chat.user1Id)
         );
-        return { name: friend.username, avatar: friend.avatar, id: friend.id };
+        if (!friend) {
+          setSelectedChat("")
+          return {}
+        }
+        return { name: friends?.friend?.username, avatar: friends?.friend?.avatar, id: friends?.friend?.id };
       }
     }
     return null;
-  }, [friends, selectedChat]);
+  }, [friends?.friend, selectedChat]);
 
   const [message, setMessage] = useState("");
 
@@ -81,6 +93,13 @@ const Chat = () => {
   }
 
   useEffect(() => {
+    // fetchData(user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id);
+    if (user.blockedByUsers.find((elem) => elem.id === (user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id))) {
+      setBlocked(true);
+    }
+    if (user.blockedUsers.find((elem) => elem.id === (user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id))) {
+      setBlocker(true);
+    }
     if (allChats.find((chat) => chat.id === selectedChat)?.name)
       fetchChannelData();
   }, [selectedChat, allChats]);
@@ -100,27 +119,27 @@ const Chat = () => {
             <input
               disabled={isDisabled}
               value={message}
-              className="w-[80%] h-[60px] bg-transparent p-5"
+              className="w-[80%] h-[60px] bg-transparent p-5 text-gray-50"
               onChange={(e) => setMessage(e.target.value)}
               placeholder="send message"
             ></input>
-            <button type="submit" className="absolute inset-y-1/4 right-10">
+            <button type="submit" className="absolute inset-y-1/4 right-10 text-white">
               send
             </button>
           </form>
           {/* </div> */}
         </div>
-        {chat.name && (
+        {chat?.name ? (
           <div className=" h-full border-l border-black manage_bar-height min-w-[250px] ">
             <ManageChatBar chat={chat} />
           </div>
-        )}
+        ): (<div className="mt-[81px]"><UserCard setBlocker={setBlocker} setBlocked={setBlocked} id={(user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id)}/></div>)}
       </div>
     </div>
   );
   return (
     <>
-      <div className="grow min-w-[300px] border-r border-black">
+      <div className="grow w-[300px] max-w-[300px] border-r border-black">
         <ChatSideBar
           selectedChat={selectedChat}
           setSelectedChat={setSelectedChat}

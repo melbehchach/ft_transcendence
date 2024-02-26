@@ -68,12 +68,6 @@ const CreateNewChat = ({ setSelectedChat }) => {
     updateChannelAvatar,
     state: { allChats },
   } = useChat();
-  const {
-    state: {
-      friends: { friends },
-      user,
-    },
-  } = useAuth();
   const [step, setStep] = useState(0);
   const NewChannelActions = (
     <>
