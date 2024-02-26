@@ -18,10 +18,11 @@ const ProfileFriends = ({ item }: props) => {
   const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    fetchData()
+    fetchFriendsData().then(() => {
       setTimeout(() => {
         setDataLoaded(true);
       }, 1000);
+    });
   }, []);
 
   const avatarObj: AvatarProps = {
