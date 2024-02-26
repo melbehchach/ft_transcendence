@@ -7,6 +7,7 @@ import ChatBody from "./components/ChatBody";
 import ChatHeader from "./components/ChatHeader";
 import ChatSideBar from "./components/ChatSideBar";
 import ManageChatBar from "./components/ManageChatBar";
+import UserCard from "../../../components/ProfileComponents/UserProfile/Card/UserCard";
 
 const NoneSelected = () => {
   return (
@@ -28,17 +29,22 @@ const NoneSelected = () => {
 };
 
 const Chat = () => {
+  // const param = useParams();
   const [selectedChat, setSelectedChat] = useState("");
   const [isDisabled, setIsDisabled] = useState(false);
+  const [blocker, setBlocker] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const {
     sendMessage,
     getChannelByID,
     state: { allChats },
   } = useChat();
   const {
+    fetchData,
     state: {
       friends: { friends },
       user,
+      profile,
     },
   } = useAuth();
   const chat = useMemo(() => {
@@ -54,6 +60,10 @@ const Chat = () => {
             friend.id ===
             (user.id !== chat.user2Id ? chat.user2Id : chat.user1Id)
         );
+        if (!friend) {
+          setSelectedChat("")
+          return {}
+        }
         return { name: friend.username, avatar: friend.avatar, id: friend.id };
       }
     }
@@ -81,6 +91,13 @@ const Chat = () => {
   }
 
   useEffect(() => {
+    // fetchData(user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id);
+    if (user.blockedByUsers.find((elem) => elem.id === (user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id))) {
+      setBlocked(true);
+    }
+    if (user.blockedUsers.find((elem) => elem.id === (user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id))) {
+      setBlocker(true);
+    }
     if (allChats.find((chat) => chat.id === selectedChat)?.name)
       fetchChannelData();
   }, [selectedChat, allChats]);
@@ -110,11 +127,11 @@ const Chat = () => {
           </form>
           {/* </div> */}
         </div>
-        {chat.name && (
+        {chat.name ? (
           <div className=" h-full border-l border-black manage_bar-height min-w-[250px] ">
             <ManageChatBar chat={chat} />
           </div>
-        )}
+        ): (<div className="mt-[81px]"><UserCard setBlocker={setBlocker} setBlocked={setBlocked} id={(user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id)}/></div>)}
       </div>
     </div>
   );

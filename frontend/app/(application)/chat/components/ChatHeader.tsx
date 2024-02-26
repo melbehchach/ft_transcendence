@@ -67,7 +67,7 @@ const ChatHeader = ({ headerInfo: { avatar, name }, chat }) => {
       });
     }
   }, [chat, allChats, channel]);
-  const NewChannelActions = !chat.name ? (
+  const NewChannelActions = !chat.name || !state ? (
     <></>
   ) : (
     <>

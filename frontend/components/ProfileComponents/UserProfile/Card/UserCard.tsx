@@ -10,9 +10,10 @@ import { useParams } from "next/navigation";
 type props = {
   setBlocker: any;
   setBlocked: any;
+  id?: string;
 };
 
-function UserCard({ setBlocker, setBlocked }: props) {
+function UserCard({ setBlocker, setBlocked, id }: props) {
   const {
     fetchData,
     state: { profile },
@@ -33,7 +34,7 @@ function UserCard({ setBlocker, setBlocked }: props) {
   };
 
   useEffect(() => {
-    fetchData(param.id);
+    fetchData(param.id ? param.id : id ? id : undefined);
   }, []);
 
   return (
@@ -42,7 +43,7 @@ function UserCard({ setBlocker, setBlocked }: props) {
         <div className="w-full flex justify-center items-center">
           <Avatar avatarObj={avatarObj} />
         </div>
-        <FriendshipState setBlocker={setBlocker} setBlocked={setBlocked} />
+        <FriendshipState setBlocker={setBlocker} setBlocked={setBlocked} id={param.id ? param.id : id ? id : undefined} />
         <Scores />
         <Achievements />
       </div>

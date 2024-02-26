@@ -13,9 +13,10 @@ import { useParams } from "next/navigation";
 type props = {
   setBlocker: any;
   setBlocked: any;
+  id?: string;
 };
 
-function FriendshipState({setBlocker, setBlocked}: props) {
+function FriendshipState({setBlocker, setBlocked, id}: props) {
   const param = useParams();
   const {
     fetchFriendsReqData,
@@ -57,7 +58,7 @@ function FriendshipState({setBlocker, setBlocked}: props) {
     <div className="w-full">
       {buttonType === "add" && profile.id != user.id && (
         <div className="flex justify-center flex-row gap-3">
-          <AddFriend card={false} setBlocked={setBlocked} setBlocker={setBlocker} /> <BlockUser isFriend={false}  setBlocker={setBlocker}/>
+          <AddFriend card={false} setBlocked={setBlocked} setBlocker={setBlocker} /> <BlockUser isFriend={false}  setBlocker={setBlocker} id={param.id ? param.id : id ? id : undefined}/>
         </div>
       )}
       {buttonType === "cancel" && profile.id != user.id && (
@@ -74,7 +75,7 @@ function FriendshipState({setBlocker, setBlocked}: props) {
         <div className="flex justify-center flex-row gap-2">
           <ChallengeFriend isFriendCard={false} />
           <MessageFriend isFriendCard={false} />
-          <BlockUser isFriend={true} setBlocker={setBlocker} />
+          <BlockUser isFriend={true} setBlocker={setBlocker} id={param.id ? param.id : id ? id : undefined} />
         </div>
       )}
       {buttonType === "unblock" && profile.id != user.id && (
