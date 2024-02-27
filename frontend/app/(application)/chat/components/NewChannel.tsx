@@ -64,6 +64,11 @@ const NewChannel = ({
     unbanMember,
     state: { members, allChats },
   } = useChat();
+  useEffect(() => {
+    if (channel) {
+      setPreviewUrl(state.avatar);
+    }
+  }, [state]);
   const handleInputChange = (e, field) => {
     const { value } = e.target;
     // Validate input based on field
@@ -270,7 +275,7 @@ const NewChannel = ({
               <Button content="Add members" onClick={openModel} />
             </div>
             <div className="flex items-center">
-              {state.members.map((id, key) => {
+              {state?.members?.map((id, key) => {
                 return (
                   <div key={key} className="ml-[-25px]">
                     <Avatar
@@ -304,7 +309,7 @@ const NewChannel = ({
                     />
                   </RowWrapper>
                 );
-              } else if (state.members.find((elem) => elem === friend.id))
+              } else if (state?.members?.find((elem) => elem === friend.id))
                 return (
                   <RowWrapper key={index}>
                     <UserAvatar src={friend.avatar} name={friend.username} />
