@@ -26,6 +26,8 @@ const withAuth = (WrappedComponent: React.ComponentType<any>) => {
                   router.push("/profile");
                 if (window.location.pathname === "/game") router.push("/game");
                 if (window.location.pathname === "/chat") router.push("/chat");
+                if (window.location.pathname === "/game/random")
+                  router.push("/game/issue");
               });
             });
           })

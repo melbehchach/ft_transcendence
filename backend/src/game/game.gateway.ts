@@ -116,7 +116,21 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
               },
             });
           } catch (error) {
-            console.error(error);
+          }
+          try {
+            await this.prisma.user.updateMany({
+              where: {
+                OR: [
+                  { id: player.id },
+                  { id: opponent.id },
+                ],
+              },
+              data: {
+                status: 'PLAYING',
+              },
+            });
+          } catch (error) {
+           
           }
         }
         const gameRoom = this.MapGames.get(room);
@@ -152,7 +166,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (!this.gameQueue.some((player) => player.id === ObjectPlayer.id)) {
         this.gameQueue.push(ObjectPlayer);
       }
-      if (this.gameQueue.length >= 2) {
+      if (this.gameQueue.length === 2) {
         const player = this.gameQueue.shift();
         const opponent = this.gameQueue.shift();
         const room = uuidv4();
@@ -210,7 +224,22 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
               },
             });
           } catch (error) {
-            console.error(error);
+            
+          }
+          try {
+            await this.prisma.user.updateMany({
+              where: {
+                OR: [
+                  { id: player.id },
+                  { id: opponent.id },
+                ],
+              },
+              data: {
+                status: 'PLAYING',
+              },
+            });
+          } catch (error) {
+            
           }
         }
         const gameRoom = this.MapGames.get(room);
@@ -225,7 +254,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
       }
     } catch (error) {
-      throw new BadRequestException('something bad happend caused by ', error);
+      
     }
   }
 
@@ -300,7 +329,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   moveBall(socket: Socket): void {
     this.MapGames.forEach((room, currentGameRoom) => {
-      const constSpeed = 2;
+      const constSpeed = 3;
       const directionX = room.ball.velocityX > 0 ? 1 : -1;
       const directionY = room.ball.velocityY > 0 ? 1 : -1;
       room.ball.x += constSpeed * directionX;
@@ -411,34 +440,21 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(socket: Socket) {
     const playerId: string = socket.handshake.auth.token;
+
     const roomName = this.findRoomByPlayerId(playerId);
     if (roomName){
       const gameRoom = this.MapGames.get(roomName);
-      if (gameRoom.player1Obj.id === playerId && gameRoom.player1Obj.score !== 3) {
-        this.server.to(roomName).emit('PlayerDisconnected', {
-          player : gameRoom.player1Obj.id,
-        });
-        try {
-          await this.prisma.game.delete({
-            where: {
-              id: roomName,
-            },
+      if (gameRoom.player1Obj.score !== 3 || gameRoom.player2Obj.score !== 3) {
+        if (gameRoom.player1Obj.id === playerId){
+          this.server.to(roomName).emit('NetworkIssue', {
+            player : gameRoom.player1Obj.id,
+            opponent: gameRoom.player2Obj.id,
           });
-        } catch (error) {
-          new BadGatewayException('Error deleting the record');
-        }
-      } else if (gameRoom.player2Obj.id === playerId && gameRoom.player2Obj.score !== 3) {
-        this.server.to(roomName).emit('OpponentDisconnected', {
-          opponent : gameRoom.player2Obj.id,
-        });
-        try {
-          await this.prisma.game.delete({
-            where: {
-              id: roomName,
-            },
+        } if (gameRoom.player2Obj.id === playerId){
+          this.server.to(roomName).emit('NetworkIssue', {
+            player : gameRoom.player2Obj.id,
+            opponent: gameRoom.player1Obj.id,
           });
-        } catch (error) {
-          new BadGatewayException('Error deleting the record');
         }
         this.MapGames.delete(roomName);
         this.MapRoomToPlayers.delete(roomName);
@@ -449,19 +465,25 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       } 
     }
     try {
-      const updatedUser = await this.prisma.user.update({
+      await this.prisma.game.delete({
+        where: {
+          id: roomName,
+        },
+      });
+    } catch (error) {
+      new BadGatewayException('Error deleting the record');
+    }
+    try {
+      await this.prisma.user.update({
         where: {
           id: playerId,
         },
         data: {
           status: 'ONLINE',
         },
-      });
-      return updatedUser;
+      })
     } catch (error) {
-      throw new BadGatewayException('Error updating the record');
+      new BadGatewayException('Error updating the record in disconnect');
     }
-    
-    // console.log('disconnected', playerId);
   }
 }
