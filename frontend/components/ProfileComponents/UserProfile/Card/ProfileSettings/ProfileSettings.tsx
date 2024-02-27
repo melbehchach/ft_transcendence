@@ -13,8 +13,6 @@ type settingsProps = {
 };
 
 function ProfileSettings({ openSettings }: settingsProps) {
-  const [name, setName] = useState("");
-  const [theme, setTheme] = useState("");
   const [secret, steSecret] = useState("");
   const [tfaCheck, setTfaCheck] = useState(false);
   const [code, setCode] = useState("");
@@ -22,7 +20,6 @@ function ProfileSettings({ openSettings }: settingsProps) {
 
   const {
     fetchData,
-    fetchRecentGames,
     state: {
       user: { avatar },
     },
@@ -49,7 +46,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
           goolgleTFA();
         } else setTfaCheck(true);
       } else throw new Error();
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async function goolgleTFA() {
@@ -67,49 +64,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
         );
         steSecret(response.data.secret);
       } else throw new Error("bad req");
-    } catch (error) { }
-  }
-
-  async function updateUsername() {
-    const jwt_token = Cookies.get("JWT_TOKEN");
-    try {
-      if (jwt_token) {
-        const response = await axios.patch(
-          "http://localhost:3000/user/settings/username",
-          {
-            username: `${name}`,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${jwt_token}`,
-            },
-            withCredentials: true,
-          }
-        );
-        fetchData();
-      } else throw new Error("bad req");
-    } catch (error) { }
-  }
-
-  async function updateTheme() {
-    const jwt_token = Cookies.get("JWT_TOKEN");
-    try {
-      if (jwt_token) {
-        const response = await axios.patch(
-          "http://localhost:3000/user/settings/theme",
-          {
-            theme: `${theme}`,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${jwt_token}`,
-            },
-            withCredentials: true,
-          }
-        );
-        fetchData();
-      } else throw new Error("bad req");
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async function sendCode() {
@@ -133,7 +88,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
           setTfaCheck(false);
         } else setTfaCheck(true);
       } else throw new Error("bad req");
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async function remove2FA() {
@@ -154,7 +109,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
         setCodeChecker(true);
         goolgleTFA();
       } else throw new Error("bad req");
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async function handleSubmit() {
@@ -178,18 +133,12 @@ function ProfileSettings({ openSettings }: settingsProps) {
         }
         fetchData();
       } else throw new Error("bad req");
-    } catch (error) { }
+    } catch (error) {}
   }
 
   function handleClick() {
     if (avatarFile) {
       handleSubmit();
-    }
-    if (name != "") {
-      updateUsername();
-    }
-    if (theme != "") {
-      updateTheme();
     }
     fetchData();
     openSettings();
@@ -199,7 +148,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
     if (event.key === "Enter") {
       event.preventDefault();
       sendCode();
-      setTimeout(() => { }, 300);
+      setTimeout(() => {}, 300);
       setCode("");
     }
   }
@@ -210,13 +159,13 @@ function ProfileSettings({ openSettings }: settingsProps) {
 
   useEffect(() => {
     tfaChecker();
-    setTimeout(() => { }, 300);
+    setTimeout(() => {}, 300);
   }, []);
 
   return (
-    <div className="w-[23rem] h-full relative flex flex-col p-[0.5rem]">
+    <div className="w-[23rem] h-full relative flex flex-col p-[0.5rem] overflow-auto">
       <h1 className="w-full font-semibold text-3xl">Settings</h1>
-      <div className="w-full h-full flex justify-start flex-col gap-[1.5rem] p-[0.5rem] overflow-auto">
+      <div className="w-full h-full flex justify-start flex-col gap-[1.5rem] p-[0.5rem] ">
         <ProfileAvatar
           avatarFile={avatarFile}
           setAvatar={setAvatar}
@@ -224,13 +173,13 @@ function ProfileSettings({ openSettings }: settingsProps) {
           setPreviewUrl={setPreviewUrl}
           handleSubmit={handleSubmit}
         />
-        <Username name={name} setName={setName} />
+        <Username />
         <Password />
-        <GameTheme them={theme} setTheme={setTheme} />
+        <GameTheme />
         <div className="w-full flex flex-col gap-[1rem]">
           <h1 className="text-lg">Two-Factor authentication</h1>
           {!tfaCheck ? (
-            <div className="w-full flex flex-col gap-[1rem]">
+            <div className="w-full flex flex-col gap-[0.5rem]">
               <p className="text-xs text-gray-500">
                 Scan this with Google Authenticator app and enter the code below
                 in order to activate 2FA
@@ -253,7 +202,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
                 />
               </form>
               <p className="text-xs font-light text-gray-500">
-                Press Enter to continue
+                Press Enter to save changes
               </p>
               {!codeChecker && (
                 <div className="w-full h-fit border border-red-700 rounded-[10px] text-sm text-red-700 font-light bg-background flex flex-col justify-center items-center">
@@ -276,25 +225,14 @@ function ProfileSettings({ openSettings }: settingsProps) {
             </div>
           )}
         </div>
-        <div className="w-full h-full flex flex-row p-[0.5rem] gap-[4rem] relative justify-end">
-          <div className="absolute bottom-0 left-0">
-            <button
-              type="button"
-              className="w-[8rem] h-[2.5rem] bg-[#D9923B] flex justify-center items-center rounded-[20px] text-sm"
-              onClick={handleClick}
-            >
-              Save
-            </button>
-          </div>
-          <div className="absolute bottom-0">
-            <button
-              type="button"
-              className="w-[8rem] h-[2.5rem] flex justify-center items-center border border-gray-500 rounded-[20px] text-sm"
-              onClick={handleClick}
-            >
-              Discard
-            </button>
-          </div>
+        <div className="w-full h-full flex flex-row p-[0.5rem] gap-[4rem] justify-end">
+          <button
+            type="button"
+            className="w-full h-[2.5rem] flex justify-center items-center border border-gray-500 rounded-[20px] text-sm"
+            onClick={handleClick}
+          >
+            Exit
+          </button>
         </div>
       </div>
     </div>
