@@ -32,8 +32,8 @@ export default function GameRules({setLoading, setrules}: any)  {
       />
     </svg>
   );
-  const cancelCallback = () => router.push("/game");
-  const btn1Callback = () => router.push("/game/friend");
+  const cancelCallback = () => router.push("/profile");
+  const btn1Callback = () => router.push("/profile");
   const modalContent = (
     <div className="flex flex-col justify-center content-center gap-8 md:gap-4 border-2 rounded-xl border-textSecondary text-small xl:text-body text-text m-5 p-5 h-5/6">
       <div className="flex content-center gap-5 justify-center">

@@ -11,7 +11,6 @@ import { useAuth } from "../../app/context/AuthContext";
 const canvasWidth = 1080;
 const canvasHeight = 720;
 
-const p = "PLAYING";
 // draw the table
 const drawTable = (
   context: any,
@@ -87,7 +86,6 @@ export default function InviteMatch({
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
-  // const {state:{user}} = useAuth();
   const {
     state: { user },
     changeStatus,
@@ -257,14 +255,12 @@ export default function InviteMatch({
           setOpponnetAvatr(data.opponentAvatar);
           setPlayerY(data.playerY);
           setOpenentY(data.opponentY);
-          changeStatus({ status: "PLAYING" });
           room = data.room;
         } else {
           setPlayerAvatar(data.opponentAvatar);
           setOpponnetAvatr(data.playerAvatr);
           setPlayerY(data.opponentY);
           setOpenentY(data.playerY);
-          changeStatus({ status: "PLAYING" });
           room = data.room;
         }
       });
@@ -279,29 +275,29 @@ export default function InviteMatch({
       });
       socket.on("CheckingWinner", (data: any) => {
         if (data.player === cookie.get("USER_ID") && data.playerScore === 3) {
-          router.push("/game/win");
           upadateTotalWinsAndLoses(data.player, data.opponent);
           changeStatus({ status: "ONLINE" });
-          // } if (
+          router.push("/game/win");
         }
         if (
           data.opponent === cookie.get("USER_ID") &&
           data.opponentScore === 3
         ) {
-          router.push("/game/win");
           upadateTotalWinsAndLoses(data.opponent, data.player);
           changeStatus({ status: "ONLINE" });
+          router.push("/game/win");
         }
         if (data.player === cookie.get("USER_ID") && data.playerScore < 3) {
+          changeStatus({ status: "ONLINE" });
           router.push("/game");
         }
         if (data.opponent === cookie.get("USER_ID") && data.opponentScore < 3) {
-          router.push("/game");
           changeStatus({ status: "ONLINE" });
+          router.push("/game");
         }
         if (data.opponent === cookie.get("USER_ID") && data.opponentScore < 3) {
-          router.push("/game");
           changeStatus({ status: "ONLINE" });
+          router.push("/game");
         }
       });
       socket.on("gameStartInvite", () => {
@@ -327,24 +323,20 @@ export default function InviteMatch({
           });
         }, 5000);
       });
-      socket.on("PlayerDisconnected", (data: any) => {
-        setIssue(true);
+      socket.on("NetworkIssue", (data: any) => {
+        if (data.player === cookie.get("USER_ID")) {
+          changeStatus({ status: "ONLINE" });
+          router.push("/game/issue");
+        } else if (data.opponent === cookie.get("USER_ID")) {
+          changeStatus({ status: "ONLINE" });
+          router.push("/game/decline");
+        }
         socket.off("BallMoved");
         socket.off("updateScore");
-        changeStatus({ status: "ONLINE" });
-      });
-      socket.on("OpponentDisconnected", (data: any) => {
-        setIssue(true);
-        socket.off("BallMoved");
-        socket.off("updateScore");
-        changeStatus({ status: "ONLINE" });
       });
       socket.on("SubmiteScore", (data: any) => {
         socket.emit("GameIsOver", { data });
       });
-      // socket.on("gameStartInvite", () => {
-      //   setLoading(false);
-      // });
     }
   }, [socket]);
 
