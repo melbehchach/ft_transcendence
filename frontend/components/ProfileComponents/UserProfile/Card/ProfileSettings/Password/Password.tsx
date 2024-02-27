@@ -16,6 +16,7 @@ function Password() {
   const [oldPass, setOldPass] = useState("");
   const [newPass, setNewPass] = useState("");
   const [odlPassCheck, setOldPassCheck] = useState(true);
+  const [goodReq, setGoodReq] = useState(false);
 
   async function updatePassword() {
     const jwt_token = Cookies.get("JWT_TOKEN");
@@ -35,9 +36,16 @@ function Password() {
           }
         );
         fetchData();
+        setGoodReq(true);
+        setTimeout(() => {
+          setGoodReq(false);
+        }, 2000);
       } else throw new Error("bad req");
     } catch (error) {
-      setOldPassCheck(false);
+      setTimeout(() => {
+        setOldPassCheck(false);
+      }, 2000);
+      setOldPassCheck(true);
     }
   }
 
@@ -103,13 +111,14 @@ function Password() {
   function handleKeyDown(event) {
     if (event.key === "Enter") {
       event.preventDefault();
-      if (oldPass != "" && newPass != "") {
+      if (oldPass != "" && passwdCheck.isValid === true) {
         updatePassword();
         setOldPass("");
         setNewPass("");
       }
     }
   }
+
   return (
     <div className="flex flex-col justify-strat  ">
       <form className="flex flex-col gap-[0.5rem] ">
@@ -144,14 +153,17 @@ function Password() {
           {passwdCheck.errorMessage}
         </span>
         <p className="text-xs font-light text-gray-500">
-          Press Enter to modifiy
+          Press Enter to save changes
         </p>
-        {!odlPassCheck ? (
+        {!odlPassCheck && (
           <div className="w-full h-[2rem] border border-red-700 rounded-[10px] text-sm text-red-700 font-light bg-background flex flex-col justify-center items-center">
-            Old Password incorrect
+            Something Wring
           </div>
-        ) : (
-          <></>
+        )}
+        {goodReq && (
+          <div className="w-full h-[2rem] border border-orange-300 rounded-[10px] text-sm text-grey-500 font-light bg-background flex flex-col justify-center items-center">
+            New Password Saved
+          </div>
         )}
       </form>
     </div>
