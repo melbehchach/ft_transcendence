@@ -22,23 +22,11 @@ function UserCard({ setBlocker, setBlocked, id }: props) {
 
   const param = useParams();
 
-  // const avatarObj: AvatarProps = {
-  //   src: profile?.avatar,
-  //   width: 100,
-  //   height: 100,
-  //   userName: profile?.username,
-  //   imageStyle: "w-[13rem] h-[13rem] rounded-full object-cover",
-  //   fontSize: "text-2xl font-bold",
-  //   positiosn: true,
-  //   existStatos: true,
-  //   statos: profile?.status,
-  // };
-
   useEffect(() => {
-    if (id) {
-      fetchData(id);
-    } else {
+    if (!id) {
       fetchData(param.id);
+    } else {
+      fetchData(id);
     }
   }, [id]);
 
@@ -47,10 +35,10 @@ function UserCard({ setBlocker, setBlocked, id }: props) {
       <div className="w-full flex justify-center items-center">
         <Avatar
           avatarObj={{
-            src: profile?.avatar,
+            src: profile.avatar,
             width: 100,
             height: 100,
-            userName: profile?.username,
+            userName: profile.username,
             imageStyle: "w-[13rem] h-[13rem] rounded-full object-cover",
             fontSize: "text-2xl font-bold",
             positiosn: true,
@@ -63,7 +51,7 @@ function UserCard({ setBlocker, setBlocked, id }: props) {
       <FriendshipState
         setBlocker={setBlocker}
         setBlocked={setBlocked}
-        id={param.id ? param.id : id ? id : undefined}
+        id={param.id ? param.id : id ? id : param.id}
       />
       <Scores />
       <Achievements />

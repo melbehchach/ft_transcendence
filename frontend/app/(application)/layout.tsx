@@ -4,9 +4,17 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import "swiper/css";
 import SideBar from "../../components/ProfileComponents/SideBar/SideBar";
-import { useSocket } from "../context/SocketContext";
+import SocketContextProvider, { useSocket } from "../context/SocketContext";
 import ChallengePopUp from "../../components/Game/ChallengePopUp";
 import ProtectedRoute from "../../components/ProtectedRoute";
+import ChatSocketContextProvider from "../context/ChatContext";
+
+
+const ChallengNotif = () => {
+  const { notifications, sender } = useSocket();
+  return <>  {notifications && <ChallengePopUp sender={sender} />}</>
+
+}
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState<string>("");
@@ -22,7 +30,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     state: { profile, user },
   } = useAuth();
 
-  const { notifications, sender } = useSocket();
 
   useEffect(() => {
     if (locations.includes(location.split("/")[1])) {
@@ -39,57 +46,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, []);
   return (
     <ProtectedRoute>
-      <div className="flex">
-        <div className="flex flex-col h-screen bg-background border-r border-black w-[14rem]">
-          <SideBar active={active} setSideBar={steOpen} />
-        </div>
-        {notifications && <ChallengePopUp sender={sender} />}
+      <ChatSocketContextProvider>
+        <SocketContextProvider>
+          <div className="flex">
+            <div className="flex flex-col h-screen bg-background border-r border-black w-[14rem]">
+              <SideBar active={active} setSideBar={steOpen} />
+            </div>
+            <ChallengNotif />
+            {profile && children}
+          </div></SocketContextProvider>
+      </ChatSocketContextProvider>
 
-        {profile && children}
-      </div>
     </ProtectedRoute>
   );
 }
 
-// export default function Layout({ children }: React.PropsWithChildren<{}>) {
-//   const [socket, setSocket] = useState<Socket | null>(null);
-//   const [sender, setSender] = useState<string>("");
-//   const [notifications, setNotifications] = useState<boolean>(false);
-//   const router = useRouter();
-//   useEffect(() => {
-//     const noticeSocket = io("http://localhost:3000/notifications", {
-//       auth: {
-//         token: cookie.get("USER_ID"),
-//       },
-//     });
-//     setSocket(noticeSocket);
-//     return () => {
-//       noticeSocket.disconnect();
-//     };
-//   }, []);
 
-//   useEffect(() => {
-//     if (socket) {
-//       socket.on("connect", () => {});
-//       socket.on("disconnect", () => {});
-//       socket.on("notification", (data: any) => {
-//         if (data.receiver === cookie.get("USER_ID")) {
-//           setNotifications(true);
-//           setSender(data.sender);
-//         }
-//       });
-//       socket.on("redirect", (data: any) => {
-//         router.push(data.url);
-//       });
-//     }
-//   }, [socket]);
-
-//   return (
-//     <div ">
-//       {/* <Navbar /> */}
-//       {/* {notifications ? <AcceptOrRefuse sender={sender} /> : null} */}
-//       <SideBar />
-//       {children}
-//     </div>
-//   );
-// }

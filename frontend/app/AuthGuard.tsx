@@ -15,7 +15,6 @@ const withAuth = (WrappedComponent: React.ComponentType<any>) => {
       state: { isAuthenticated },
       fetchData,
     } = useAuth();
-    const { getAllChats } = useChat();
     useEffect(() => {
       const jwt_token = Cookies.get("JWT_TOKEN");
       // Redirect to login page if user is not authenticated
@@ -23,12 +22,10 @@ const withAuth = (WrappedComponent: React.ComponentType<any>) => {
         fetchData().then(() => {
           fetchFriendsReqData().then(() => {
             fetchFriendsData().then(() => {
-              getAllChats().then(() => {
-                if (window.location.pathname === "/profile")
-                  router.push("/profile");
-                if (window.location.pathname === "/game") router.push("/game");
-                if (window.location.pathname === "/chat") router.push("/chat");
-              });
+              if (window.location.pathname === "/profile")
+              router.push("/profile");
+            if (window.location.pathname === "/game") router.push("/game");
+            if (window.location.pathname === "/chat") router.push("/chat");
             });
           });
         });

@@ -96,7 +96,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(authReducer, initialeState);
   const jwt_token = Cookies.get("JWT_TOKEN");
 
-  async function fetchData(id: string, isFriendReq?: boolean) {
+  async function fetchData(id?: string, isFriendReq?: boolean) {
     try {
       if (jwt_token) {
         let url: string = !id
@@ -260,6 +260,8 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     });
     if (response.ok) {
       const res = await response.json();
+      const r = await fetchData()
+      await Promise.all([res, r])
       if (res.TFA) {
         dispatch({ type: actionTypes.TFA, payload: { tfa: res.TFA } });
       } else {
