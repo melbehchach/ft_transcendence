@@ -20,6 +20,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
 
   const {
     fetchData,
+    fetchAchievements,
     state: {
       user: { avatar },
     },
@@ -83,10 +84,13 @@ function ProfileSettings({ openSettings }: settingsProps) {
             withCredentials: true,
           }
         );
+        fetchAchievements();
         if (response.data.enabled === false) {
           setCodeChecker(false);
           setTfaCheck(false);
-        } else setTfaCheck(true);
+        } else {
+          setTfaCheck(true);
+        }
       } else throw new Error("bad req");
     } catch (error) {}
   }
@@ -105,6 +109,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
             withCredentials: true,
           }
         );
+        fetchAchievements();
         setTfaCheck(false);
         setCodeChecker(true);
         goolgleTFA();
@@ -148,12 +153,15 @@ function ProfileSettings({ openSettings }: settingsProps) {
     if (event.key === "Enter") {
       event.preventDefault();
       sendCode();
+      fetchAchievements();
       setTimeout(() => {}, 300);
       setCode("");
     }
   }
 
   function handleClickRemove() {
+    fetchAchievements();
+    setTimeout(() => {}, 300);
     remove2FA();
   }
 
