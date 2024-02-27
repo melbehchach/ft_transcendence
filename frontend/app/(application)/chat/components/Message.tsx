@@ -8,7 +8,7 @@ function getTimeDifferenceFromNow(apiTime) {
   const apiDate = new Date(apiTime);
 
   const currentDate = new Date();
-
+  // @ts-ignore
   const timeDifference = currentDate - apiDate;
 
   const secondsDifference = Math.floor(timeDifference / 1000);

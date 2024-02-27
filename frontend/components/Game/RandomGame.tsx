@@ -278,7 +278,6 @@ export default function RandomMatch({
           data.opponentScore === 3
         ) {
           upadateTotalWinsAndLoses(data.opponent, data.player);
-          changeStatus({ status: "ONLINE" });
           router.push("/game/win");
         }
         if (data.player === cookie.get("USER_ID") && data.playerScore < 3) {
@@ -316,14 +315,12 @@ export default function RandomMatch({
         setIssue(true);
         socket.off("BallMoved");
         socket.off("updateScore");
-        changeStatus({ status: "ONLINE" });
       });
       socket.on("OpponentDisconnected", (data: any) => {
         console.log("bye");
         setIssue(true);
         socket.off("BallMoved");
         socket.off("updateScore");
-        changeStatus({ status: "ONLINE" });
       });
       socket.on("SubmiteScore", (data: any) => {
         socket.emit("GameIsOver", { data });

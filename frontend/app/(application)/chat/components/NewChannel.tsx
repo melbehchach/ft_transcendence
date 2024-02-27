@@ -107,9 +107,11 @@ const NewChannel = ({
     }
   };
   function openModel() {
+    // @ts-ignore
     modalRef?.current?.showModal();
   }
   function closeModal() {
+    // @ts-ignore
     modalRef?.current.close();
   }
 

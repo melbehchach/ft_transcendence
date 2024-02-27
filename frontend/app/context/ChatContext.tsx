@@ -61,6 +61,7 @@ const ChatSocketContextProvider = ({ children }) => {
           });
         }
       });
+      // @ts-ignore
       members = [...new Set(members)];
       let membersData = [...state.members];
       members.forEach(async (element) => {

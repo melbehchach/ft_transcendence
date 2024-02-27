@@ -43,6 +43,7 @@ function ProfileRecentGames({ player }: Props) {
             withCredentials: true,
           }
         );
+        // @ts-ignore
         setAvatarObj2({
           src: response.data.avatar,
           width: 100,

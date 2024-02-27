@@ -13,3 +13,4 @@ RUN npm install -g npm@latest
 RUN npm i -f
 
 CMD ["npm", "run", "dev", "--", "-p", "3001"]
+#CMD ["npm", "run", "build"]
