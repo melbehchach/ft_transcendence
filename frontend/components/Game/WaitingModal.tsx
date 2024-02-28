@@ -3,28 +3,22 @@ import PongAnimation from "../../public/img/PongAnimation.json";
 import { useRouter } from "next/navigation";
 import Lottie from "lottie-react";
 import GameModalComponent from "./Modal";
-import io from 'socket.io-client';
+import io from "socket.io-client";
+import { useEffect } from "react";
 
-import {useState} from 'react'
+const socket = io("http://localhost:3000/game");
 
-const socket = io('http://localhost:3000/game')
-const WaitaingModal = ({loading} : any) => {
+const WaitaingModal = ({ loading }: any) => {
   const router = useRouter();
-  // const [socket, setSocket] = useState<Socket>();
-
-  if (! loading) return
+  if (!loading) return;
   const cancelCallback = () => router.push("/game");
-  const btn1Callback = () => {
-    socket.emit('leaveBeforeStart')
-    console.log('one player leave the room before start the game : [[[[22222]]]]]');
-    
-    router.push("/game");
-  }
+  const btn1Callback = () => router.push("/game");
   const content = (
     <div className="h-3/4 flex justify-center content-center bg-black rounded-xl my-6">
       <Lottie className="mb-5 rounded-lg" animationData={PongAnimation} />
     </div>
   );
+
   return (
     <>
       <GameModalComponent

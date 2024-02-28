@@ -41,14 +41,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('leaveBeforeStart')
-  handleleaveBeforeStart(socket :Socket, data: any)
+  @SubscribeMessage('leaveTheRandomGame')
+  handelLeaveTheRandomGame(socket :Socket, data : any)
   {
-    console.log('one player leave the room before start the game : [[[[1111]]]]]');
-    console.log('th queue in the game ', this.gameQueue);
+    console.log('the client leave the game before it start', socket.id);
     this.gameQueue.shift();
-    this.gameQueue.shift();
-    console.log('th queue in the game ', this.gameQueue);
   }
 
   @SubscribeMessage('InviteFriend')
