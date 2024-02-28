@@ -80,7 +80,7 @@ const ChatSocketContextProvider = ({ children }) => {
       membersData = await Promise.all(membersData);
       dispatch({ type: actionTypes.UPDATE_MEMBERS, payload: membersData });
     } catch (error) {
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
 
@@ -98,7 +98,7 @@ const ChatSocketContextProvider = ({ children }) => {
         return dms;
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
 
@@ -116,7 +116,7 @@ const ChatSocketContextProvider = ({ children }) => {
         return channels;
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
 
@@ -134,7 +134,7 @@ const ChatSocketContextProvider = ({ children }) => {
         return channels;
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
   async function getChannelByID(channelID: string) {
@@ -151,7 +151,7 @@ const ChatSocketContextProvider = ({ children }) => {
         return channels;
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
 
@@ -180,7 +180,7 @@ const ChatSocketContextProvider = ({ children }) => {
         return response.data.id;
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
   async function updateChannelAvatar(id, avatarFile) {
@@ -260,7 +260,7 @@ const ChatSocketContextProvider = ({ children }) => {
       } else throw new Error("bad req");
     } catch (error) {
       alert(error.response.data.message);
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
 
@@ -282,7 +282,7 @@ const ChatSocketContextProvider = ({ children }) => {
         await getAllChats();
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
   async function sendMessage(
@@ -314,7 +314,7 @@ const ChatSocketContextProvider = ({ children }) => {
         getAllChats();
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
 
@@ -337,7 +337,7 @@ const ChatSocketContextProvider = ({ children }) => {
         await getAllChats();
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
 
@@ -359,7 +359,7 @@ const ChatSocketContextProvider = ({ children }) => {
         await getAllChats();
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
 
@@ -381,7 +381,7 @@ const ChatSocketContextProvider = ({ children }) => {
         await getAllChats();
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
 
@@ -403,7 +403,7 @@ const ChatSocketContextProvider = ({ children }) => {
         await getAllChats();
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
   async function addMembers(channelId: string, members: string[]) {
@@ -450,7 +450,7 @@ const ChatSocketContextProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    fetchFriendsData()
+    fetchFriendsData();
     const newSocket: Socket = io("http://localhost:3000/direct-messages", {
       auth: {
         jwt_token: Cookies.get("JWT_TOKEN"),
@@ -471,8 +471,6 @@ const ChatSocketContextProvider = ({ children }) => {
       newSocketChannels.disconnect();
     };
   }, []);
-
-
 
   useEffect(() => {
     if (socket) {

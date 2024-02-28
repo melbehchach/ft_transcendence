@@ -274,7 +274,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error();
       }
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     }
   }
 
@@ -308,10 +308,10 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       await axios
         .post(`http://localhost:3000/game/accept/${Cookies.get("USER_ID")}`)
         .then((res) => {
-          console.log(res);
+          // console.log(res);
         })
         .catch((err) => {
-          console.log(err);
+          // console.log(err);
         });
     }
   };
@@ -321,10 +321,10 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       await axios
         .post(`http://localhost:3000/game/refuse/${Cookies.get("USER_ID")}`)
         .then((res) => {
-          console.log(res);
+          // console.log(res);
         })
         .catch((err) => {
-          console.log(err);
+          // console.log(err);
         });
     }
   };
@@ -347,7 +347,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         )
         .then((res) => {})
         .catch((error) => {
-          console.log(error.response.data);
+          // console.log(error.response.data);
         });
     }
   };

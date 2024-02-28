@@ -39,7 +39,7 @@ async function finishSignup(
       return;
     }
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     alert(`finish_signup failed: ${error.message}`);
     return;
   }
@@ -57,7 +57,7 @@ async function finishSignup(
       }
     }
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     alert(`uploadAvatar failed: ${error.message}`);
     return;
   }

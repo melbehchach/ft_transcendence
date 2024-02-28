@@ -72,7 +72,7 @@ function Username() {
           </div>
         )}
         {goodReq && (
-          <div className="w-full h-[2rem] border border-orange-300 rounded-[10px] text-sm text-grey-500 font-light bg-background  items-center">
+          <div className="w-full h-[2rem] border border-orange-300 rounded-[10px] text-sm text-grey-500 font-light bg-background flex flex-col justify-center items-center">
             Name Saved well
           </div>
         )}

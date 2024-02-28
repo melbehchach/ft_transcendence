@@ -84,7 +84,10 @@ export default function RandomMatch({
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
-  const { state: { user }, changeStatus} = useAuth();
+  const {
+    state: { user },
+    changeStatus,
+  } = useAuth();
   const router = useRouter();
   const upadateTotalWinsAndLoses = async (
     winnerId: string,
@@ -107,7 +110,7 @@ export default function RandomMatch({
       )
       .then((res) => {})
       .catch((error) => {
-        console.log("ending game error");
+        // console.log("ending game error");
       });
   };
   // console.log("loading", loading);
@@ -344,5 +347,3 @@ export default function RandomMatch({
     </div>
   );
 }
-
-

@@ -7,47 +7,54 @@ import Cookies from "js-cookie";
 import { useSocket } from "../../app/context/SocketContext";
 import { useAuth } from "../../app/context/AuthContext";
 
-
 export default function ChallengePopUp({ sender }: any) {
-  const { setNotifications} = useSocket();
+  const { setNotifications } = useSocket();
 
   const handleAccept = () => {
     try {
-     const res =  axios.post(`http://localhost:3000/game/accept/${Cookies.get("USER_ID")}`, {
-        id: sender.senderId,
-      }, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
+      const res = axios.post(
+        `http://localhost:3000/game/accept/${Cookies.get("USER_ID")}`,
+        {
+          id: sender.senderId,
         },
-      });
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
       if (res) {
         setNotifications(false);
       }
     } catch (error) {
-      console.log(error.response.data);
+      // console.log(error.response.data);
     }
   };
 
   const handleRefuse = () => {
     try {
-     const res = axios.post(`http://localhost:3000/game/refuse/${Cookies.get("USER_ID")}`, {
-        id: sender.senderId,
-      }, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
+      const res = axios.post(
+        `http://localhost:3000/game/refuse/${Cookies.get("USER_ID")}`,
+        {
+          id: sender.senderId,
         },
-      });
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
       if (res) {
         setNotifications(false);
       }
     } catch (error) {
-      console.log(error.response.data);
+      // console.log(error.response.data);
     }
-  }
+  };
   const router = useRouter();
   const content = (
     <div className="h-3/4 flex justify-center content-center bg-black rounded-xl my-6">

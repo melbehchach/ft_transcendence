@@ -44,7 +44,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('leaveTheRandomGame')
   handelLeaveTheRandomGame(socket :Socket, data : any)
   {
-    console.log('the client leave the game before it start', socket.id);
+    // console.log('the client leave the game before it start', socket.id);
     this.gameQueue.shift();
   }
 
@@ -355,11 +355,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       )
         room.ball.velocityY = -room.ball.velocityY;
       if (room.ball.x - room.ball.radius < 0) {
-        console.log('oppe score', room.player2Obj.score);
+        // console.log('oppe score', room.player2Obj.score);
         room.player2Obj.score++;
         this.resetBall(currentGameRoom);
       } else if (room.ball.x + room.ball.radius > this.canvasWidth) {
-        console.log('player score', room.player2Obj.score);
+        // console.log('player score', room.player2Obj.score);
         room.player1Obj.score++;
         this.resetBall(currentGameRoom);
       }
