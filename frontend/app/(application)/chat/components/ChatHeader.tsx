@@ -20,13 +20,13 @@ const ChatHeader = ({ headerInfo, chat }) => {
     newChannelReducer,
     chat?.name
       ? {
-          avatar: chat.image,
-          channelName: chat.name,
+          avatar: chat.image ? chat.image : "",
+          channelName: chat.name ? chat.name : "",
           type: chat.type === "PUBLIC" ? 0 : chat.type === "PROTECTED" ? 1 : 2,
           members: chat.Members.filter((elem) => elem.id !== user.id).map(
             (elem) => elem.id
           ),
-          password: chat?.password,
+          password: "",
         }
       : null
   );
@@ -48,6 +48,7 @@ const ChatHeader = ({ headerInfo, chat }) => {
   }
   useEffect(() => {
     if (chat?.name) fetchChannelData();
+    else setChannel(null);
   }, [chat, allChats]);
 
   useEffect(() => {
@@ -68,7 +69,7 @@ const ChatHeader = ({ headerInfo, chat }) => {
             members: channel.Members.filter((elem) => elem.id !== user.id).map(
               (elem) => elem.id
             ),
-            password: c?.password,
+            password: "",
           },
         });
       }
@@ -180,7 +181,13 @@ const ChatHeader = ({ headerInfo, chat }) => {
               title="Talk to someone or start a new channel"
               actions={NewChannelActions}
             >
-              <NewChannel dispatch={dispatch} state={state} channel={channel} />
+              {state && (
+                <NewChannel
+                  dispatch={dispatch}
+                  state={state}
+                  channel={channel}
+                />
+              )}
             </Modal>
           </div>
         )}
