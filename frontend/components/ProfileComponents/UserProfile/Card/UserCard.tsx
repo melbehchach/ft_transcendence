@@ -58,7 +58,7 @@ function UserCard({ setBlocker, setBlocked, id }: props) {
       <FriendshipState
         setBlocker={setBlocker}
         setBlocked={setBlocked}
-        id={idShot}
+        id={idShot()}
       />
       <Scores />
       <Achievements />

@@ -22,12 +22,14 @@ function UserPage() {
   const {
     fetchData,
     fetchRecentGames,
+    fetchAchievements,
     state: { profile, user, recentGames },
   } = useAuth();
 
   useEffect(() => {
-    fetchRecentGames(param.id)
     fetchData(param.id);
+    fetchRecentGames(param.id);
+    fetchAchievements(param.id);
     if (user.blockedByUsers.find((elem) => elem.id === profile.id)) {
       setBlocked(true);
     }

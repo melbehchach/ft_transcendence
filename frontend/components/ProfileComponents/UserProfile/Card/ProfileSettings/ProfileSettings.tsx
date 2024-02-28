@@ -20,6 +20,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
 
   const {
     fetchData,
+    fetchAchievements,
     state: {
       user: { avatar },
     },
@@ -86,7 +87,9 @@ function ProfileSettings({ openSettings }: settingsProps) {
         if (response.data.enabled === false) {
           setCodeChecker(false);
           setTfaCheck(false);
-        } else setTfaCheck(true);
+        } else {
+          setTfaCheck(true);
+        }
       } else throw new Error("bad req");
     } catch (error) {}
   }
@@ -154,6 +157,7 @@ function ProfileSettings({ openSettings }: settingsProps) {
   }
 
   function handleClickRemove() {
+    setTimeout(() => {}, 300);
     remove2FA();
   }
 

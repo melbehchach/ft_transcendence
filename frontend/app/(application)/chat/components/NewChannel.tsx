@@ -23,7 +23,7 @@ const NewChannelRow = ({
   alignStart,
 }: {
   label: string;
-  children: JSX.Element;
+  children: any;
   alignStart?: boolean;
 }) => {
   return (
@@ -255,19 +255,21 @@ const NewChannel = ({
       </NewChannelRow>
       <NewChannelRow label="Channel Password">
         <div className="flex flex-col gap-2 grow">
-          <input
-            onChange={(e) => {
-              handleInputChange(e, "password");
-            }}
-            disabled={state.type !== 1}
-            value={state.password}
-            type="password"
-            className="w-full border px-6 py-2 bg-transparent text-white rounded-md"
-            placeholder="Only if the channel is protected"
-          />
-          {inputErrors.password && state.type === 1 && (
-            <span className="text-red-500">{inputErrors.password}</span>
-          )}
+          <>
+            <input
+              onChange={(e) => {
+                handleInputChange(e, "password");
+              }}
+              disabled={state.type !== 1}
+              value={state.password}
+              type="password"
+              className="w-full border px-6 py-2 bg-transparent text-white rounded-md"
+              placeholder="Only if the channel is protected"
+            />
+            {inputErrors.password && state.type === 1 && (
+              <span className="text-red-500">{inputErrors.password}</span>
+            )}
+          </>
         </div>
       </NewChannelRow>
       <NewChannelRow label="Channel Members">

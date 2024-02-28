@@ -8,6 +8,7 @@ import SocketContextProvider, { useSocket } from "../context/SocketContext";
 import ChallengePopUp from "../../components/Game/ChallengePopUp";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import ChatSocketContextProvider from "../context/ChatContext";
+import {io} from 'socket.io-client'
 
 
 const ChallengNotif = () => {
@@ -16,9 +17,12 @@ const ChallengNotif = () => {
 
 }
 
+const socket = io('http://localhost:3000/game')
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState<string>("");
   const [open, steOpen] = useState<boolean>(true);
+
   const location = usePathname();
   const locations = ["profile", "chat", "game"];
   const {
@@ -40,10 +44,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [location]);
 
   useEffect(() => {
+    
+    return (() => {
+      console.log('[[[[000000000]]]]the emit of the refresh in the layout');
+      socket.emit('leaveBeforeStart')
+    })  
+  })
+
+  useEffect(() => {
     fetchData();
     fetchFriendsReqData();
     fetchFriendsData();
   }, []);
+
   return (
     <ProtectedRoute>
       <ChatSocketContextProvider>

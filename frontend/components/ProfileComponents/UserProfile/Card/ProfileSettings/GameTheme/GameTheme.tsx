@@ -43,7 +43,7 @@ function GameTheme() {
           className={theme === "Retro" ? "border-4 border-orange-300" : ""}
           onClick={() => {
             setTheme("Retro");
-            handleClick(theme);
+            handleClick("Retro");
           }}
         >
           <DarkTheme />
@@ -52,7 +52,7 @@ function GameTheme() {
           className={theme === "Blue" ? "border-4 border-orange-300" : ""}
           onClick={() => {
             setTheme("Blue");
-            handleClick(theme);
+            handleClick("Blue");
           }}
         >
           <LightTheme />
@@ -61,7 +61,7 @@ function GameTheme() {
           className={theme === "Gray" ? "border-4 border-orange-300" : ""}
           onClick={() => {
             setTheme("Gray");
-            handleClick(theme);
+            handleClick("Gray");
           }}
         >
           <GrayTheme />
