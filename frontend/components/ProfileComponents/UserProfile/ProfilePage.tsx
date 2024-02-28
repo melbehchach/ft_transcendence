@@ -28,7 +28,7 @@ function reducer(state, action) {
 
 function ProfilePage() {
   const {
-    fetchFriendsData,
+    fetchAchievements,
     fetchRecentGames,
     state: { friendRequests, friends, recentGames, user },
   } = useAuth();
@@ -49,6 +49,7 @@ function ProfilePage() {
 
   useEffect(() => {
     fetchRecentGames(user.id);
+    fetchAchievements(user.id);
   }, []);
 
   return (

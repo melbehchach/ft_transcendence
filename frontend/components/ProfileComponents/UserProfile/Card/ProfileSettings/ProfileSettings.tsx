@@ -84,7 +84,6 @@ function ProfileSettings({ openSettings }: settingsProps) {
             withCredentials: true,
           }
         );
-        fetchAchievements();
         if (response.data.enabled === false) {
           setCodeChecker(false);
           setTfaCheck(false);
@@ -109,7 +108,6 @@ function ProfileSettings({ openSettings }: settingsProps) {
             withCredentials: true,
           }
         );
-        fetchAchievements();
         setTfaCheck(false);
         setCodeChecker(true);
         goolgleTFA();
@@ -153,14 +151,12 @@ function ProfileSettings({ openSettings }: settingsProps) {
     if (event.key === "Enter") {
       event.preventDefault();
       sendCode();
-      fetchAchievements();
       setTimeout(() => {}, 300);
       setCode("");
     }
   }
 
   function handleClickRemove() {
-    fetchAchievements();
     setTimeout(() => {}, 300);
     remove2FA();
   }
