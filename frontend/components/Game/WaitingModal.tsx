@@ -11,8 +11,14 @@ const socket = io("http://localhost:3000/game");
 const WaitaingModal = ({ loading }: any) => {
   const router = useRouter();
   if (!loading) return;
-  const cancelCallback = () => router.push("/game");
-  const btn1Callback = () => router.push("/game");
+  const cancelCallback = () => {
+    socket.emit('leaveTheRandomGame');  
+    router.push("/game")
+  };
+  const btn1Callback = () => {
+    socket.emit('leaveTheRandomGame');  
+    router.push("/game")
+  };
   const content = (
     <div className="h-3/4 flex justify-center content-center bg-black rounded-xl my-6">
       <Lottie className="mb-5 rounded-lg" animationData={PongAnimation} />
