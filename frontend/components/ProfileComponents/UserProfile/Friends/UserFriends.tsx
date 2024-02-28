@@ -5,7 +5,7 @@ import MessageFriend from "../Card/Infos/UserInfos/Message/MessageFriend";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../../app/context/AuthContext";
 import AddFriend from "../Card/Infos/UserInfos/AddFriend/AddFriend";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 type props = {
   item: any;
@@ -14,12 +14,11 @@ type props = {
 const UserFriends = ({ item }: props) => {
   const {
     fetchFriendsData,
-    state: { friends },
+    fetchData,
+    state: { friends, loading },
   } = useAuth();
 
   const router = useRouter();
-
-  // const [id, setId] = useState("");
 
   const avatarObj: AvatarProps = {
     src: item.avatar,
@@ -29,7 +28,7 @@ const UserFriends = ({ item }: props) => {
     imageStyle: "rounded-t-[15px] w-[15.9rem] h-[11rem] object-cover",
     fontSize: "text-base text-white",
     positiosn: true,
-    existStatos: false
+    existStatos: false,
   };
 
   function handleClick() {
@@ -37,8 +36,13 @@ const UserFriends = ({ item }: props) => {
   }
 
   useEffect(() => {
+    fetchData(item.data);
     fetchFriendsData();
-  }, [])
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>; // Or any loading indicator you prefer
+  }
 
   return (
     <div className="w-[16rem] h-full flex flex-col gap-3 border border-black border-solid border-b-1 rounded-[15px]">
@@ -49,7 +53,7 @@ const UserFriends = ({ item }: props) => {
         <Avatar avatarObj={avatarObj} />
       </div>
       <div className="w-full h-full flex flex-col items-center gap-3 p-[0.5rem]">
-        <ChallengeFriend isFriendCard={true} id={item.id}/>
+        <ChallengeFriend isFriendCard={true} id={item.id} />
         <MessageFriend isFriendCard={true} />
       </div>
     </div>

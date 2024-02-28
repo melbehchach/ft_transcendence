@@ -18,10 +18,10 @@ const RandomMatchPage = () => {
     <>
       <div className="pl-[10%] bg-background h-screen w-screen justify-center ">
         <WaitaingModal loading={loading} />
-        {rules ? (
-          <GameRules setLoading={setLoading} setrules={setrules} />
-        ) : null}
         {issue ? <DeclineModal /> : null}
+        {rules ? (
+          <GameRules setLoading={setLoading} setrules={setrules} loading={loading} />
+        ) : null}
         <ScoreBoard
           playerScore={Playerscore}
           opponentScore={OpponentScore}
@@ -37,6 +37,7 @@ const RandomMatchPage = () => {
           setLoading={setLoading}
           setIssue={setIssue}
           issue={issue}
+          loading={loading}
         />
       </div>
     </>

@@ -5,6 +5,7 @@ import AuthContextProvider from "./context/AuthContext";
 import ChatSocketContextProvider from "./context/ChatContext";
 import SocketContextProvider from "./context/SocketContext";
 import "./globals.css";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,9 +22,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthContextProvider>
-          <ChatSocketContextProvider>
-            <SocketContextProvider>{children}</SocketContextProvider>
-          </ChatSocketContextProvider>
+          {children}
+          {/* <ChatSocketContextProvider>
+              <SocketContextProvider>{children}</SocketContextProvider>
+            </ChatSocketContextProvider> */}
         </AuthContextProvider>
       </body>
     </html>

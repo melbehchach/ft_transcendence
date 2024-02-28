@@ -41,7 +41,7 @@ function ProfileCard({ setting, setSetting }: props) {
         <SettingIcon />
       </button>
       {!setting ? (
-        <div className="flex h-full flex-col gap-[1rem]  overflow-hidden">
+        <div className="flex h-full flex-col gap-[1rem] ">
           <div className="w-full flex justify-center items-center">
             <Avatar avatarObj={avatarObj} />
           </div>

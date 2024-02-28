@@ -1,16 +1,28 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {  usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import "swiper/css";
 import SideBar from "../../components/ProfileComponents/SideBar/SideBar";
-import { useSocket } from "../context/SocketContext";
+import SocketContextProvider, { useSocket } from "../context/SocketContext";
 import ChallengePopUp from "../../components/Game/ChallengePopUp";
 import ProtectedRoute from "../../components/ProtectedRoute";
+import ChatSocketContextProvider from "../context/ChatContext";
+import {io} from 'socket.io-client'
+
+
+const ChallengNotif = () => {
+  const { notifications, sender } = useSocket();
+  return <>  {notifications && <ChallengePopUp sender={sender} />}</>
+
+}
+
+const socket = io('http://localhost:3000/game')
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState<string>("");
   const [open, steOpen] = useState<boolean>(true);
+
   const location = usePathname();
   const locations = ["profile", "chat", "game"];
   const {
@@ -22,8 +34,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     state: { profile, user },
   } = useAuth();
 
-  const { notifications, sender } = useSocket();
-
 
   useEffect(() => {
     if (locations.includes(location.split("/")[1])) {
@@ -34,65 +44,34 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [location]);
 
   useEffect(() => {
+    
+    return (() => {
+      console.log('[[[[000000000]]]]the emit of the refresh in the layout');
+      socket.emit('leaveBeforeStart')
+    })  
+  })
+
+  useEffect(() => {
     fetchData();
-    // fetchRecentGames(user?.id);
     fetchFriendsReqData();
     fetchFriendsData();
-    // fetchNotifications();
   }, []);
+
   return (
     <ProtectedRoute>
-      <div className="flex">
-        <div className="flex flex-col h-screen bg-background border-r border-black w-[14rem]">
-          <SideBar active={active} setSideBar={steOpen} />
-        </div>
-        {notifications && <ChallengePopUp sender={sender} />}
+      <ChatSocketContextProvider>
+        <SocketContextProvider>
+          <div className="flex">
+            <div className="flex flex-col h-screen bg-background border-r border-black w-[14rem]">
+              <SideBar active={active} setSideBar={steOpen} />
+            </div>
+            <ChallengNotif />
+            {profile && children}
+          </div></SocketContextProvider>
+      </ChatSocketContextProvider>
 
-        {profile && children}
-      </div>
     </ProtectedRoute>
   );
 }
 
-// export default function Layout({ children }: React.PropsWithChildren<{}>) {
-//   const [socket, setSocket] = useState<Socket | null>(null);
-//   const [sender, setSender] = useState<string>("");
-//   const [notifications, setNotifications] = useState<boolean>(false);
-//   const router = useRouter();
-//   useEffect(() => {
-//     const noticeSocket = io("http://localhost:3000/notifications", {
-//       auth: {
-//         token: cookie.get("USER_ID"),
-//       },
-//     });
-//     setSocket(noticeSocket);
-//     return () => {
-//       noticeSocket.disconnect();
-//     };
-//   }, []);
 
-//   useEffect(() => {
-//     if (socket) {
-//       socket.on("connect", () => {});
-//       socket.on("disconnect", () => {});
-//       socket.on("notification", (data: any) => {
-//         if (data.receiver === cookie.get("USER_ID")) {
-//           setNotifications(true);
-//           setSender(data.sender);
-//         }
-//       });
-//       socket.on("redirect", (data: any) => {
-//         router.push(data.url);
-//       });
-//     }
-//   }, [socket]);
-
-//   return (
-//     <div ">
-//       {/* <Navbar /> */}
-//       {/* {notifications ? <AcceptOrRefuse sender={sender} /> : null} */}
-//       <SideBar />
-//       {children}
-//     </div>
-//   );
-// }

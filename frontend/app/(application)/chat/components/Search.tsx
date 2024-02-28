@@ -9,6 +9,7 @@ import Button from "./Button";
 const Search = () => {
   const modalRef = useRef();
   function openModel() {
+    // @ts-ignore
     modalRef?.current?.showModal();
   }
   return (
@@ -29,47 +30,49 @@ const Search = () => {
         /> */}
       </div>
       <Modal title="Search" forwardedRef={modalRef} bordered={false}>
-        <div className="flex flex-col gap-4">
-          <input
-            className="w-full border px-6 py-2 bg-transparent mt-4 text-white rounded-md"
-            placeholder="Search..."
-          />
-          <div role="tablist" className="tabs tabs-bordered">
-            <a role="tab" className="tab tab-active">
-              All
-            </a>
-            <a role="tab" className="tab">
-              Users
-            </a>
-            <a role="tab" className="tab">
-              Channels
-            </a>
+        <>
+          <div className="flex flex-col gap-4">
+            <input
+              className="w-full border px-6 py-2 bg-transparent mt-4 text-white rounded-md"
+              placeholder="Search..."
+            />
+            <div role="tablist" className="tabs tabs-bordered">
+              <a role="tab" className="tab tab-active">
+                All
+              </a>
+              <a role="tab" className="tab">
+                Users
+              </a>
+              <a role="tab" className="tab">
+                Channels
+              </a>
+            </div>
           </div>
-        </div>
-        <div className="flex justify-between">
-          <div className="w-max-content">
-            <UserAvatar />
+          <div className="flex justify-between">
+            <div className="w-max-content">
+              <UserAvatar />
+            </div>
+            <Button content="See Profile" type="primary" />
           </div>
-          <Button content="See Profile" type="primary" />
-        </div>
-        <div className="flex justify-between">
-          <div className="w-max-content">
-            <UserAvatar />
+          <div className="flex justify-between">
+            <div className="w-max-content">
+              <UserAvatar />
+            </div>
+            <Button content="Go To Channel" type="primary" />
           </div>
-          <Button content="Go To Channel" type="primary" />
-        </div>
-        <div className="flex justify-between">
-          <div className="w-max-content">
-            <UserAvatar />
+          <div className="flex justify-between">
+            <div className="w-max-content">
+              <UserAvatar />
+            </div>
+            <Button icon={faPlus} content="Add Friend" type="secondary" />
           </div>
-          <Button icon={faPlus} content="Add Friend" type="secondary" />
-        </div>
-        <div className="flex justify-between">
-          <div className="w-max-content">
-            <UserAvatar />
+          <div className="flex justify-between">
+            <div className="w-max-content">
+              <UserAvatar />
+            </div>
+            <Button icon={faPlus} content="Join Channel" type="secondary" />
           </div>
-          <Button icon={faPlus} content="Join Channel" type="secondary" />
-        </div>
+        </>
       </Modal>
       {/* <div></div> */}
     </>

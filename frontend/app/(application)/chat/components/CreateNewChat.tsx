@@ -29,7 +29,7 @@ export const newChannelActionTypes = {
 
 export const newChannelReducer = (state, action) => {
   switch (action.type) {
-    case newChannelActionTypes.CHANNEL_NAME: 
+    case newChannelActionTypes.CHANNEL_NAME:
       return { ...state, channelName: action.payload };
     case newChannelActionTypes.CHANNEL_AVATAR:
       return { ...state, avatar: action.payload };
@@ -58,9 +58,11 @@ const CreateNewChat = ({ setSelectedChat }) => {
   const modalRef = useRef();
   const [state, dispatch] = useReducer(newChannelReducer, initialeState);
   function openModel() {
+    // @ts-ignore
     modalRef?.current?.showModal();
   }
   function closeModal() {
+    // @ts-ignore
     modalRef?.current.close();
   }
   const {

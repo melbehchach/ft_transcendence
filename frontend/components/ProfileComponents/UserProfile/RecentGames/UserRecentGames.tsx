@@ -43,6 +43,7 @@ function ProfileRecentGames({ player }: Props) {
             withCredentials: true,
           }
         );
+        // @ts-ignore
         setAvatarObj2({
           src: response.data.avatar,
           width: 100,
@@ -63,7 +64,7 @@ function ProfileRecentGames({ player }: Props) {
   };
 
   useEffect(() => {
-    if (profile.id === player.opponentId) {
+    if (param.id === player.opponentId) {
       fetchOpponentData(player.playerId);
     } else {
       fetchOpponentData(player.opponentId);
@@ -78,6 +79,7 @@ function ProfileRecentGames({ player }: Props) {
     imageStyle: "w-[4rem] h-[4rem] rounded-full object-cover",
     fontSize: "text-sm",
     positiosn: true,
+    existStatos: false,
   };
 
   return (

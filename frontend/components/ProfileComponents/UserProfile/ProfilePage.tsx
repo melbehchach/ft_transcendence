@@ -27,9 +27,8 @@ function reducer(state, action) {
 }
 
 function ProfilePage() {
-  const [dataLoaded, setDataLoaded] = useState(false);
   const {
-    fetchData,
+    fetchAchievements,
     fetchRecentGames,
     state: { friendRequests, friends, recentGames, user },
   } = useAuth();
@@ -40,6 +39,7 @@ function ProfilePage() {
   });
 
   function handleFriendsClick() {
+    // fetchFriendsData();
     dispatch({ type: "oldFriends" });
   }
   function handleFriendsrR() {
@@ -49,6 +49,7 @@ function ProfilePage() {
 
   useEffect(() => {
     fetchRecentGames(user.id);
+    fetchAchievements(user.id);
   }, []);
 
   return (

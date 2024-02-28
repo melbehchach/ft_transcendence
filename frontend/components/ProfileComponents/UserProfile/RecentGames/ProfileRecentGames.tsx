@@ -41,6 +41,7 @@ function ProfileRecentGames({ player }: Props) {
             withCredentials: true,
           }
         );
+        // @ts-ignore
         setAvatarObj2({
           src: response.data.avatar,
           width: 100,
@@ -76,6 +77,7 @@ function ProfileRecentGames({ player }: Props) {
     imageStyle: "w-[4rem] h-[4rem] rounded-full object-cover",
     fontSize: "text-sm",
     positiosn: true,
+    existStatos: false,
   };
 
   return (

@@ -2,7 +2,6 @@ import { useRouter } from "next/navigation";
 import { AvatarProps, ProfileData } from "../../../types/Avatar.type";
 import Avatar from "../../../Avatar/Avatar";
 
-
 type props = {
   usersData: any;
 };
@@ -10,6 +9,7 @@ type props = {
 function ChannelsField({ usersData }: props) {
   const router = useRouter();
   const channels: any = usersData();
+  // @ts-ignore
   let avatarObj: AvatarProps = {
     src: "",
     userName: "",
@@ -34,7 +34,10 @@ function ChannelsField({ usersData }: props) {
     <div className="w-full text-white relative flex flex-col gap-[1.5rem]">
       {channels.length > 0 ? (
         channels.map((channel) => (
-          <div className="w-fit h-fit  flex flex-row items-center" key={channel.id}>
+          <div
+            className="w-fit h-fit  flex flex-row items-center"
+            key={channel.id}
+          >
             <Avatar
               avatarObj={{
                 ...avatarObj,

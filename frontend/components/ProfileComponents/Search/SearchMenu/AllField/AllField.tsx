@@ -25,6 +25,7 @@ function AllField({ usersData }: ModalSearch) {
     imageStyle: "w-[4rem] h-[4rem] rounded-full",
     fontSize: "text-base",
     positiosn: false,
+    //@ts-ignore
     statos: false,
   };
 

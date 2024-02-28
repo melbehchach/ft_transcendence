@@ -54,7 +54,6 @@ const Channel = ({ channel, setSelectedChat, closeModal }) => {
               type="paragraphe"
               variant="body2"
               colorVariant="secondary"
-              
             />
             <div className="flex gap-1 items-center">
               {channel.type === "PUBLIC" ? (
@@ -105,9 +104,11 @@ const ExplorChannels = ({ setSelectedChat }) => {
     exploreChannels().then((res) => {
       setChannels(res);
     });
+    // @ts-ignore
     modalRef?.current?.showModal();
   }
   function closeModal() {
+    // @ts-ignore
     modalRef?.current.close();
   }
   const { exploreChannels } = useChat();
@@ -136,24 +137,26 @@ const ExplorChannels = ({ setSelectedChat }) => {
         }}
         // actions={step === 1 ? NewChannelActions : null}
       >
-        {channels.length === 0 && (
-          <Typography
-            content="no channels to explore"
-            type="header"
-            variant="secondaryTitle"
-          />
-        )}
-        {channels.map((channel, key) => {
-          return (
-            <div key={key}>
-              <Channel
-                channel={channel}
-                closeModal={closeModal}
-                setSelectedChat={setSelectedChat}
-              />
-            </div>
-          );
-        })}
+        <>
+          {channels?.length === 0 && (
+            <Typography
+              content="no channels to explore"
+              type="header"
+              variant="secondaryTitle"
+            />
+          )}
+          {channels?.map((channel, key) => {
+            return (
+              <div key={key}>
+                <Channel
+                  channel={channel}
+                  closeModal={closeModal}
+                  setSelectedChat={setSelectedChat}
+                />
+              </div>
+            );
+          })}
+        </>
       </Modal>
     </>
   );
