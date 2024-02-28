@@ -122,8 +122,12 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           type: actionTypes.LOAD_PROFILE_DATA,
           payload: { profile: { ...response.data, id } },
         });
-      } else throw new Error("bad req");
-    } catch (error) {}
+      } else {
+        throw new Error("bad req");
+      }
+    } catch (error) {
+      throw new Error("bad req");
+    }
   }
 
   async function fetchRecentGames(id: string) {
@@ -260,8 +264,8 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     });
     if (response.ok) {
       const res = await response.json();
-      const r = await fetchData()
-      await Promise.all([res, r])
+      const r = await fetchData();
+      await Promise.all([res, r]);
       if (res.TFA) {
         dispatch({ type: actionTypes.TFA, payload: { tfa: res.TFA } });
       } else {

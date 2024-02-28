@@ -80,6 +80,7 @@ const Chat = () => {
       if ((m = res.mutedMembers.find((elem) => elem.userId === user.id))) {
         let currentTime = new Date();
         let givenTime = new Date(m.time);
+        // @ts-ignore
         let timeDifference = currentTime - givenTime;
         let minutesPassed = timeDifference / (1000 * 60);
         setIsDisabled(minutesPassed < 5 ? true : false);

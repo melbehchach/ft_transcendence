@@ -10,6 +10,7 @@ type ProfileSearchProps = {
 function UsersField({ usersData }: ProfileSearchProps) {
   const router = useRouter();
   const users: ProfileData[] = usersData();
+  // @ts-ignore
   let avatarObj: AvatarProps = {
     src: "",
     userName: "",

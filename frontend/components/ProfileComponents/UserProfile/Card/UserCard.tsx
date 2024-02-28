@@ -22,13 +22,20 @@ function UserCard({ setBlocker, setBlocked, id }: props) {
 
   const param = useParams();
 
+  function idShot() {
+    if (!id) return param.id;
+    return id;
+  }
+
   useEffect(() => {
-    if (!id) {
-      fetchData(param.id);
-    } else {
-      fetchData(id);
-    }
-  }, [id]);
+    setTimeout(() => {
+      if (!id) {
+        fetchData(param.id);
+      } else {
+        fetchData(id);
+      }
+    }, 10);
+  }, []);
 
   return (
     <div className="w-[25rem] h-full p-[0.5rem]  gap-[1rem] text-white flex flex-col border border-black border-solid rounded-[15px]">
@@ -43,7 +50,7 @@ function UserCard({ setBlocker, setBlocked, id }: props) {
             fontSize: "text-2xl font-bold",
             positiosn: true,
             existStatos: true,
-            statos: profile?.status,
+            statos: profile.status,
           }}
         />
       </div>
@@ -51,7 +58,7 @@ function UserCard({ setBlocker, setBlocked, id }: props) {
       <FriendshipState
         setBlocker={setBlocker}
         setBlocked={setBlocked}
-        id={param.id ? param.id : id ? id : param.id}
+        id={idShot}
       />
       <Scores />
       <Achievements />

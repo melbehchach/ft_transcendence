@@ -77,15 +77,14 @@ export default function RandomMatch({
   setLoading,
   setrules,
   setIssue,
+  loading,
   issue,
 }: any) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [socket, setSocket] = useState<Socket>();
   const [playerY, setPlayerY] = useState(canvasHeight / 2 - 50);
   const [openentY, setOpenentY] = useState(canvasHeight / 2 - 50);
-  const {
-    state: { user },
-  } = useAuth();
+  const { state: { user }, changeStatus} = useAuth();
   const router = useRouter();
   const upadateTotalWinsAndLoses = async (
     winnerId: string,
@@ -111,7 +110,7 @@ export default function RandomMatch({
         console.log("ending game error");
       });
   };
-
+  console.log("loading", loading);
   const Player: Player = {
     x: 10,
     y: canvasHeight / 2 - 50,
@@ -205,6 +204,10 @@ export default function RandomMatch({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerY, openentY, ballX, ballY]);
 
+  window.onbeforeunload = function() {
+    console.log("reload");
+};
+
   const keyPress = (e: any) => {
     if (e.keyCode === 38) {
       socket?.emit("move", {
@@ -272,19 +275,22 @@ export default function RandomMatch({
       socket.on("CheckingWinner", (data: any) => {
         if (data.player === cookie.get("USER_ID") && data.playerScore === 3) {
           upadateTotalWinsAndLoses(data.player, data.opponent);
+          changeStatus({ status: "ONLINE" });
+          router.push("/game/win");
         }
         if (
           data.opponent === cookie.get("USER_ID") &&
           data.opponentScore === 3
         ) {
           upadateTotalWinsAndLoses(data.opponent, data.player);
-          changeStatus({ status: "ONLINE" });
           router.push("/game/win");
         }
         if (data.player === cookie.get("USER_ID") && data.playerScore < 3) {
+          changeStatus({ status: "ONLINE" });
           router.push("/game");
         }
         if (data.opponent === cookie.get("USER_ID") && data.opponentScore < 3) {
+          changeStatus({ status: "ONLINE" });
           router.push("/game");
         }
       });
@@ -311,19 +317,17 @@ export default function RandomMatch({
           });
         }, 5000);
       });
-      socket.on("PlayerDisconnected", (data: any) => {
-        console.log("hello");
+      socket.on("NetworkIssue", (data: any) => {
         setIssue(true);
+        if (data.player === cookie.get("USER_ID")) {
+          changeStatus({ status: "ONLINE" });
+          router.push("/game/issue");
+        } else if (data.opponent === cookie.get("USER_ID")) {
+          changeStatus({ status: "ONLINE" });
+          router.push("/game/decline");
+        }
         socket.off("BallMoved");
         socket.off("updateScore");
-        changeStatus({ status: "ONLINE" });
-      });
-      socket.on("OpponentDisconnected", (data: any) => {
-        console.log("bye");
-        setIssue(true);
-        socket.off("BallMoved");
-        socket.off("updateScore");
-        changeStatus({ status: "ONLINE" });
       });
       socket.on("SubmiteScore", (data: any) => {
         socket.emit("GameIsOver", { data });
@@ -344,3 +348,5 @@ export default function RandomMatch({
     </div>
   );
 }
+
+

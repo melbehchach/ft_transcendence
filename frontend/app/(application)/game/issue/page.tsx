@@ -3,20 +3,16 @@ import { useRouter } from "next/navigation";
 import GameModalComponent from "../../../../components/Game/Modal";
 import PongAnimation from "../../../../public/img/PongAnimation.json";
 import Lottie from "lottie-react";
-import DeclineGame from "../decline/page";
 
 export default function DeclineModal() {
   const router = useRouter();
-  const cancelCallback = () => router.push("/game");
-  const btn1Callback = () => router.push("/game");
+  const cancelCallback = () => router.push("/profile");
+  const btn1Callback = () => router.push("/profile");
   const content = (
     <div className="h-3/4 flex justify-center content-center bg-black rounded-xl my-6">
       <Lottie className="mb-5 rounded-lg" animationData={PongAnimation} />
     </div>
   );
-  setTimeout(() => {
-    router.push("/game/decline");
-  }, 5000);
   return (
     <>
       <GameModalComponent
@@ -27,7 +23,7 @@ export default function DeclineModal() {
         btn1="Exit"
         btn1Callback={btn1Callback}
         btn2={null}
-        btn2Callback={null}
+        btn2Callback={cancelCallback}
       ></GameModalComponent>
       ;
     </>

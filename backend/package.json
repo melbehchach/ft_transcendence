@@ -14,7 +14,7 @@
     "db:rm": "docker-compose rm database -sfv",
     "db:restart": "npm run db:rm && npm run db:up",
     "db:logs": "docker logs postgres",
-    "build": "nest build",
+    "build": "npm run prisma:dev && nest build && nest start",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "npm run prisma:dev && nest start --watch",

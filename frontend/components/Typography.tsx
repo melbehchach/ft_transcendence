@@ -16,7 +16,7 @@ const Header = ({
   variant: string;
   colorVariant: string;
   content: string;
-  style?: React.CSSProperties;
+  style?: any;
 }) => {
   return (
     <h1
@@ -46,7 +46,7 @@ const Paragraphe = ({
   variant: string;
   colorVariant: string;
   content: string;
-  style?: React.CSSProperties;
+  style?: any;
 }) => {
   return (
     <p
@@ -72,7 +72,7 @@ const Typography = ({
   variant: string;
   colorVariant?: string;
   content: string;
-  style?: React.CSSProperties;
+  style?: any;
 }) => {
   switch (type) {
     case "header":

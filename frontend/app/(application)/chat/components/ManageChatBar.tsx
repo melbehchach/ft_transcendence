@@ -7,7 +7,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { useChat } from "../../../context/ChatContext";
 
 const ManageChatBar = ({ chat }) => {
-  const [owner, setOwner] = useState();
+  const [owner, setOwner] = useState(null);
   const [channel, setChannel] = useState(null);
   const {
     fetchData,
@@ -45,7 +45,7 @@ const ManageChatBar = ({ chat }) => {
             colorVariant="secondary"
           />
         </div>
-        <UserAvatar name={owner.username} src={owner.avatar} />
+        <UserAvatar name={owner?.username} src={owner?.avatar} />
       </div>
       {channel.admins?.length > 0 && (
         <div className="flex flex-col justify-center gap-2 py-2">
@@ -61,84 +61,81 @@ const ManageChatBar = ({ chat }) => {
             let mem = members.find((elem) => elem.id === m.id);
             if (mem)
               return (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center"
-                  >
-                    <UserAvatar src={mem.avatar} name={mem.username} />
-                    {(user.id === owner.id ||
-                      channel.admins.find((e) => e.id === user.id)) && (
-                      <>
-                        <div className="dropdown bg-transparent">
-                          <div tabIndex={0} role="button" className="">
-                            <FontAwesomeIcon
-                              icon={faEllipsisVertical}
-                              className="w-6 h-6 text-white rounded-full"
-                            />
-                          </div>
-                          <ul
-                            tabIndex={0}
-                            className="dropdown-content z-[1] menu p-2 shadow bg-gray-600 rounded-box pos w-fit"
-                          >
-                            <li
-                              className="w-[200px]"
-                              onClick={() => {
-                                makeAdmin(
-                                  chat.id,
-                                  mem.id,
-                                  !channel.admins.find(
-                                    (elem) => elem.id === mem.id
-                                  )
-                                );
-                              }}
-                            >
-                              <Typography
-                                content="Remove admine"
-                                type="paragraphe"
-                                variant="body2"
-                              />
-                            </li>
-                            <li
-                              className="w-[200px]"
-                              onClick={() => {
-                                mute(chat.id, [mem.id]);
-                              }}
-                            >
-                              <Typography
-                                content="Mute"
-                                type="paragraphe"
-                                variant="body2"
-                              />
-                            </li>
-                            <li
-                              className="w-[200px]"
-                              onClick={() => {
-                                kick(chat.id, [mem.id]);
-                              }}
-                            >
-                              <Typography
-                                content="Kick"
-                                type="paragraphe"
-                                variant="body2"
-                              />
-                            </li>
-                            <li
-                              className="w-[200px]"
-                              onClick={() => {
-                                ban(chat.id, mem.id);
-                              }}
-                            >
-                              <Typography
-                                content="Ban"
-                                type="paragraphe"
-                                variant="body2"
-                              />
-                            </li>
-                          </ul>
+                <div key={index} className="flex justify-between items-center">
+                  <UserAvatar src={mem.avatar} name={mem.username} />
+                  {(user.id === owner.id ||
+                    channel.admins.find((e) => e.id === user.id)) && (
+                    <>
+                      <div className="dropdown bg-transparent">
+                        <div tabIndex={0} role="button" className="">
+                          <FontAwesomeIcon
+                            icon={faEllipsisVertical}
+                            className="w-6 h-6 text-white rounded-full"
+                          />
                         </div>
-                      </>
-                    )}
-                  </div>
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[1] menu p-2 shadow bg-gray-600 rounded-box pos w-fit"
+                        >
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              makeAdmin(
+                                chat.id,
+                                mem.id,
+                                !channel.admins.find(
+                                  (elem) => elem.id === mem.id
+                                )
+                              );
+                            }}
+                          >
+                            <Typography
+                              content="Remove admine"
+                              type="paragraphe"
+                              variant="body2"
+                            />
+                          </li>
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              mute(chat.id, [mem.id]);
+                            }}
+                          >
+                            <Typography
+                              content="Mute"
+                              type="paragraphe"
+                              variant="body2"
+                            />
+                          </li>
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              kick(chat.id, [mem.id]);
+                            }}
+                          >
+                            <Typography
+                              content="Kick"
+                              type="paragraphe"
+                              variant="body2"
+                            />
+                          </li>
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              ban(chat.id, mem.id);
+                            }}
+                          >
+                            <Typography
+                              content="Ban"
+                              type="paragraphe"
+                              variant="body2"
+                            />
+                          </li>
+                        </ul>
+                      </div>
+                    </>
+                  )}
+                </div>
               );
           })}
         </div>
@@ -156,76 +153,76 @@ const ManageChatBar = ({ chat }) => {
           let mem = members.find((elem) => elem.id === m.id);
           if (mem)
             return (
-                <div key={index} className="flex justify-between items-center">
-                  <UserAvatar src={mem.avatar} name={mem.username} />
-                  {(user.id === owner.id ||
-                    channel.admins.find((e) => e.id === user.id)) &&
-                    owner.id !== mem.id && (
-                      <>
-                        <div className="dropdown bg-transparent">
-                          <div tabIndex={0} role="button" className="">
-                            <FontAwesomeIcon
-                              icon={faEllipsisVertical}
-                              className="w-6 h-6 text-white rounded-full"
-                            />
-                          </div>
-                          <ul
-                            tabIndex={0}
-                            className="dropdown-content z-[1] menu p-2 shadow bg-gray-600 rounded-box pos w-fit"
-                          >
-                            <li
-                              className="w-[200px]"
-                              onClick={() => {
-                                makeAdmin(chat.id, mem.id, true);
-                              }}
-                            >
-                              <Typography
-                                content="Make admine"
-                                type="paragraphe"
-                                variant="body2"
-                              />
-                            </li>
-                            <li
-                              className="w-[200px]"
-                              onClick={() => {
-                                mute(chat.id, [mem.id]);
-                              }}
-                            >
-                              <Typography
-                                content="Mute"
-                                type="paragraphe"
-                                variant="body2"
-                              />
-                            </li>
-                            <li
-                              className="w-[200px]"
-                              onClick={() => {
-                                kick(chat.id, [mem.id]);
-                              }}
-                            >
-                              <Typography
-                                content="Kick"
-                                type="paragraphe"
-                                variant="body2"
-                              />
-                            </li>
-                            <li
-                              className="w-[200px]"
-                              onClick={() => {
-                                ban(chat.id, mem.id);
-                              }}
-                            >
-                              <Typography
-                                content="Ban"
-                                type="paragraphe"
-                                variant="body2"
-                              />
-                            </li>
-                          </ul>
+              <div key={index} className="flex justify-between items-center">
+                <UserAvatar src={mem.avatar} name={mem.username} />
+                {(user.id === owner.id ||
+                  channel.admins.find((e) => e.id === user.id)) &&
+                  owner.id !== mem.id && (
+                    <>
+                      <div className="dropdown bg-transparent">
+                        <div tabIndex={0} role="button" className="">
+                          <FontAwesomeIcon
+                            icon={faEllipsisVertical}
+                            className="w-6 h-6 text-white rounded-full"
+                          />
                         </div>
-                      </>
-                    )}
-                </div>
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content z-[1] menu p-2 shadow bg-gray-600 rounded-box pos w-fit"
+                        >
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              makeAdmin(chat.id, mem.id, true);
+                            }}
+                          >
+                            <Typography
+                              content="Make admine"
+                              type="paragraphe"
+                              variant="body2"
+                            />
+                          </li>
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              mute(chat.id, [mem.id]);
+                            }}
+                          >
+                            <Typography
+                              content="Mute"
+                              type="paragraphe"
+                              variant="body2"
+                            />
+                          </li>
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              kick(chat.id, [mem.id]);
+                            }}
+                          >
+                            <Typography
+                              content="Kick"
+                              type="paragraphe"
+                              variant="body2"
+                            />
+                          </li>
+                          <li
+                            className="w-[200px]"
+                            onClick={() => {
+                              ban(chat.id, mem.id);
+                            }}
+                          >
+                            <Typography
+                              content="Ban"
+                              type="paragraphe"
+                              variant="body2"
+                            />
+                          </li>
+                        </ul>
+                      </div>
+                    </>
+                  )}
+              </div>
             );
         })}
       </div>

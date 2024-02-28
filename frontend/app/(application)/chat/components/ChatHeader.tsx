@@ -51,23 +51,29 @@ const ChatHeader = ({ headerInfo, chat }) => {
   }, [chat, allChats]);
 
   useEffect(() => {
-    if (chat.name) {
+    if (chat?.name) {
       let c = allChats.find((cha) => chat.id === cha.id);
-      if (c)
+      if (channel && c) {
         dispatch({
           type: newChannelActionTypes.UPDATE_STATE,
           payload: {
-            avatar: c.image,
-            channelName: c.name,
-            type: c.type === "PUBLIC" ? 0 : c.type === "PROTECTED" ? 1 : 2,
-            members: c.Members.filter((elem) => elem.id !== user.id).map(
+            avatar: channel.image,
+            channelName: channel.name,
+            type:
+              channel.type === "PUBLIC"
+                ? 0
+                : channel.type === "PROTECTED"
+                ? 1
+                : 2,
+            members: channel.Members.filter((elem) => elem.id !== user.id).map(
               (elem) => elem.id
             ),
             password: c?.password,
           },
         });
+      }
     }
-  }, [chat, allChats, channel]);
+  }, [channel]);
   const NewChannelActions =
     !chat?.name || !state ? (
       <></>
@@ -84,12 +90,12 @@ const ChatHeader = ({ headerInfo, chat }) => {
           onClick={async () => {
             try {
               let mem = allChats.find((c) => c.id === chat.id);
-              let newMembers = state.members.filter(
-                (elem) => !mem.Members.find((l) => l.id === elem)
+              let newMembers = state.members?.filter(
+                (elem) => !mem?.Members?.find((l) => l.id === elem)
               );
-              let kickedMembers = mem.Members.filter(
+              let kickedMembers = mem?.Members?.filter(
                 (elem) =>
-                  !state.members.find((l) => l === elem.id) &&
+                  !state?.members?.find((l) => l === elem.id) &&
                   elem.id !== chat.owner.id
               );
               let arr = [];
@@ -131,9 +137,11 @@ const ChatHeader = ({ headerInfo, chat }) => {
       </>
     );
   function openModel() {
+    // @ts-ignore
     modalRef?.current?.showModal();
   }
   function closeModal() {
+    // @ts-ignore
     modalRef?.current.close();
   }
   return (

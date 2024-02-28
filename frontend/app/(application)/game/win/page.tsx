@@ -6,9 +6,9 @@ import WinnerAnimation from "../../../../public/svg/winner.json";
 
 export default function WinnerGame() {
   const router = useRouter();
-  const cancelCallback = () => router.push("/game");
+  const cancelCallback = () => router.push("/profile");
   const content = (
-    <div className="h-3/4 flex justify-center content-center bg-black rounded-xl my-6 bg-background">
+    <div className="h-3/4 flex justify-center content-center rounded-xl my-6 bg-background">
       <Lottie className="mb-5 rounded-lg" animationData={WinnerAnimation} />
     </div>
   );
