@@ -32,7 +32,7 @@ function AddFriend({ card, setBlocked, setBlocker }: Props) {
           .then(() => fetchFriendsReqData());
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
 

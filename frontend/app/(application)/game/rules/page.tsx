@@ -5,7 +5,7 @@ import GameModalComponent from "../../../../components/Game/Modal";
 
 export default function GameRules({setLoading, setrules}: any)  {
   const router = useRouter();
-  const [counter, setCounter] = useState(5);
+  const [counter, setCounter] = useState(3);
   useEffect(() => {
     if (counter > 0) {
       const timer = setTimeout(() => {

@@ -321,7 +321,7 @@ export default function InviteMatch({
               setOpponentScore(data.playerScore);
             }
           });
-        }, 5000);
+        }, 3000);
       });
       socket.on("NetworkIssue", (data: any) => {
         if (data.player === cookie.get("USER_ID")) {

@@ -54,7 +54,7 @@ function AcceptFriend({ isCard, profileId }: props) {
           });
       } else throw new Error("bad req");
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   }
 
