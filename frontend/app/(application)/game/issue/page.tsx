@@ -3,11 +3,21 @@ import { useRouter } from "next/navigation";
 import GameModalComponent from "../../../../components/Game/Modal";
 import PongAnimation from "../../../../public/img/PongAnimation.json";
 import Lottie from "lottie-react";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:3000/game");
 
 export default function DeclineModal() {
   const router = useRouter();
-  const cancelCallback = () => router.push("/profile");
-  const btn1Callback = () => router.push("/profile");
+  const cancelCallback = () => {
+    socket.emit("leaveTheRandomGame");
+    router.push("/profile");
+  };
+
+  const btn1Callback = () => {
+    socket.emit("leaveTheRandomGame");
+    router.push("/profile");
+  };
   const content = (
     <div className="h-3/4 flex justify-center content-center bg-black rounded-xl my-6">
       <Lottie className="mb-5 rounded-lg" animationData={PongAnimation} />
