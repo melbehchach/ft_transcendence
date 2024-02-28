@@ -20,18 +20,20 @@ function ChallengeFriend({ isFriendCard, id }: props) {
   } = useAuth();
 
   function handleClick() {
+    console.log("id:   ", {id});
     if (id) {
-      friends.friends.map((friend, index) => {
-        GameRequest(id);
-      })
+      // console.log("hi");
+      friends?.friends?.forEach((friend) => {
+        if (friend.id === id) {
+          GameRequest(friend.id);
+        }
+      });
     }
-    else if (param.id){
+    else if (param.id) {
       GameRequest(param.id);
     }
-    else {
-      GameRequest();
-    }
   }
+
   const className1: string =
     "w-full h-[2.5rem] p-[1rem] flex items-center gap-3 text-white border border-gray-500 rounded-[8px] hover:bg-primary/5";
   const className2: string =
