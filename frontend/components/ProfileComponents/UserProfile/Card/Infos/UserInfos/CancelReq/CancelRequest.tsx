@@ -38,7 +38,7 @@ function CancelRequest({ card }: props) {
         ).then(() => {fetchFriendsReqData()})
       } else throw new Error("bad req");
     } catch (error) {
-      console.log("an error occured");
+      // console.log("an error occured");
     }
   }
 

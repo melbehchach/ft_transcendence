@@ -110,7 +110,7 @@ export default function RandomMatch({
         console.log("ending game error");
       });
   };
-  console.log("loading", loading);
+  // console.log("loading", loading);
   const Player: Player = {
     x: 10,
     y: canvasHeight / 2 - 50,
@@ -203,10 +203,6 @@ export default function RandomMatch({
     gameLoop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerY, openentY, ballX, ballY]);
-
-  window.onbeforeunload = function() {
-    console.log("reload");
-};
 
   const keyPress = (e: any) => {
     if (e.keyCode === 38) {
@@ -315,7 +311,7 @@ export default function RandomMatch({
               setOpponentScore(data.playerScore);
             }
           });
-        }, 5000);
+        }, 3000);
       });
       socket.on("NetworkIssue", (data: any) => {
         setIssue(true);

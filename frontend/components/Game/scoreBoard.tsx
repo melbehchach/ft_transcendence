@@ -13,7 +13,7 @@ export default function ScoreBoard({
 }: any) {
   const router = useRouter();
 
-
+  console.log(opponentScore, playerScore);
   return (
     <>
       <div className="flex justify-between items-center p-5 ml-0 my-5  mr-40">

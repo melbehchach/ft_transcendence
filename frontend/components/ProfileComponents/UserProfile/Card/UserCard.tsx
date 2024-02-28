@@ -30,7 +30,7 @@ function UserCard({ setBlocker, setBlocked, id }: props) {
 
   const idd = useMemo(() => {
 
-    console.log({ chat: allChats.find(elem => elem.id === selectedChat), selectedChat })
+    // console.log({ chat: allChats.find(elem => elem.id === selectedChat), selectedChat })
     const chat = allChats.find((elem) => elem.id === selectedChat)
     return user.id !== chat?.user2Id ? chat?.user2Id : chat.user1Id
   }, [allChats, selectedChat])
@@ -39,7 +39,7 @@ function UserCard({ setBlocker, setBlocked, id }: props) {
   }
   useEffect(() => {
     t()
-    console.log({ idd })
+    // console.log({ idd })
   }, [idd])
   if (!p) return;
   return (

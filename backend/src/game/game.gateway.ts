@@ -84,9 +84,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
             x: this.canvasWidth / 2,
             y: this.canvasHeight / 2,
             radius: 10,
-            velocityX: 0.0005,
-            velocityY: 0.0005,
-            speed: 0.01,
+            velocityX: 10,
+            velocityY: 10,
+            speed: 1,
           },
         };
         this.MapGames.set(room, gameState);
@@ -158,9 +158,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('RandomMatch')
   async createRandomMatch(socket: Socket, ...args: any[]): Promise<void> {
-    console.log('the player in the queue in the enter of the game [[[[[[333333]]]]', this.gameQueue);
-    console.log('the game queue lenght is :: ', this.gameQueue.length);
-    
     try {
       const playeId: string = socket.handshake.auth.token;
       const ObjectPlayer = {
@@ -173,15 +170,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         velocityY: 0,
         height: 150,
       };
-      if (!this.gameQueue.some((player) => player.id === ObjectPlayer.id)) {
-        console.log('the player pushed to the queue [[6666666]]', this.gameQueue);        
+      if (!this.gameQueue.some((player) => player.id === ObjectPlayer.id)) {     
         this.gameQueue.push(ObjectPlayer);
-        console.log('the player pushed to the queue [[7777777]]', this.gameQueue);
       }
-      if (this.gameQueue.length === 2) {
-        console.log('[[[44444444]]]] the queue lenght iis : ', this.gameQueue.length);
-        console.log('[[[55555555]]]] the queue iis : ', this.gameQueue);
-        
+      if (this.gameQueue.length === 2) {    
         const player = this.gameQueue.shift();
         const opponent = this.gameQueue.shift();
         const room = uuidv4();
@@ -363,23 +355,25 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       )
         room.ball.velocityY = -room.ball.velocityY;
       if (room.ball.x - room.ball.radius < 0) {
+        console.log('oppe score', room.player2Obj.score);
         room.player2Obj.score++;
         this.resetBall(currentGameRoom);
       } else if (room.ball.x + room.ball.radius > this.canvasWidth) {
+        console.log('player score', room.player2Obj.score);
         room.player1Obj.score++;
         this.resetBall(currentGameRoom);
       }
-      this.server.to(room.roomName).emit('updateScore', {
-        player: room.player1Obj.id,
-        playerScore: room.player1Obj.score,
-        opponentScore: room.player2Obj.score,
-        room: room.roomName,
-      });
       this.server.to(room.roomName).emit('BallMoved', {
         x: room.ball.x,
         y: room.ball.y,
         player: room.player1Obj.id,
         opponent: room.player2Obj.id,
+      });
+      this.server.to(room.roomName).emit('updateScore', {
+        player: room.player1Obj.id,
+        playerScore: room.player1Obj.score,
+        opponentScore: room.player2Obj.score,
+        room: room.roomName,
       });
     });
   }

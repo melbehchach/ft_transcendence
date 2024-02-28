@@ -20,7 +20,6 @@ function ChallengeFriend({ isFriendCard, id }: props) {
   } = useAuth();
 
   function handleClick() {
-    console.log("id:   ", {id});
     if (id) {
       // console.log("hi");
       friends?.friends?.forEach((friend) => {
