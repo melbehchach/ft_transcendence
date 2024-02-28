@@ -125,7 +125,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       } else {
         throw new Error("bad req");
       }
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async function fetchRecentGames(id: string) {
@@ -143,7 +143,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           payload: { recentGames: response.data },
         });
       } else throw new Error("bad req");
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async function fetchAchievements(id: string) {
@@ -161,7 +161,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           payload: { achievements: response.data },
         });
       } else throw new Error("bad req");
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async function fetchNotifications() {
@@ -179,7 +179,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           payload: { notifications: response.data },
         });
       } else throw new Error("bad req");
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async function fetchFriendsReqData() {
@@ -197,7 +197,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           payload: { friendRequests: response.data },
         });
       } else throw new Error("bad req");
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async function fetchFriendsData() {
@@ -215,7 +215,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           payload: { friends: response.data },
         });
       } else throw new Error("bad req");
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async function manageFreindReq(id: string, type: string) {
@@ -244,7 +244,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         fetchFriendsReqData();
         fetchFriendsData();
       }
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async function login(username: string, password: string) {
@@ -270,14 +270,14 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         } else {
           dispatch({ type: actionTypes.LOGIN, payload: { user: null } });
         }
+      } else {
+        throw new Error();
       }
-      else { throw new Error() };
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
     }
   }
-  
+
   async function changeStatus({ status }) {
     try {
       if (jwt_token) {
@@ -294,7 +294,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
           }
         );
       } else throw new Error("bad req");
-    } catch (error) { }
+    } catch (error) {}
   }
   const getUserInfo = (id) => {
     if (id === state.user.id) return state.user;
@@ -345,7 +345,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
             },
           }
         )
-        .then((res) => { })
+        .then((res) => {})
         .catch((error) => {
           console.log(error.response.data);
         });
