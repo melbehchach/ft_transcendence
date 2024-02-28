@@ -28,26 +28,26 @@ function FriendshipState({ setBlocker, setBlocked, id }: props) {
   const buttonType = useMemo(() => {
     if (
       friendRequests?.sentRequests.find(
-        (elem) => elem.receiverId === profile.id && elem.status === "PENDING"
+        (elem) => elem.receiverId === id && elem.status === "PENDING"
       )
     ) {
       return "cancel";
     } else if (
       friendRequests?.receivedRequests.find(
-        (elem) => elem.senderId === profile.id && elem.status === "PENDING"
+        (elem) => elem.senderId === id && elem.status === "PENDING"
       )
     ) {
       return "accept";
-    } else if (friends?.friends.find((elem) => elem.id === profile.id)) {
+    } else if (friends?.friends.find((elem) => elem.id === id)) {
       return "challenge";
-    } else if (user.blockedByUsers.find((elem) => elem.id === param.id)) {
+    } else if (user.blockedByUsers.find((elem) => elem.id === id)) {
       return "bolcked";
-    } else if (user.blockedUsers.find((elem) => elem.id === param.id)) {
+    } else if (user.blockedUsers.find((elem) => elem.id === id)) {
       return "unblock";
     } else {
       return "add";
     }
-  }, [friendRequests, friends, profile, user]);
+  }, [friendRequests, friends,  user]);
 
   useEffect(() => {
     fetchFriendsData();
@@ -56,7 +56,7 @@ function FriendshipState({ setBlocker, setBlocked, id }: props) {
 
   return (
     <div className="w-full">
-      {buttonType === "add" && profile.id != user.id && (
+      {buttonType === "add"  && (
         <div className="flex justify-center flex-row gap-3">
           <AddFriend
             card={false}
@@ -66,36 +66,36 @@ function FriendshipState({ setBlocker, setBlocked, id }: props) {
           <BlockUser isFriend={false} setBlocker={setBlocker} />
         </div>
       )}
-      {buttonType === "cancel" && profile.id != user.id && (
+      {buttonType === "cancel"  && (
         <div className="flex justify-center flex-row gap-3">
           <CancelRequest card={false} />
         </div>
       )}
-      {buttonType === "accept" && profile.id != user.id && (
+      {buttonType === "accept"  && (
         <div className="flex justify-center flex-row gap-3">
           <AcceptFriend isCard={true} profileId="" />
         </div>
       )}
-      {buttonType === "challenge" && profile.id != user.id && (
+      {buttonType === "challenge"  && (
         <div className="flex justify-center flex-row gap-2">
           <ChallengeFriend
             isFriendCard={false}
-            id={param.id ? param.id : id ? id : undefined}
+            id={id}
           />
           <MessageFriend isFriendCard={false} />
           <BlockUser
             isFriend={true}
             setBlocker={setBlocker}
-            id={param.id ? param.id : id ? id : undefined}
+            id={id}
           />
         </div>
       )}
-      {buttonType === "unblock" && profile.id != user.id && (
+      {buttonType === "unblock"  && (
         <div className="flex justify-center flex-row gap-3">
           <UnblockUser setBlocker={setBlocker} />
         </div>
       )}
-      {buttonType === "bolcked" && profile.id != user.id && (
+      {buttonType === "bolcked"  && (
         <div className="flex justify-center flex-row gap-3">
           <BlockedBy setBlocked={setBlocked} />
         </div>

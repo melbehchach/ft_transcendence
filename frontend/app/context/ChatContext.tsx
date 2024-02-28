@@ -40,6 +40,7 @@ const ChatSocketContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(chatReducer, initialeState);
   const {
     fetchData,
+    fetchFriendsData,
     state: { user, friends },
   } = useAuth();
   const jwt_token = Cookies.get("JWT_TOKEN");
@@ -449,6 +450,7 @@ const ChatSocketContextProvider = ({ children }) => {
   }
 
   useEffect(() => {
+    fetchFriendsData()
     const newSocket: Socket = io("http://localhost:3000/direct-messages", {
       auth: {
         jwt_token: Cookies.get("JWT_TOKEN"),
@@ -470,13 +472,7 @@ const ChatSocketContextProvider = ({ children }) => {
     };
   }, []);
 
-  // const getMessageSender = (id) => {
-  //   if (friends) {
-  //     let friend = friends?.friends.find((friend) => friend.id === id);
-  //     return friend;
-  //   }
-  //   return user;
-  // };
+
 
   useEffect(() => {
     if (socket) {
