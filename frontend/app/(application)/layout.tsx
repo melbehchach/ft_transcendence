@@ -46,7 +46,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     
     return (() => {
-      console.log('[[[[000000000]]]]the emit of the refresh in the layout');
       socket.emit('leaveBeforeStart')
     })  
   })

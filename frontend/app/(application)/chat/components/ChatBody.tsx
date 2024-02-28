@@ -7,14 +7,16 @@ import { useAuth } from "../../../context/AuthContext";
 const ChatBody = ({ selectedChat }) => {
   const {
     state: { allChats },
+    getAllChats,
   } = useChat();
-  const { state : {user} } = useAuth()
+  const { state : {user, friends} } = useAuth()
   const containerRef = useRef(null);
   const scrollToBottom = () => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   };
+  
   const messages = useMemo(() => {
     if (allChats) {
       let chat = allChats.find((chat) => chat.id === selectedChat);
@@ -29,7 +31,9 @@ const ChatBody = ({ selectedChat }) => {
       else return chat?.messages;
     }
     return [];
-  }, [allChats, selectedChat]);
+  }, [allChats, selectedChat, friends]);
+
+  useEffect(() => {getAllChats()}, [])
 
   useEffect(() => {
     scrollToBottom();

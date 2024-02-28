@@ -64,7 +64,7 @@ export class AuthService {
       if (req.user.TFAenabled) {
         res.redirect('http://localhost:3001/auth/TFA');
       } else {
-        res.redirect('http://localhost:3001/profile');
+        res.redirect('http://localhost:3001/auth/login');
       }
     } else {
       const userToken = await this.jwtService.signAsync({

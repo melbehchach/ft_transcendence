@@ -35,17 +35,12 @@ const withAuth = (WrappedComponent: React.ComponentType<any>) => {
       const jwt_token = Cookies.get("JWT_TOKEN");
       checkToken(jwt_token)
         .then(() => {
-          if (!isAuthenticated) router.push("/auth/login");
-          fetchFriendsReqData().then(() => {
-            fetchFriendsData().then(() => {
-              if (window.location.pathname === "/profile")
+          if (window.location.pathname === "/profile")
                 router.push("/profile");
               if (window.location.pathname === "/game") router.push("/game");
               if (window.location.pathname === "/chat") router.push("/chat");
               if (window.location.pathname === "/game/random")
                 router.push("/game/issue");
-            });
-          });
         })
         .catch(() => {
           router.push("/auth/login");
